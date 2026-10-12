@@ -2874,7 +2874,10 @@ function startPDFExtraction() {
 }
 
 
+
 function showPDFPageSelection() {
+    const panel = document.getElementById("pdfPageSelectionBox");
+
     if (!selectedPDFFile) {
         showStatus(
             "pdfExtractionStatus",
@@ -2884,14 +2887,31 @@ function showPDFPageSelection() {
         return;
     }
 
-    const panel = document.getElementById("pdfPageSelectionBox");
-
-    if (panel) {
-        panel.style.display = "block";
-        panel.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest"
-        });
+    if (!panel) {
+        console.error("PDF page selection panel was not found.");
+        return;
     }
-}
 
+    // Show the page-selection options only after the button is clicked.
+    panel.style.display = "block";
+
+    // Reset the selection to All pages each time the panel opens.
+    const allPagesOption = document.querySelector(
+        'input[name="pdfPageMode"][value="all"]'
+    );
+
+    if (allPagesOption) {
+        allPagesOption.checked = true;
+    }
+
+    const rangeArea = document.getElementById("pdfPageRangeArea");
+
+    if (rangeArea) {
+        rangeArea.style.display = "none";
+    }
+
+    panel.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+}
