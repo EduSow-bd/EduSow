@@ -3019,71 +3019,14 @@ async function generateFlashcardsFromPDF() {
         updateTimerDisplay();
 
         updateFlashcard();
+        
+    </body>
 
+        </html>
+        
     </script>
 
-</body>
-
-</html>
+                
 
 
 
-function togglePDFPageSelection() {
-    const selectedMode = document.querySelector(
-        'input[name="pdfPageMode"]:checked'
-    )?.value;
-
-    const rangeArea = document.getElementById("pdfPageRangeArea");
-
-    if (rangeArea) {
-        rangeArea.style.display =
-            selectedMode === "selected" ? "block" : "none";
-    }
-}
-
-function startPDFExtraction() {
-    extractSelectedPDF();
-}
-
-
-
-function showPDFPageSelection() {
-    const panel = document.getElementById("pdfPageSelectionBox");
-
-    if (!selectedPDFFile) {
-        showStatus(
-            "pdfExtractionStatus",
-            "Please select a PDF first.",
-            true
-        );
-        return;
-    }
-
-    if (!panel) {
-        console.error("PDF page selection panel was not found.");
-        return;
-    }
-
-    // Show the page-selection options only after the button is clicked.
-    panel.style.display = "block";
-
-    // Reset the selection to All pages each time the panel opens.
-    const allPagesOption = document.querySelector(
-        'input[name="pdfPageMode"][value="all"]'
-    );
-
-    if (allPagesOption) {
-        allPagesOption.checked = true;
-    }
-
-    const rangeArea = document.getElementById("pdfPageRangeArea");
-
-    if (rangeArea) {
-        rangeArea.style.display = "none";
-    }
-
-    panel.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest"
-    });
-}
