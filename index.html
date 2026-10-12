@@ -1006,6 +1006,31 @@ footer strong {
 }
 
 
+/* PDF page selection */
+.page-selection-box {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-soft);
+}
+
+.page-selection-box h4 {
+    margin-bottom: 12px;
+}
+
+.page-mode-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    width: auto;
+    flex: 0 0 auto;
+}
+
 /* =========================================================
    HIDDEN
    ========================================================= */
@@ -1322,198 +1347,8 @@ footer strong {
                   
 <!-- ================= PDF PAGE SELECTION ================= -->
 
-<div class="page-selection-box">
-
-    <h4>📄 Choose PDF Pages</h4>
-
-    <label>
-        <input
-            type="radio"
-            name="pdfPageMode"
-            value="all"
-            checked
-            onchange="togglePDFPageSelection()"
-        >
-        All pages
-    </label>
-
-    <label>
-        <input
-            type="radio"
-            name="pdfPageMode"
-            value="selected"
-            onchange="togglePDFPageSelection()"
-        >
-        Select pages
-    </label>
-
-    <div id="pdfPageRangeArea" style="display:none; margin-top:12px;">
-
-        <label for="pdfPageRange">
-            Enter page numbers or ranges:
-        </label>
-
-        <input
-            type="text"
-            id="pdfPageRange"
-            placeholder="e.g. 120-130, 135, 140-145"
-        >
-
-        <small>
-            Examples: 120-130 or 1-5, 10, 15-20
-        </small>
-
-    </div>
-
-</div>
-
 <div class="button-row">
-
-   
-<button onclick="showPDFPageSelection()">
-    📖 Extract PDF Text
-</button>
-
-
-    <button
-        onclick="generateQuizFromPDF()"
-        class="success"
-        id="generateQuizButton"
-    >
-        🧠 Generate 20 MCQs with AI
-    </button>
-
-</div>
-
-
-<div id="pdfPageSelectionBox" style="display:none; margin:15px 0;">
-
-    <h4>📄 Choose PDF Pages</h4>
-
-    <label>
-        <input
-            type="radio"
-            name="pdfPageMode"
-            value="all"
-            checked
-            onchange="togglePDFPageSelection()"
-        >
-        All pages
-    </label>
-
-    <label>
-        <input
-            type="radio"
-            name="pdfPageMode"
-            value="selected"
-            onchange="togglePDFPageSelection()"
-        >
-        Select pages
-    </label>
-
-    <div
-        id="pdfPageRangeArea"
-        style="display:none; margin-top:12px;"
-    >
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-
-            <div>
-                <label for="pdfFromPage">From page</label>
-                <input
-                    type="number"
-                    id="pdfFromPage"
-                    min="1"
-                    placeholder="e.g. 120"
-                >
-            </div>
-
-            <div>
-                <label for="pdfToPage">To page</label>
-                <input
-                    type="number"
-                    id="pdfToPage"
-                    min="1"
-                    placeholder="e.g. 130"
-                >
-            </div>
-
-        </div>
-    </div>
-
-    <button
-        type="button"
-        onclick="startPDFExtraction()"
-        style="margin-top:12px;"
-    >
-        Start Extraction
-    </button>
-
-</div>
-
-                    
-                  
-<!-- ================= PDF PAGE SELECTION ================= -->
-
-<div id="pdfPageSelectionBox" class="page-selection-box" style="display:none; margin:20px 0;">
-
-    <h4>📄 Choose PDF Pages</h4>
-
-    <label>
-        <input
-            type="radio"
-            name="pdfPageMode"
-            value="all"
-            checked
-            onchange="togglePDFPageSelection()"
-        >
-        All pages
-    </label>
-
-    <label>
-        <input
-            type="radio"
-            name="pdfPageMode"
-            value="selected"
-            onchange="togglePDFPageSelection()"
-        >
-        Select specific pages
-    </label>
-
-    <div id="pdfPageRangeArea" style="display:none; margin-top:12px;">
-
-        <label for="pdfPageRange">
-            Enter page numbers or ranges:
-        </label>
-
-        <input
-            type="text"
-            id="pdfPageRange"
-            placeholder="e.g. 1-5, 10, 15-20"
-        >
-
-        <small>
-            Separate page numbers and ranges with commas.
-        </small>
-
-    </div>
-
-    <div class="button-row">
-        <button
-            type="button"
-            onclick="startPDFExtraction()"
-        >
-            Start Extraction
-        </button>
-    </div>
-
-</div>
-
-<div class="button-row">
-
-    <button
-        type="button"
-        onclick="showPDFPageSelection()"
-    >
+    <button type="button" onclick="showPDFPageSelection()">
         📖 Extract PDF Text
     </button>
 
@@ -1525,10 +1360,76 @@ footer strong {
     >
         🧠 Generate 20 MCQs with AI
     </button>
-
 </div>
 
-    
+<div id="pdfPageSelectionBox" class="page-selection-box" style="display:none; margin:15px 0;">
+    <h4>📄 Choose PDF Pages</h4>
+
+    <label class="page-mode-option">
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="all"
+            checked
+            onchange="togglePDFPageSelection()"
+        >
+        All pages
+    </label>
+
+    <label class="page-mode-option">
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="selected"
+            onchange="togglePDFPageSelection()"
+        >
+        Select specific pages
+    </label>
+
+    <div id="pdfPageRangeArea" style="display:none; margin-top:12px;">
+        <label for="pdfPageRange">Page numbers or ranges</label>
+        <input
+            type="text"
+            id="pdfPageRange"
+            placeholder="e.g. 1-5, 8, 10-12"
+            autocomplete="off"
+        >
+        <small>Separate pages or ranges with commas, for example: 1-5, 8, 10-12.</small>
+    </div>
+
+    <button
+        type="button"
+        onclick="startPDFExtraction()"
+        style="margin-top:12px;"
+    >
+        Start Extraction
+    </button>
+</div>
+
+                    <div
+                        id="pdfExtractionStatus"
+                        class="status"
+                    ></div>
+
+
+                    <div
+                        id="pdfInfo"
+                        class="ai-info hidden"
+                    ></div>
+
+
+                    <textarea
+                        id="pdfExtractedText"
+                        placeholder="Extracted PDF text will appear here..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
 
 
     <!-- ========================= QUIZ ========================= -->
@@ -1951,64 +1852,50 @@ footer strong {
         }
 
 
-function togglePDFPageSelection() {
-    const selectedMode = document.querySelector(
-        'input[name="pdfPageMode"]:checked'
-    )?.value;
-
-    const rangeArea = document.getElementById("pdfPageRangeArea");
-
-    if (rangeArea) {
-        rangeArea.style.display =
-            selectedMode === "selected" ? "block" : "none";
-    }
-}
-
-function showPDFPageSelection() {
-    const panel = document.getElementById("pdfPageSelectionBox");
-
-    if (!selectedPDFFile) {
-        showStatus(
-            "pdfExtractionStatus",
-            "Please select a PDF first.",
-            true
-        );
-        return;
-    }
-
-    if (!panel) {
-        console.error("PDF page selection panel was not found.");
-        return;
-    }
-
-    panel.style.display = "block";
-
-    const allPagesOption = document.querySelector(
-        '#pdfPageSelectionBox input[name="pdfPageMode"][value="all"]'
-    );
-
-    if (allPagesOption) {
-        allPagesOption.checked = true;
-    }
-
-    togglePDFPageSelection();
-
-    panel.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest"
-    });
-}
-
-function startPDFExtraction() {
-    extractSelectedPDF();
-}
-
 
         // =========================================================
         // PDF TEXT EXTRACTION
         // =========================================================
 
        
+
+function togglePDFPageSelection() {
+    const selectedMode = document.querySelector(
+        '#pdfPageSelectionBox input[name="pdfPageMode"]:checked'
+    )?.value || "all";
+
+    const rangeArea = document.getElementById("pdfPageRangeArea");
+    if (rangeArea) {
+        rangeArea.style.display = selectedMode === "selected" ? "block" : "none";
+    }
+}
+
+function showPDFPageSelection() {
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a PDF first.", true);
+        return;
+    }
+
+    const panel = document.getElementById("pdfPageSelectionBox");
+    if (!panel) {
+        showStatus("pdfExtractionStatus", "Page-selection controls could not be found.", true);
+        return;
+    }
+
+    panel.style.display = "block";
+    const allPagesOption = panel.querySelector('input[name="pdfPageMode"][value="all"]');
+    if (allPagesOption) allPagesOption.checked = true;
+
+    const rangeInput = document.getElementById("pdfPageRange");
+    if (rangeInput) rangeInput.value = "";
+
+    togglePDFPageSelection();
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function startPDFExtraction() {
+    extractSelectedPDF();
+}
 
 async function extractSelectedPDF() {
     if (!selectedPDFFile) {
@@ -2033,114 +1920,99 @@ async function extractSelectedPDF() {
         showStatus("pdfExtractionStatus", "Opening PDF...", false);
 
         const arrayBuffer = await selectedPDFFile.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({
-            data: arrayBuffer
-        }).promise;
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
+        const selectedMode = document.querySelector(
+            '#pdfPageSelectionBox input[name="pdfPageMode"]:checked'
+        )?.value || "all";
 
-const selectedMode = document.querySelector(
-    '#pdfPageSelectionBox input[name="pdfPageMode"]:checked'
-)?.value || "all";
+        let selectedPageNumbers = [];
 
-let selectedPageNumbers = [];
-
-if (selectedMode === "all") {
-    selectedPageNumbers = Array.from(
-        { length: pdf.numPages },
-        (_, i) => i + 1
-    );
-} else {
-    const rangeInput = document.getElementById("pdfPageRange");
-    const rangeText = rangeInput?.value.trim();
-
-    if (!rangeText) {
-        showStatus(
-            "pdfExtractionStatus",
-            "Please enter the page numbers or ranges.",
-            true
-        );
-        return;
-    }
-
-    const pageSet = new Set();
-    const parts = rangeText.split(",");
-
-    for (const part of parts) {
-        const item = part.trim();
-        const match = item.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
-
-        if (!match) {
-            showStatus(
-                "pdfExtractionStatus",
-                `Invalid page range: "${item}". Example: 1-5, 8, 10-12`,
-                true
+        if (selectedMode === "all") {
+            selectedPageNumbers = Array.from(
+                { length: pdf.numPages },
+                (_, index) => index + 1
             );
-            return;
+        } else {
+            const rangeInput = document.getElementById("pdfPageRange");
+            const rangeText = rangeInput?.value.trim() || "";
+
+            if (!rangeText) {
+                showStatus("pdfExtractionStatus", "Enter page numbers or ranges, such as 1-5, 8, 10-12.", true);
+                return;
+            }
+
+            const pageSet = new Set();
+            const parts = rangeText.split(",");
+
+            for (const part of parts) {
+                const item = part.trim();
+                const match = item.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+
+                if (!match) {
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `Invalid page entry: "${item}". Use a format such as 1-5, 8, 10-12.`,
+                        true
+                    );
+                    return;
+                }
+
+                const firstPage = Number(match[1]);
+                const lastPage = match[2] ? Number(match[2]) : firstPage;
+
+                if (
+                    firstPage < 1 ||
+                    lastPage < firstPage ||
+                    lastPage > pdf.numPages
+                ) {
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `Invalid range "${item}". This PDF has ${pdf.numPages} page(s).`,
+                        true
+                    );
+                    return;
+                }
+
+                for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber++) {
+                    pageSet.add(pageNumber);
+                }
+            }
+
+            selectedPageNumbers = [...pageSet].sort((a, b) => a - b);
         }
 
-        const start = Number(match[1]);
-        const end = match[2] ? Number(match[2]) : start;
-
-        if (
-            start < 1 ||
-            end < start ||
-            end > pdf.numPages
-        ) {
-            showStatus(
-                "pdfExtractionStatus",
-                `Invalid range "${item}". This PDF has ${pdf.numPages} pages.`,
-                true
-            );
-            return;
-        }
-
-        for (let page = start; page <= end; page++) {
-            pageSet.add(page);
-        }
-    }
-
-    selectedPageNumbers = [...pageSet].sort((a, b) => a - b);
-}
-
-        
-        // First collect page text and identify pages needing OCR.
+        // Extract only the requested pages, checking whether each needs OCR.
         const pages = [];
-
-      for (const pageNumber of selectedPageNumbers) {
+        for (let index = 0; index < selectedPageNumbers.length; index++) {
+            const pageNumber = selectedPageNumbers[index];
             showStatus(
                 "pdfExtractionStatus",
-                `Checking page ${pageNumber}/${pdf.numPages}...`,
+                `Reading selected page ${index + 1}/${selectedPageNumbers.length} (PDF page ${pageNumber})...`,
                 false
             );
 
             const page = await pdf.getPage(pageNumber);
             const content = await page.getTextContent();
-
-            let pageText = content.items
+            const pageText = content.items
                 .map(item => item.str || "")
                 .join(" ")
                 .replace(/\s+/g, " ")
                 .trim();
 
-            const needsOCR =
-                pageText.replace(/\s/g, "").length < 30;
-
             pages.push({
                 pageNumber,
                 pageText,
-                needsOCR
+                needsOCR: pageText.replace(/\s/g, "").length < 30
             });
         }
 
-        // Only initialize OCR workers if scanned pages exist.
         const scannedPages = pages.filter(page => page.needsOCR);
-
         if (scannedPages.length > 0) {
             const workers = await getSharedOCRWorkers();
             let nextIndex = 0;
             let completed = 0;
 
-            // Two workers process separate pages concurrently.
             async function processWorker(worker) {
                 while (nextIndex < scannedPages.length) {
                     const index = nextIndex++;
@@ -2153,7 +2025,6 @@ if (selectedMode === "all") {
                     );
 
                     const page = await pdf.getPage(item.pageNumber);
-
                     const ocrText = await recognizePDFPage(
                         page,
                         item.pageNumber,
@@ -2162,13 +2033,10 @@ if (selectedMode === "all") {
                     );
 
                     if (ocrText.trim()) {
-                        item.pageText = ocrText
-                            .replace(/\s+/g, " ")
-                            .trim();
+                        item.pageText = ocrText.replace(/\s+/g, " ").trim();
                     }
 
                     completed++;
-
                     showStatus(
                         "pdfExtractionStatus",
                         `OCR progress: ${completed}/${scannedPages.length} scanned pages completed.`,
@@ -2184,9 +2052,7 @@ if (selectedMode === "all") {
         }
 
         extractedPDFText = pages
-            .map(item =>
-                `--- Page ${item.pageNumber} ---\n\n${item.pageText}`
-            )
+            .map(item => `--- Page ${item.pageNumber} ---\n\n${item.pageText}`)
             .join("\n\n");
 
         if (!extractedPDFText.trim()) {
@@ -2198,44 +2064,33 @@ if (selectedMode === "all") {
             return;
         }
 
-        const textArea = document.getElementById("pdfExtractedText").value = extractedPDFText;
-        if (textArea) {
-            textArea.value = extractedPDFText;
-        }
+        const textArea = document.getElementById("pdfExtractedText");
+        if (textArea) textArea.value = extractedPDFText;
 
-        const wordCount = extractedPDFText
-            .split(/\s+/)
-            .filter(Boolean).length;
-
+        const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
         const charCount = extractedPDFText.length;
 
         const wordCountElement = document.getElementById("pdfWordCount");
-        if (wordCountElement) {
-            wordCountElement.textContent = wordCount;
-        }
+        if (wordCountElement) wordCountElement.textContent = wordCount;
 
         const charCountElement = document.getElementById("pdfCharCount");
-        if (charCountElement) {
-            charCountElement.textContent = charCount;
-        }
+        if (charCountElement) charCountElement.textContent = charCount;
 
         showStatus(
             "pdfExtractionStatus",
-            `PDF reading complete! ${pdf.numPages} page(s), ${wordCount} words extracted.`,
+            `PDF reading complete! ${pages.length} selected page(s) out of ${pdf.numPages} total; ${wordCount} words extracted.`,
             false
         );
 
     } catch (error) {
         console.error("PDF extraction error:", error);
-
         showStatus(
             "pdfExtractionStatus",
-            `Could not read the PDF: ${error.message || "Unknown error"}. Please refresh the page and try again.`,
+            `Could not read the PDF: ${error.message || "Unknown error"}. Please try again.`,
             true
         );
     }
 }
-
         // =========================================================
         // AI QUIZ GENERATION
         // =========================================================
@@ -3019,14 +2874,9 @@ async function generateFlashcardsFromPDF() {
         updateTimerDisplay();
 
         updateFlashcard();
-        
-    </body>
 
-        </html>
-        
     </script>
 
-                
+</body>
 
-
-
+</html>
