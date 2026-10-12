@@ -1911,11 +1911,6 @@ async function extractSelectedPDF() {
         return;
     }
 
-    if (selectedPDFFile.size > 25 * 1024 * 1024) {
-        showStatus("pdfExtractionStatus", "The PDF must be smaller than 25 MB.", true);
-        return;
-    }
-
     try {
         showStatus("pdfExtractionStatus", "Opening PDF...", false);
 
