@@ -884,3 +884,51 @@ footer a:hover {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* PDF Page Selection */
+#pdfPageSelectionBox {
+    padding: 16px;
+    margin: 15px 0;
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    background: #f8faff;
+    box-sizing: border-box;
+}
+
+#pdfPageSelectionBox h4 {
+    margin: 0 0 14px;
+}
+
+#pdfPageSelectionBox > label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+#pdfPageSelectionBox input[type="radio"] {
+    width: auto;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+#pdfPageRangeArea input[type="number"] {
+    display: block;
+    width: 100%;
+    max-width: 180px;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+#pdfPageSelectionBox small {
+    display: block;
+    margin-top: 8px;
+    color: #64748b;
+}
+
