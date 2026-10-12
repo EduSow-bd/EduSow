@@ -1319,22 +1319,69 @@ footer strong {
                     </div>
 
 
-                    <div class="button-row">
+                  ```html
+<!-- ================= PDF PAGE SELECTION ================= -->
 
-                        <button onclick="extractSelectedPDF()">
-                            📖 Extract PDF Text
-                        </button>
+<div class="page-selection-box">
 
-                        <button
-                            onclick="generateQuizFromPDF()"
-                            class="success"
-                            id="generateQuizButton"
-                        >
-                            🧠 Generate 20 MCQs with AI
-                        </button>
+    <h4>📄 Choose PDF Pages</h4>
 
-                    </div>
+    <label>
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="all"
+            checked
+            onchange="togglePDFPageSelection()"
+        >
+        All pages
+    </label>
 
+    <label>
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="selected"
+            onchange="togglePDFPageSelection()"
+        >
+        Select pages
+    </label>
+
+    <div id="pdfPageRangeArea" style="display:none; margin-top:12px;">
+
+        <label for="pdfPageRange">
+            Enter page numbers or ranges:
+        </label>
+
+        <input
+            type="text"
+            id="pdfPageRange"
+            placeholder="e.g. 120-130, 135, 140-145"
+        >
+
+        <small>
+            Examples: 120-130 or 1-5, 10, 15-20
+        </small>
+
+    </div>
+
+</div>
+
+<div class="button-row">
+
+    <button onclick="extractSelectedPDF()">
+        📖 Extract PDF Text
+    </button>
+
+    <button
+        onclick="generateQuizFromPDF()"
+        class="success"
+        id="generateQuizButton"
+    >
+        🧠 Generate 20 MCQs with AI
+    </button>
+
+</div>
 
                     <div
                         id="pdfExtractionStatus"
@@ -2738,3 +2785,18 @@ async function generateFlashcardsFromPDF() {
 </body>
 
 </html>
+
+
+function togglePDFPageSelection() {
+    const selectedMode = document.querySelector(
+        'input[name="pdfPageMode"]:checked'
+    )?.value;
+
+    const rangeArea = document.getElementById("pdfPageRangeArea");
+
+    if (rangeArea) {
+        rangeArea.style.display =
+            selectedMode === "selected" ? "block" : "none";
+    }
+}
+
