@@ -1369,9 +1369,11 @@ footer strong {
 
 <div class="button-row">
 
-    <button onclick="extractSelectedPDF()">
-        📖 Extract PDF Text
-    </button>
+   
+<button onclick="showPDFPageSelection()">
+    📖 Extract PDF Text
+</button>
+
 
     <button
         onclick="generateQuizFromPDF()"
@@ -1383,6 +1385,72 @@ footer strong {
 
 </div>
 
+
+<div id="pdfPageSelectionBox" style="display:none; margin:15px 0;">
+
+    <h4>📄 Choose PDF Pages</h4>
+
+    <label>
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="all"
+            checked
+            onchange="togglePDFPageSelection()"
+        >
+        All pages
+    </label>
+
+    <label>
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="selected"
+            onchange="togglePDFPageSelection()"
+        >
+        Select pages
+    </label>
+
+    <div
+        id="pdfPageRangeArea"
+        style="display:none; margin-top:12px;"
+    >
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+
+            <div>
+                <label for="pdfFromPage">From page</label>
+                <input
+                    type="number"
+                    id="pdfFromPage"
+                    min="1"
+                    placeholder="e.g. 120"
+                >
+            </div>
+
+            <div>
+                <label for="pdfToPage">To page</label>
+                <input
+                    type="number"
+                    id="pdfToPage"
+                    min="1"
+                    placeholder="e.g. 130"
+                >
+            </div>
+
+        </div>
+    </div>
+
+    <button
+        type="button"
+        onclick="startPDFExtraction()"
+        style="margin-top:12px;"
+    >
+        Start Extraction
+    </button>
+
+</div>
+
+                    
                     <div
                         id="pdfExtractionStatus"
                         class="status"
@@ -2787,6 +2855,7 @@ async function generateFlashcardsFromPDF() {
 </html>
 
 
+
 function togglePDFPageSelection() {
     const selectedMode = document.querySelector(
         'input[name="pdfPageMode"]:checked'
@@ -2797,6 +2866,32 @@ function togglePDFPageSelection() {
     if (rangeArea) {
         rangeArea.style.display =
             selectedMode === "selected" ? "block" : "none";
+    }
+}
+
+function startPDFExtraction() {
+    extractSelectedPDF();
+}
+
+
+function showPDFPageSelection() {
+    if (!selectedPDFFile) {
+        showStatus(
+            "pdfExtractionStatus",
+            "Please select a PDF first.",
+            true
+        );
+        return;
+    }
+
+    const panel = document.getElementById("pdfPageSelectionBox");
+
+    if (panel) {
+        panel.style.display = "block";
+        panel.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
     }
 }
 
