@@ -943,6 +943,43 @@ textarea {
 }
 
 
+/* POMODORO & STUDY TRACKER */
+.study-intro { color: var(--text-soft); margin-top: -18px; margin-bottom: 22px; max-width: 760px; }
+.study-tracker-box { text-align: center; overflow: hidden; }
+.study-mode-switch { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.study-mode-btn { border: 1px solid var(--border); background: var(--surface-soft); color: var(--text-soft); border-radius: 999px; padding: 10px 20px; font-weight: 750; cursor: pointer; }
+.study-mode-btn.active { background: #eef2ff; color: var(--primary); border-color: #c7d2fe; }
+.study-phase-label { margin-top: 28px; color: var(--primary); font-size: 12px; font-weight: 850; letter-spacing: 2px; }
+.study-tracker-box .timer-display { margin: 8px 0 0; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+.study-timer-hint { color: var(--text-soft); min-height: 26px; margin: 4px 0 20px; }
+.study-controls { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.study-controls button, .study-clear-btn { padding: 11px 18px; border-radius: 12px; border: 0; font-weight: 750; cursor: pointer; }
+.study-controls button:disabled { opacity: .45; cursor: not-allowed; }
+.study-controls #studyStartBtn { background: var(--primary); color: white; }
+.study-controls .secondary, .study-clear-btn { background: var(--surface-soft); color: var(--text); border: 1px solid var(--border); }
+.study-controls .danger { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+.pomodoro-settings { margin: 20px auto 0; display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; }
+.pomodoro-settings[hidden] { display: none; }
+.pomodoro-settings label { display: flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 14px; font-weight: 650; }
+.pomodoro-settings select { border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; background: white; color: var(--text); }
+.study-status { min-height: 22px; margin-top: 15px; color: var(--text-soft); font-size: 13px; }
+.study-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+.study-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; box-shadow: var(--shadow-sm); min-width: 0; }
+.study-stat-icon { font-size: 22px; }
+.study-stat-card p { color: var(--text-soft); font-size: 13px; margin-top: 9px; }
+.study-stat-card strong { display: block; font-size: clamp(20px, 2.4vw, 28px); line-height: 1.3; margin: 4px 0; color: var(--text); overflow-wrap: anywhere; }
+.study-stat-card small { color: var(--text-light); font-size: 11px; }
+.study-history-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 18px; box-shadow: var(--shadow-sm); }
+.study-history-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.study-history-heading h3 { font-size: 17px; }
+.study-clear-btn { font-size: 12px; padding: 8px 12px; }
+.study-history-list { list-style: none; margin-top: 12px; }
+.study-history-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--border); padding: 12px 0; font-size: 13px; }
+.study-history-list li span:last-child { color: var(--text-soft); white-space: nowrap; }
+.study-history-empty { color: var(--text-light); }
+@media (max-width: 850px) { .study-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } }
+
 /* =========================================================
    GOAL PROGRESS
    ========================================================= */
@@ -1569,48 +1606,59 @@ input[type="checkbox"] {
 
 
 
-    <!-- ========================= TIMER ========================= -->
+    <!-- ========================= POMODORO & STUDY TRACKER ========================= -->
 
     <section id="timer">
+        <h2>🍅 Pomodoro &amp; Study Tracker</h2>
+        <p class="study-intro">Focus on one task at a time. Your study time is saved on this device, even if you leave EduSphere.</p>
 
-        <h2>⏱️ Focus Timer</h2>
-
-        <div class="timer-box">
-
-            <div
-                id="timerDisplay"
-                class="timer-display"
-            >
-                25:00
+        <div class="timer-box study-tracker-box">
+            <div class="study-mode-switch" role="group" aria-label="Timer mode">
+                <button type="button" id="stopwatchModeBtn" class="study-mode-btn active" onclick="setStudyMode('stopwatch')">⏱ Stopwatch</button>
+                <button type="button" id="pomodoroModeBtn" class="study-mode-btn" onclick="setStudyMode('pomodoro')">🍅 Pomodoro</button>
             </div>
 
-            <div
-                class="button-row"
-                style="justify-content:center;"
-            >
+            <p id="studyPhaseLabel" class="study-phase-label">STOPWATCH · READY</p>
+            <div id="timerDisplay" class="timer-display" role="timer" aria-live="off">00:00:00</div>
+            <p id="studyTimerHint" class="study-timer-hint">Start when you're ready to study.</p>
 
-                <button onclick="startTimer()">
-                    Start
-                </button>
-
-                <button
-                    onclick="pauseTimer()"
-                    class="secondary"
-                >
-                    Pause
-                </button>
-
-                <button
-                    onclick="resetTimer()"
-                    class="danger"
-                >
-                    Reset
-                </button>
-
+            <div class="study-controls">
+                <button type="button" id="studyStartBtn" onclick="startTimer()">▶ Start studying</button>
+                <button type="button" id="studyPauseBtn" class="secondary" onclick="pauseTimer()" disabled>Ⅱ Pause</button>
+                <button type="button" id="studyStopBtn" class="danger" onclick="stopStudySession()" disabled>■ Finish session</button>
             </div>
 
+            <div id="pomodoroSettings" class="pomodoro-settings" hidden>
+                <label>Focus
+                    <select id="focusMinutes" onchange="updatePomodoroSettings()">
+                        <option value="15">15 min</option>
+                        <option value="25" selected>25 min</option>
+                        <option value="30">30 min</option>
+                        <option value="45">45 min</option>
+                        <option value="50">50 min</option>
+                    </select>
+                </label>
+                <label>Break
+                    <select id="breakMinutes" onchange="updatePomodoroSettings()">
+                        <option value="5" selected>5 min</option>
+                        <option value="10">10 min</option>
+                        <option value="15">15 min</option>
+                    </select>
+                </label>
+            </div>
+            <p id="studyStatus" class="study-status" role="status">Your study statistics will appear below.</p>
         </div>
 
+        <div class="study-stats-grid" aria-label="Study statistics">
+            <div class="study-stat-card"><span class="study-stat-icon">📚</span><p>Total study time</p><strong id="totalStudyTime">0 min</strong><small>All recorded sessions</small></div>
+            <div class="study-stat-card"><span class="study-stat-icon">📅</span><p>Today</p><strong id="todayStudyTime">0 min</strong><small>Study time today</small></div>
+            <div class="study-stat-card"><span class="study-stat-icon">📈</span><p>Average session</p><strong id="averageStudyTime">0 min</strong><small>Per recorded session</small></div>
+            <div class="study-stat-card"><span class="study-stat-icon">✅</span><p>Sessions</p><strong id="completedStudySessions">0</strong><small>Recorded study blocks</small></div>
+        </div>
+        <div class="study-history-box">
+            <div class="study-history-heading"><h3>Recent study sessions</h3><button type="button" class="secondary study-clear-btn" onclick="clearStudyHistory()">Clear history</button></div>
+            <ul id="studyHistoryList" class="study-history-list"><li class="study-history-empty">Your completed study sessions will show here.</li></ul>
+        </div>
     </section>
 
 
@@ -1691,8 +1739,14 @@ input[type="checkbox"] {
 
         let generatedQuiz = [];
 
-        let timerSeconds = 25 * 60;
+        // Study tracker state is timestamp-based, so it remains accurate
+        // when the tab is backgrounded or the browser is reopened.
+        const STUDY_STORAGE_KEY = "edusphereStudyTrackerV1";
+        const POMODORO_FOCUS_DEFAULT = 25;
+        const POMODORO_BREAK_DEFAULT = 5;
         let timerInterval = null;
+        let studyMode = "stopwatch";
+        let studyState = loadStudyState();
 
         let flashcardIndex = 0;
         let flashcardFlipped = false;
@@ -2695,81 +2749,280 @@ async function generateFlashcardsFromPDF() {
 }
 
         // =========================================================
-        // TIMER
+        // POMODORO & STUDY TRACKER
         // =========================================================
 
-        function updateTimerDisplay() {
-
-            const minutes =
-                Math.floor(
-                    timerSeconds / 60
-                )
-                .toString()
-                .padStart(2, "0");
-
-            const seconds =
-                (
-                    timerSeconds % 60
-                )
-                .toString()
-                .padStart(2, "0");
-
-            document.getElementById(
-                "timerDisplay"
-            ).textContent =
-                `${minutes}:${seconds}`;
+        function loadStudyState() {
+            const fallback = { sessions: [], active: null, mode: "stopwatch" };
+            try {
+                const saved = JSON.parse(localStorage.getItem(STUDY_STORAGE_KEY) || "null");
+                if (!saved || !Array.isArray(saved.sessions)) return fallback;
+                return { sessions: saved.sessions.filter(x => x && Number.isFinite(x.durationMs) && x.durationMs > 0), active: saved.active || null, mode: saved.mode === "pomodoro" ? "pomodoro" : "stopwatch" };
+            } catch (error) {
+                console.warn("Could not load study tracker data:", error);
+                return fallback;
+            }
         }
 
+        function saveStudyState() {
+            try {
+                studyState.mode = studyMode;
+                localStorage.setItem(STUDY_STORAGE_KEY, JSON.stringify(studyState));
+            } catch (error) {
+                console.warn("Could not save study tracker data:", error);
+                const status = document.getElementById("studyStatus");
+                if (status) status.textContent = "Your browser could not save study data. Check browser storage settings.";
+            }
+        }
+
+        function formatDuration(ms, includeSeconds = false) {
+            const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            if (includeSeconds) return [hours, minutes, seconds].map(n => String(n).padStart(2, "0")).join(":");
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            if (minutes > 0) return `${minutes} min`;
+            return `${totalSeconds} sec`;
+        }
+
+        function getActiveElapsedMs(now = Date.now()) {
+            const active = studyState.active;
+            if (!active || active.phase === "break") return 0;
+            const base = Math.max(0, Number(active.phaseElapsedBeforeMs) || 0);
+            if (!active.running || !active.phaseStartedAt) return base;
+            return base + Math.max(0, now - active.phaseStartedAt);
+        }
+
+        function recordStudyBlock(durationMs, endedAt = Date.now(), label = "Study session") {
+            if (!Number.isFinite(durationMs) || durationMs < 1000) return;
+            studyState.sessions.push({ durationMs: Math.floor(durationMs), endedAt, label });
+            // Keep the local history manageable while preserving long-term totals for typical use.
+            if (studyState.sessions.length > 2000) studyState.sessions = studyState.sessions.slice(-2000);
+        }
+
+        function localDateKey(timestamp) {
+            const d = new Date(timestamp);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+
+        function renderStudyStats() {
+            const now = Date.now();
+            const activeMs = getActiveElapsedMs(now);
+            const sessions = studyState.sessions;
+            const totalMs = sessions.reduce((sum, session) => sum + session.durationMs, 0) + activeMs;
+            const todayKey = localDateKey(now);
+            const todayMs = sessions.reduce((sum, session) => sum + (localDateKey(session.endedAt) === todayKey ? session.durationMs : 0), 0) + (studyState.active && localDateKey(studyState.active.sessionStartedAt || now) === todayKey ? activeMs : 0);
+            const recordedMs = sessions.reduce((sum, session) => sum + session.durationMs, 0);
+            const avgMs = sessions.length ? recordedMs / sessions.length : 0;
+            document.getElementById("totalStudyTime").textContent = formatDuration(totalMs);
+            document.getElementById("todayStudyTime").textContent = formatDuration(todayMs);
+            document.getElementById("averageStudyTime").textContent = formatDuration(avgMs);
+            document.getElementById("completedStudySessions").textContent = String(sessions.length);
+
+            const list = document.getElementById("studyHistoryList");
+            const recent = sessions.slice(-6).reverse();
+            if (!recent.length) {
+                list.innerHTML = '<li class="study-history-empty">Your completed study sessions will show here.</li>';
+            } else {
+                list.innerHTML = "";
+                recent.forEach(session => {
+                    const li = document.createElement("li");
+                    const title = document.createElement("span");
+                    const duration = document.createElement("span");
+                    const date = new Date(session.endedAt);
+                    title.textContent = `${session.label || "Study session"} · ${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+                    duration.textContent = formatDuration(session.durationMs);
+                    li.append(title, duration);
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        function renderStudyTimer() {
+            const active = studyState.active;
+            const now = Date.now();
+            const display = document.getElementById("timerDisplay");
+            const phaseLabel = document.getElementById("studyPhaseLabel");
+            const hint = document.getElementById("studyTimerHint");
+            const startBtn = document.getElementById("studyStartBtn");
+            const pauseBtn = document.getElementById("studyPauseBtn");
+            const stopBtn = document.getElementById("studyStopBtn");
+            const modeIsPomodoro = studyMode === "pomodoro";
+            document.getElementById("stopwatchModeBtn").classList.toggle("active", !modeIsPomodoro);
+            document.getElementById("pomodoroModeBtn").classList.toggle("active", modeIsPomodoro);
+            document.getElementById("pomodoroSettings").hidden = !modeIsPomodoro;
+            document.getElementById("focusMinutes").disabled = !!active;
+            document.getElementById("breakMinutes").disabled = !!active;
+
+            if (!active) {
+                display.textContent = modeIsPomodoro ? `${String(Number(document.getElementById("focusMinutes").value)).padStart(2,"0")}:00` : "00:00:00";
+                phaseLabel.textContent = modeIsPomodoro ? "POMODORO · READY" : "STOPWATCH · READY";
+                hint.textContent = modeIsPomodoro ? "Start a focus block. A break begins automatically when it ends." : "Start when you're ready to study.";
+                startBtn.textContent = "▶ Start studying";
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+            } else {
+                const elapsed = active.phase === "break" ? Math.max(0, (active.phaseDurationMs || 0) - (active.phaseElapsedBeforeMs || 0) - (active.running && active.phaseStartedAt ? now - active.phaseStartedAt : 0)) : getActiveElapsedMs(now);
+                if (active.mode === "pomodoro") {
+                    const remaining = Math.max(0, (active.phaseDurationMs || 0) - (active.phaseElapsedBeforeMs || 0) - (active.running && active.phaseStartedAt ? now - active.phaseStartedAt : 0));
+                    const secs = Math.ceil(remaining / 1000);
+                    display.textContent = `${String(Math.floor(secs / 60)).padStart(2,"0")}:${String(secs % 60).padStart(2,"0")}`;
+                    phaseLabel.textContent = active.phase === "break" ? "☕ BREAK TIME" : "🍅 FOCUS SESSION";
+                    hint.textContent = active.running ? (active.phase === "break" ? "Rest your mind. Your break time isn't counted as study." : "Stay focused. Your study time is being recorded.") : "Paused. Resume whenever you're ready.";
+                } else {
+                    display.textContent = formatDuration(elapsed, true);
+                    phaseLabel.textContent = active.running ? "STOPWATCH · STUDYING" : "STOPWATCH · PAUSED";
+                    hint.textContent = active.running ? "Your study time is being recorded." : "Paused. Resume whenever you're ready.";
+                }
+                startBtn.textContent = active.running ? "● Studying…" : "▶ Resume";
+                startBtn.disabled = !!active.running;
+                pauseBtn.disabled = !active.running;
+                stopBtn.disabled = false;
+            }
+            renderStudyStats();
+        }
+
+        function setStudyMode(mode) {
+            if (studyState.active) {
+                document.getElementById("studyStatus").textContent = "Finish or pause and finish your current session before switching modes.";
+                return;
+            }
+            studyMode = mode === "pomodoro" ? "pomodoro" : "stopwatch";
+            saveStudyState();
+            renderStudyTimer();
+        }
+
+        function updatePomodoroSettings() {
+            if (studyState.active) return;
+            renderStudyTimer();
+        }
 
         function startTimer() {
-
-            if (timerInterval) return;
-
-            timerInterval =
-                setInterval(() => {
-
-                    if (timerSeconds <= 0) {
-
-                        clearInterval(
-                            timerInterval
-                        );
-
-                        timerInterval = null;
-
-                        alert(
-                            "🎉 Focus session complete!"
-                        );
-
-                        return;
-                    }
-
-                    timerSeconds--;
-
-                    updateTimerDisplay();
-
-                }, 1000);
+            const now = Date.now();
+            if (studyState.active) {
+                const active = studyState.active;
+                if (active.running) return;
+                active.running = true;
+                active.phaseStartedAt = now;
+            } else {
+                const mode = studyMode;
+                const focusMs = Number(document.getElementById("focusMinutes").value || POMODORO_FOCUS_DEFAULT) * 60000;
+                const breakMs = Number(document.getElementById("breakMinutes").value || POMODORO_BREAK_DEFAULT) * 60000;
+                studyState.active = {
+                    mode,
+                    phase: "focus",
+                    running: true,
+                    phaseDurationMs: mode === "pomodoro" ? focusMs : 0,
+                    breakDurationMs: breakMs,
+                    phaseElapsedBeforeMs: 0,
+                    phaseStartedAt: now,
+                    sessionStartedAt: now,
+                    focusAccumulatedMs: 0
+                };
+            }
+            document.getElementById("studyStatus").textContent = "Session running. You can leave this page; the timer uses timestamps to stay accurate.";
+            saveStudyState();
+            renderStudyTimer();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(tickStudyTimer, 250);
         }
 
+        function tickStudyTimer() {
+            const active = studyState.active;
+            if (!active || !active.running) {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = null;
+                renderStudyTimer();
+                return;
+            }
+            const now = Date.now();
+            if (active.mode === "pomodoro") {
+                const elapsedInPhase = (active.phaseElapsedBeforeMs || 0) + Math.max(0, now - (active.phaseStartedAt || now));
+                if (elapsedInPhase >= active.phaseDurationMs) {
+                    if (active.phase === "focus") {
+                        recordStudyBlock(active.phaseDurationMs, now, "Pomodoro focus");
+                        active.focusAccumulatedMs = (active.focusAccumulatedMs || 0) + active.phaseDurationMs;
+                        active.phase = "break";
+                        active.phaseDurationMs = active.breakDurationMs;
+                        active.phaseElapsedBeforeMs = 0;
+                        active.phaseStartedAt = now;
+                        document.getElementById("studyStatus").textContent = "Focus block complete! Your break has started.";
+                    } else {
+                        active.phase = "focus";
+                        active.phaseDurationMs = Number(document.getElementById("focusMinutes").value || POMODORO_FOCUS_DEFAULT) * 60000;
+                        active.phaseElapsedBeforeMs = 0;
+                        active.phaseStartedAt = now;
+                        document.getElementById("studyStatus").textContent = "Break complete. A new focus block has started.";
+                    }
+                    saveStudyState();
+                }
+            }
+            renderStudyTimer();
+        }
 
         function pauseTimer() {
-
-            clearInterval(
-                timerInterval
-            );
-
+            const active = studyState.active;
+            if (!active || !active.running) return;
+            const now = Date.now();
+            active.phaseElapsedBeforeMs = (active.phaseElapsedBeforeMs || 0) + Math.max(0, now - (active.phaseStartedAt || now));
+            active.phaseStartedAt = null;
+            active.running = false;
+            if (timerInterval) clearInterval(timerInterval);
             timerInterval = null;
+            saveStudyState();
+            document.getElementById("studyStatus").textContent = "Paused. Your progress has been saved on this device.";
+            renderStudyTimer();
         }
 
+        function stopStudySession() {
+            const active = studyState.active;
+            if (!active) return;
+            const now = Date.now();
+            if (active.mode === "stopwatch") {
+                const duration = getActiveElapsedMs(now);
+                recordStudyBlock(duration, now, "Stopwatch session");
+            } else if (active.phase === "focus") {
+                const duration = (active.phaseElapsedBeforeMs || 0) + (active.running && active.phaseStartedAt ? Math.max(0, now - active.phaseStartedAt) : 0);
+                recordStudyBlock(duration, now, "Pomodoro focus (partial)");
+            }
+            studyState.active = null;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            saveStudyState();
+            document.getElementById("studyStatus").textContent = "Session finished and your study time has been recorded.";
+            renderStudyTimer();
+        }
 
         function resetTimer() {
-
-            pauseTimer();
-
-            timerSeconds =
-                25 * 60;
-
-            updateTimerDisplay();
+            // Kept as a safe compatibility alias for any old timer references.
+            stopStudySession();
         }
+
+        function clearStudyHistory() {
+            if (!confirm("Clear all recorded study sessions on this device? This cannot be undone.")) return;
+            studyState.sessions = [];
+            saveStudyState();
+            document.getElementById("studyStatus").textContent = "Study history cleared.";
+            renderStudyTimer();
+        }
+
+        // Restore the saved mode and active session after reload/reopening.
+        studyMode = studyState.mode || "stopwatch";
+        if (studyState.active && studyState.active.running) {
+            // A running session resumes from its saved timestamp; elapsed time is derived from Date.now().
+            if (!studyState.active.phaseStartedAt) studyState.active.phaseStartedAt = Date.now();
+            timerInterval = setInterval(tickStudyTimer, 250);
+        }
+        renderStudyTimer();
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                tickStudyTimer();
+                renderStudyTimer();
+            }
+        });
+        window.addEventListener("beforeunload", saveStudyState);
 
 
         // =========================================================
