@@ -1338,7 +1338,7 @@ input[type="checkbox"] {
                     <input
                         type="file"
                         id="fileInput"
-                        accept=".pdf,application/pdf"
+                        accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
                     >
 
                     <!-- CLICKING THIS OPENS FILE PICKER -->
@@ -1346,7 +1346,8 @@ input[type="checkbox"] {
                         for="fileInput"
                         class="choose-file-btn"
                     >
-                        📁 Choose PDF
+                        📁 Choose File
+                        
                     </label>
 
                     <p id="selectedFileName">
@@ -1373,7 +1374,7 @@ input[type="checkbox"] {
                         <strong>How it works:</strong>
 
                         <p>
-                            Select a PDF, extract its text, then EduSphere
+                            Select a PDF or image, extract its text, then EduSphere
                             will use AI to create 20 MCQs based only on
                             that material.
                         </p>
@@ -1386,7 +1387,7 @@ input[type="checkbox"] {
 
 <div class="button-row">
     <button type="button" onclick="showPDFPageSelection()">
-        📖 Extract PDF Text
+        📖 Extract Text
     </button>
 
     <button
@@ -1511,7 +1512,7 @@ input[type="checkbox"] {
         <div class="ai-info">
             <strong>📚 Learn from your PDF</strong>
             <p>
-                Select a PDF in the AI Quiz section and
+                Select a PDF or image in the Materials section and
                 extract its text first. Then generate
                 flashcards directly from your study material.
             </p>
@@ -1774,10 +1775,8 @@ input[type="checkbox"] {
             if (!this.files || this.files.length === 0) {
 
                 selectedPDFFile = null;
-
-                selectedFileName.textContent =
-                    "No file selected";
-
+                document.getElementById("pdfPageSelectionBox").style.display = "none";
+                selectedFileName.textContent = "No file selected";
                 return;
             }
 
@@ -1785,16 +1784,30 @@ input[type="checkbox"] {
 
             selectedPDFFile = file;
 
-            selectedFileName.textContent =
-                "Selected: " + file.name;
+            // Hide PDF page controls whenever a new file is selected.
+            const pagePanel = document.getElementById("pdfPageSelectionBox");
+            if (pagePanel) pagePanel.style.display = "none";
+
+            const lowerName = file.name.toLowerCase();
+            const isPDF = file.type === "application/pdf" || lowerName.endsWith(".pdf");
+            const isImage = /^image\/(jpeg|png)$/.test(file.type) ||
+                /\.(jpe?g|png)$/.test(lowerName);
+
+            selectedFileName.textContent = "Selected: " + file.name;
+
+            if (!isPDF && !isImage) {
+                selectedPDFFile = null;
+                showStatus("uploadStatus", "Unsupported file. Please choose a PDF, JPG, JPEG, or PNG image.", true);
+                return;
+            }
 
             showStatus(
                 "uploadStatus",
-                "PDF selected successfully.",
+                isPDF ? "PDF selected successfully." : "Image selected successfully. OCR can extract its text.",
                 false
             );
 
-            console.log("Selected PDF:", file);
+            console.log("Selected study material:", file);
 
         });
 
@@ -1926,7 +1939,18 @@ function togglePDFPageSelection() {
 
 function showPDFPageSelection() {
     if (!selectedPDFFile) {
-        showStatus("pdfExtractionStatus", "Please select a PDF first.", true);
+        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, or PNG file first.", true);
+        return;
+    }
+
+    const fileName = selectedPDFFile.name.toLowerCase();
+    const isPDF = selectedPDFFile.type === "application/pdf" || fileName.endsWith(".pdf");
+
+    // Images do not have pages to select, so send them straight to OCR.
+    if (!isPDF) {
+        const panel = document.getElementById("pdfPageSelectionBox");
+        if (panel) panel.style.display = "none";
+        extractSelectedImage();
         return;
     }
 
@@ -1948,12 +1972,80 @@ function showPDFPageSelection() {
 }
 
 function startPDFExtraction() {
-    extractSelectedPDF();
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a file first.", true);
+        return;
+    }
+
+    const fileName = selectedPDFFile.name.toLowerCase();
+    const isPDF = selectedPDFFile.type === "application/pdf" || fileName.endsWith(".pdf");
+
+    if (isPDF) {
+        extractSelectedPDF();
+    } else {
+        extractSelectedImage();
+    }
+}
+
+async function extractSelectedImage() {
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a JPG, JPEG, or PNG image first.", true);
+        return;
+    }
+
+    const fileName = selectedPDFFile.name.toLowerCase();
+    const isImage = /^image\/(jpeg|png)$/.test(selectedPDFFile.type) ||
+        /\.(jpe?g|png)$/.test(fileName);
+
+    if (!isImage) {
+        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, JPEG, or PNG file.", true);
+        return;
+    }
+
+    try {
+        showStatus("pdfExtractionStatus", "Preparing image OCR (English + Bengali)...", false);
+        const workers = await getSharedOCRWorkers();
+        showStatus("pdfExtractionStatus", "Reading text from image: " + selectedPDFFile.name, false);
+
+        // Tesseract can recognize text directly from the selected image File.
+        const result = await workers[0].recognize(selectedPDFFile);
+        extractedPDFText = (result?.data?.text || "").replace(/\r/g, "").trim();
+
+        if (!extractedPDFText) {
+            showStatus("pdfExtractionStatus", "No readable text was found. Try a clearer, well-lit image.", true);
+            return;
+        }
+
+        const textArea = document.getElementById("pdfExtractedText");
+        if (textArea) textArea.value = extractedPDFText;
+
+        const wordCount = extractedPDFText.split(/\\s+/).filter(Boolean).length;
+        const charCount = extractedPDFText.length;
+
+        const wordCountElement = document.getElementById("pdfWordCount");
+        if (wordCountElement) wordCountElement.textContent = wordCount;
+
+        const charCountElement = document.getElementById("pdfCharCount");
+        if (charCountElement) charCountElement.textContent = charCount;
+
+        showStatus(
+            "pdfExtractionStatus",
+            `Image text extraction complete! ${wordCount} words and ${charCount} characters extracted from ${selectedPDFFile.name}.`,
+            false
+        );
+    } catch (error) {
+        console.error("Image OCR error:", error);
+        showStatus(
+            "pdfExtractionStatus",
+            `Could not extract text from this image: ${error.message || "Unknown error"}. Please try a clearer JPG or PNG.`,
+            true
+        );
+    }
 }
 
 async function extractSelectedPDF() {
     if (!selectedPDFFile) {
-        showStatus("pdfExtractionStatus", "Please select a PDF first.", true);
+        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, or PNG file first.", true);
         return;
     }
 
@@ -2158,7 +2250,7 @@ async function generateQuizFromPDF() {
     if (extractedPDFText.length < 100) {
 
         alert(
-            "Not enough text was extracted from this PDF."
+            "Not enough text was extracted from this material."
         );
 
         return;
