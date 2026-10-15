@@ -932,3 +932,423 @@ footer a:hover {
     color: #64748b;
 }
 
+
+
+
+
+
+/* ==================================================
+   EDUSPHERE — PREMIUM DARK THEME
+   Black • Purple • Modern UI
+   ================================================== */
+
+:root {
+    color-scheme: dark;
+
+    --bg: #09090d;
+    --bg-secondary: #101016;
+    --card: #171720;
+    --card-hover: #20202c;
+
+    --border: #30303e;
+    --text: #f5f3ff;
+    --text-secondary: #a1a1b2;
+
+    --accent: #8b5cf6;
+    --accent-hover: #a78bfa;
+    --accent-soft: #29203e;
+
+    --input-bg: #111118;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* ===================== RESET & BODY ===================== */
+
+html {
+    color-scheme: dark;
+    background: var(--bg);
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ===================== NAVIGATION ===================== */
+
+nav {
+    background: rgba(12, 12, 18, 0.94);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+nav a {
+    color: var(--text-secondary);
+}
+
+nav a:hover,
+nav a:focus-visible {
+    color: var(--accent-hover);
+    background: var(--accent-soft);
+}
+
+/* ===================== HERO SECTION ===================== */
+
+#home {
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(139, 92, 246, 0.19),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 85% 25%,
+            rgba(99, 102, 241, 0.14),
+            transparent 34%
+        ),
+        linear-gradient(
+            135deg,
+            #11101b,
+            #09090d 60%,
+            #151020
+        );
+}
+
+#home h1 {
+    color: #ffffff;
+}
+
+#home p {
+    color: #b4b2c5;
+}
+
+/* ===================== HEADINGS & TEXT ===================== */
+
+section h2 {
+    color: var(--text);
+}
+
+section > p {
+    color: var(--text-secondary);
+}
+
+label,
+h3,
+h4,
+legend {
+    color: var(--text);
+}
+
+small {
+    color: var(--text-secondary);
+}
+
+/* ===================== BUTTONS ===================== */
+
+button,
+.upload-button {
+    background: linear-gradient(
+        135deg,
+        #7c3aed,
+        #8b5cf6
+    );
+
+    color: #ffffff;
+    border-color: rgba(167, 139, 250, 0.2);
+
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.2);
+}
+
+button:hover,
+.upload-button:hover {
+    background: linear-gradient(
+        135deg,
+        #8b5cf6,
+        #a78bfa
+    );
+
+    box-shadow: 0 10px 28px rgba(139, 92, 246, 0.3);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline-color: #a78bfa;
+}
+
+/* ===================== FLOATING CARDS ===================== */
+
+.study-card {
+    background: rgba(25, 24, 38, 0.96);
+    color: #ede9fe;
+    border-color: #39304f;
+    box-shadow: var(--shadow);
+}
+
+/* ===================== ACCOUNT / LOGIN ===================== */
+
+#account {
+    background: var(--bg);
+}
+
+.auth-box,
+#authBox,
+#userBox {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+}
+
+/* ===================== INPUTS ===================== */
+
+input,
+textarea,
+select {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: #383846;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #858598;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    background: #15141e;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+/* ===================== STUDY MATERIALS ===================== */
+
+#materials {
+    background: linear-gradient(
+        180deg,
+        #0b0b11,
+        #11101a
+    );
+}
+
+.upload-box,
+.materials-library {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+}
+
+.upload-box input[type="file"] {
+    background: #111118;
+    color: var(--text-secondary);
+    border-color: #48405c;
+}
+
+#materialSearch {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+#materialSearch:focus {
+    border-color: var(--accent);
+}
+
+.material-item {
+    background: #1b1b26;
+    color: var(--text);
+    border-color: #343443;
+}
+
+.material-item:hover {
+    background: var(--card-hover);
+    border-color: #51406f;
+}
+
+.material-item a {
+    color: var(--accent-hover);
+}
+
+/* ===================== QUIZ ===================== */
+
+#quiz {
+    background: var(--bg);
+}
+
+.quiz-container,
+.quiz-box {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+}
+
+/* ===================== FLASHCARDS ===================== */
+
+#flashcards {
+    background: #101016;
+}
+
+.flashcard,
+.flashcard-container {
+    background: linear-gradient(
+        135deg,
+        #191724,
+        #241a38
+    );
+
+    color: #f5f3ff;
+    border-color: #423354;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+}
+
+/* ===================== FOCUS TIMER ===================== */
+
+#timer {
+    background: var(--bg);
+}
+
+.timer-container,
+.timer-box {
+    background: linear-gradient(
+        135deg,
+        #191526,
+        #211633
+    );
+
+    border-color: #44315e;
+    color: var(--text);
+}
+
+#timerDisplay {
+    color: #c4b5fd;
+    text-shadow: 0 0 24px rgba(139, 92, 246, 0.15);
+}
+
+/* ===================== TODAY'S GOAL ===================== */
+
+#goal {
+    background: #101016;
+}
+
+.goal-container,
+.goal-box {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+}
+
+/* ===================== PDF PAGE SELECTION ===================== */
+
+#pdfPageSelectionBox {
+    background: #191724;
+    color: var(--text);
+    border-color: #51406f;
+}
+
+#pdfPageSelectionBox h4 {
+    color: var(--text);
+}
+
+#pdfPageSelectionBox > label {
+    color: #e5e1f5;
+}
+
+#pdfPageRangeArea input[type="number"] {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+#pdfPageSelectionBox small {
+    color: var(--text-secondary);
+}
+
+/* ===================== LINKS ===================== */
+
+a {
+    transition: color 0.2s ease,
+                background 0.2s ease;
+}
+
+.material-item a:hover,
+footer a:hover {
+    color: #c4b5fd;
+}
+
+/* ===================== FOOTER ===================== */
+
+footer {
+    background: #050507;
+    color: #a1a1b2;
+    border-top: 1px solid #292633;
+}
+
+footer h3 {
+    color: #ffffff;
+}
+
+footer a {
+    color: #c4b5fd;
+}
+
+/* ===================== SCROLLBAR ===================== */
+
+* {
+    scrollbar-color: #51406f #101016;
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #101016;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #51406f;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #8b5cf6;
+}
+
+/* ===================== SELECTION ===================== */
+
+::selection {
+    background: #6d28d9;
+    color: #ffffff;
+}
+
+/* ===================== MOBILE SAFETY ===================== */
+
+@media (max-width: 600px) {
+    nav {
+        background: rgba(12, 12, 18, 0.97);
+    }
+
+    .auth-box,
+    #authBox,
+    #userBox,
+    .upload-box,
+    .materials-library,
+    .quiz-container,
+    .quiz-box,
+    .goal-container,
+    .goal-box,
+    .timer-container,
+    .timer-box {
+        border-color: var(--border);
+    }
+}
+
+
