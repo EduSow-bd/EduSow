@@ -7,7 +7,6 @@
 
     <title>EduSphere</title>
 
-
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -483,6 +482,7 @@ button:disabled {
         #15803d
     );
 }
+
 
 
 
@@ -978,7 +978,7 @@ textarea {
 .study-history-list li span:last-child { color: var(--text-soft); white-space: nowrap; }
 .study-history-empty { color: var(--text-light); }
 @media (max-width: 850px) { .study-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls butto[...]
+@media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } }
 
 /* =========================================================
    GOAL PROGRESS
@@ -998,84 +998,2222 @@ textarea {
 
 .goal-progress-bar {
     height: 100%;
-[...] 
+
+    width: 0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            var(--secondary)
+        );
+
+    transition:
+        width 0.4s ease;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    margin-top: 60px;
+
+    text-align: center;
+
+    padding:
+        45px
+        20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111827,
+            #1e1b4b
+        );
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+}
+
+footer strong {
+    color: white;
+}
+
+
+/* PDF page selection */
+.page-selection-box {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-soft);
+}
+
+.page-selection-box h4 {
+    margin-bottom: 12px;
+}
+
+.page-mode-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    width: auto;
+    flex: 0 0 auto;
+}
+
+/* =========================================================
+   HIDDEN
+   ========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    nav {
+        gap: 15px;
+    }
+
+    nav ul {
+        gap: 2px;
+    }
+
+    nav a {
+        padding:
+            8px
+            9px;
+
+        font-size: 13px;
+    }
+
+    section {
+        padding:
+            70px
+            5%;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    nav {
+        position: sticky;
+
+        padding:
+            12px
+            4%;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    nav ul {
+        width: 100%;
+
+        justify-content: center;
+
+        gap: 3px;
+    }
+
+    nav a {
+        font-size: 12px;
+
+        padding:
+            7px
+            8px;
+    }
+
+    section {
+        padding:
+            55px
+            4%;
+    }
+
+    section > h2 {
+        font-size: 29px;
+
+        margin-bottom: 25px;
+    }
+
+    .hero {
+        min-height: 78vh;
+
+        padding:
+            70px
+            5%;
+    }
+
+    .hero h1 {
+        font-size:
+            clamp(
+                40px,
+                12vw,
+                58px
+            );
+
+        letter-spacing: -1.8px;
+    }
+
+    .hero p {
+        font-size: 18px;
+    }
+
+    .hero button {
+        width: 100%;
+
+        max-width: 260px;
+    }
+
+    .auth-box,
+    .materials-box,
+    .generator-box,
+    .quiz-box,
+    .flashcard-box,
+    .timer-box,
+    .goal-box {
+        padding: 20px;
+
+        border-radius: 18px;
+    }
+
+    .button-row {
+        flex-direction: column;
+    }
+
+    .button-row button {
+        width: 100%;
+    }
+
+    .file-item {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .file-actions {
+        width: 100%;
+    }
+
+    .file-actions button {
+        flex: 1;
+    }
+
+    .timer-display {
+        font-size: 45px;
+    }
+
+    .flashcard {
+        min-height: 200px;
+
+        font-size: 21px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+    .logo img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .logo {
+        font-size: 18px;
+    }
+
+    nav ul {
+        gap: 1px;
+    }
+
+    nav a {
+        font-size: 11px;
+
+        padding:
+            6px
+            6px;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    section > h2 {
+        font-size: 26px;
+    }
+
+}  
     </style>
+</head>
 
 <body>
 
+    <!-- ========================= NAV ========================= -->
+
     <nav>
         <div class="logo">
-            <img src="assets/logo.png" alt="EduSphere">
-            <span>EduSphere</span>
+            <img src="edusphere-logo.png" alt="EduSphere">
+            <span>EduSphere 📚</span>
         </div>
 
         <ul>
-            <li><a href="#">Home</a></li>
+            <li><a href="#home">Home</a></li>
+       
             <li><a href="#materials">Materials</a></li>
-            <li><a href="#generator">Generator</a></li>
             <li><a href="#quiz">Quiz</a></li>
             <li><a href="#flashcards">Flashcards</a></li>
-            <li><a href="#timer">Timer</a></li>
-            <li><a href="#goals">Goals</a></li>
+            <li><a href="#timer">Pomodoro</a></li>
         </ul>
-
-        <div>
-            <button class="secondary">Sign in</button>
-        </div>
     </nav>
 
-    <main>
-        <section class="hero">
-            <h1>Learn smarter, not harder.</h1>
-            <p>Upload PDFs, generate quizzes, create flashcards, and manage study sessions — all in one place.</p>
 
-            <div class="button-row">
-                <button id="chooseFile" class="choose-file-btn">Upload PDF</button>
-            </div>
+    <!-- ========================= HOME ========================= -->
 
-            <div id="selectedFileName"></div>
+    <section id="home" class="hero">
 
-            <div class="auth-box">
-                <h3>Sign in with Supabase</h3>
-                <div class="button-row">
-                    <button id="signInBtn">Sign in</button>
-                </div>
+        <h1>Welcome to EduSphere </h1>
 
-                <div id="authStatus" class="status" style="display:none"></div>
-            </div>
-        </section>
+        <p>Learn. Explore. Grow.</p>
 
-        <section id="materials">
-            <h2>Materials</h2>
+        <button onclick="document.getElementById('materials').scrollIntoView()">
+            Start Studying 🚀
+        </button>
 
-            <div class="materials-box">
+    </section>
+
+
+  
+
+
+   
+    <!-- ========================= MATERIALS ========================= -->
+
+    <section id="materials">
+
+        <h2>📂 Study Materials</h2>
+
+        <div class="materials-box">
+
+           
+
+
+            <!-- FILE PICKER -->
+
+            <div id="uploadArea">
+
+                <h3>Upload Study Material</h3>
+
                 <div class="file-picker">
-                    <label for="fileInput" class="choose-file-btn">Choose a file</label>
-                    <input type="file" id="fileInput" accept="application/pdf">
 
-                    <div id="fileHelp" class="study-intro">We support scanned PDFs. OCR will run automatically if needed.</div>
+                    <!-- REAL FILE INPUT -->
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                    >
+
+                    <!-- CLICKING THIS OPENS FILE PICKER -->
+                    <label
+                        for="fileInput"
+                        class="choose-file-btn"
+                    >
+                        📁 Choose PDF, JPG or PNG
+                    </label>
+
+                    <p id="selectedFileName">
+                        No file selected
+                    </p>
+
+                    
+
                 </div>
 
-                <div id="fileList"></div>
+
+                <div id="uploadStatus" class="status"></div>
+
+
+               
+                <!-- ================= AI GENERATOR ================= -->
+
+                <div class="generator-box">
+
+                    <h3>🧠 AI Study Generator</h3>
+
+                    <div class="ai-info">
+
+                        <strong>How it works:</strong>
+
+                        <p>
+                            Select a PDF or image, extract its text, then EduSphere
+                            will use AI to create 20 MCQs based only on
+                            that material.
+                        </p>
+
+                    </div>
+
+
+                  
+<!-- ================= PDF PAGE SELECTION ================= -->
+
+<div class="button-row">
+    <button type="button" onclick="showPDFPageSelection()">
+        📖 Extract Text
+    </button>
+
+    <button
+        type="button"
+        onclick="generateQuizFromPDF()"
+        class="success"
+        id="generateQuizButton"
+    >
+        🧠 Generate 20 MCQs with AI
+    </button>
+</div>
+
+<div id="pdfPageSelectionBox" class="page-selection-box" style="display:none; margin:15px 0;">
+    <h4>📄 Choose PDF Pages</h4>
+
+    <label class="page-mode-option">
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="all"
+            checked
+            onchange="togglePDFPageSelection()"
+        >
+        All pages
+    </label>
+
+    <label class="page-mode-option">
+        <input
+            type="radio"
+            name="pdfPageMode"
+            value="selected"
+            onchange="togglePDFPageSelection()"
+        >
+        Select specific pages
+    </label>
+
+    <div id="pdfPageRangeArea" style="display:none; margin-top:12px;">
+        <label for="pdfPageRange">Page numbers or ranges</label>
+        <input
+            type="text"
+            id="pdfPageRange"
+            placeholder="e.g. 1-5, 8, 10-12"
+            autocomplete="off"
+        >
+        <small>Separate pages or ranges with commas, for example: 1-5, 8, 10-12.</small>
+    </div>
+
+    <button
+        type="button"
+        onclick="startPDFExtraction()"
+        style="margin-top:12px;"
+    >
+        Start Extraction
+    </button>
+</div>
+
+                    <div
+                        id="pdfExtractionStatus"
+                        class="status"
+                    ></div>
+
+
+                    <div
+                        id="pdfInfo"
+                        class="ai-info hidden"
+                    ></div>
+
+
+                    <textarea
+                        id="pdfExtractedText"
+                        placeholder="Extracted PDF text will appear here..."
+                    ></textarea>
+
+                </div>
+
             </div>
-        </section>
 
-        <!-- Other sections (generator, quiz, flashcards, timer, goals) would go here -->
+        </div>
 
-    </main>
+    </section>
+
+
+    <!-- ========================= QUIZ ========================= -->
+
+    <section id="quiz">
+
+        <h2>🧠 AI Quiz</h2>
+
+        <div class="quiz-box">
+
+            <div class="ai-info">
+                <strong>EduSphere AI Quiz</strong>
+
+                <p>
+                    Generate a 20-question MCQ quiz from your selected
+                    PDF in the Materials section.
+                </p>
+            </div>
+
+            <div id="generatedQuizContainer">
+
+                <p>
+                    No AI quiz generated yet.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+   
+<!-- ========================= FLASHCARDS ========================= -->
+
+<section id="flashcards">
+
+    <h2>🃏 AI Flashcards</h2>
+
+    <div class="flashcard-box">
+
+        <div class="ai-info">
+            <strong>📚 Learn from your PDF</strong>
+            <p>
+                Select a PDF or image in the Materials section and
+                extract its text first. Then generate
+                flashcards directly from your study material.
+            </p>
+        </div>
+
+        <label for="flashcardCount">
+            Number of flashcards
+        </label>
+
+        <select id="flashcardCount">
+            <option value="5">5 flashcards</option>
+            <option value="10" selected>10 flashcards</option>
+            <option value="15">15 flashcards</option>
+            <option value="20">20 flashcards</option>
+        </select>
+
+        <div class="button-row">
+
+            <button
+                id="generateFlashcardsButton"
+                onclick="generateFlashcardsFromPDF()"
+                class="success"
+            >
+                ✨ Generate with AI
+            </button>
+
+        </div>
+
+        <div
+            id="flashcardStatus"
+            class="status"
+            style="display:none;"
+        ></div>
+
+        <div
+            id="flashcardStudyArea"
+            style="display:none; margin-top:25px;"
+        >
+
+            <p
+                id="flashcardCounter"
+                style="text-align:center; margin-bottom:12px;"
+            >
+                Card 1 of 10
+            </p>
+
+            <div
+                id="flashcard"
+                class="flashcard"
+                role="button"
+                tabindex="0"
+                onclick="flipFlashcard()"
+                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipFlashcard();}"
+            >
+                Your question will appear here.
+            </div>
+
+            <p
+                id="flashcardHint"
+                style="text-align:center; margin-top:12px;"
+            >
+                Tap the card to reveal the answer.
+            </p>
+
+            <div
+                class="button-row"
+                style="justify-content:center;"
+            >
+
+                <button
+                    onclick="previousFlashcard()"
+                    class="secondary"
+                >
+                    ◀ Previous
+                </button>
+
+                <button onclick="flipFlashcard()">
+                    🔄 Flip Card
+                </button>
+
+                <button onclick="nextFlashcard()">
+                    Next ▶
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+    <!-- ========================= POMODORO & STUDY TRACKER ========================= -->
+
+    <section id="timer">
+        <h2>🍅 Pomodoro &amp; Study Tracker</h2>
+        <p class="study-intro">Focus on one task at a time. Your study time is saved on this device, even if you leave EduSphere.</p>
+
+        <div class="timer-box study-tracker-box">
+            <div class="study-mode-switch" role="group" aria-label="Timer mode">
+                <button type="button" id="stopwatchModeBtn" class="study-mode-btn active" onclick="setStudyMode('stopwatch')">⏱ Stopwatch</button>
+                <button type="button" id="pomodoroModeBtn" class="study-mode-btn" onclick="setStudyMode('pomodoro')">🍅 Pomodoro</button>
+            </div>
+
+            <p id="studyPhaseLabel" class="study-phase-label">STOPWATCH · READY</p>
+            <div id="timerDisplay" class="timer-display" role="timer" aria-live="off">00:00:00</div>
+            <p id="studyTimerHint" class="study-timer-hint">Start when you're ready to study.</p>
+
+            <div class="study-controls">
+                <button type="button" id="studyStartBtn" onclick="startTimer()">▶ Start studying</button>
+                <button type="button" id="studyPauseBtn" class="secondary" onclick="pauseTimer()" disabled>Ⅱ Pause</button>
+                <button type="button" id="studyStopBtn" class="danger" onclick="stopStudySession()" disabled>■ Finish session</button>
+            </div>
+
+            <div id="pomodoroSettings" class="pomodoro-settings" hidden>
+                <label>Focus
+                    <select id="focusMinutes" onchange="updatePomodoroSettings()">
+                        <option value="15">15 min</option>
+                        <option value="25" selected>25 min</option>
+                        <option value="30">30 min</option>
+                        <option value="45">45 min</option>
+                        <option value="50">50 min</option>
+                    </select>
+                </label>
+                <label>Break
+                    <select id="breakMinutes" onchange="updatePomodoroSettings()">
+                        <option value="5" selected>5 min</option>
+                        <option value="10">10 min</option>
+                        <option value="15">15 min</option>
+                    </select>
+                </label>
+            </div>
+            <p id="studyStatus" class="study-status" role="status">Your study statistics will appear below.</p>
+        </div>
+
+        <div class="study-stats-grid" aria-label="Study statistics">
+            <div class="study-stat-card"><span class="study-stat-icon">📚</span><p>Total study time</p><strong id="totalStudyTime">0 min</strong><small>All recorded sessions</small></div>
+            <div class="study-stat-card"><span class="study-stat-icon">📅</span><p>Today</p><strong id="todayStudyTime">0 min</strong><small>Study time today</small></div>
+            <div class="study-stat-card"><span class="study-stat-icon">📈</span><p>Average session</p><strong id="averageStudyTime">0 min</strong><small>Per recorded session</small></div>
+            <div class="study-stat-card"><span class="study-stat-icon">✅</span><p>Sessions</p><strong id="completedStudySessions">0</strong><small>Recorded study blocks</small></div>
+        </div>
+        <div class="study-history-box">
+            <div class="study-history-heading"><h3>Recent study sessions</h3><button type="button" class="secondary study-clear-btn" onclick="clearStudyHistory()">Clear history</button></div>
+            <ul id="studyHistoryList" class="study-history-list"><li class="study-history-empty">Your completed study sessions will show here.</li></ul>
+        </div>
+    </section>
+
+
+    <!-- ========================= GOAL ========================= -->
+
+    <section id="goal">
+
+        <h2>🎯 Today's Goal</h2>
+
+        <div class="goal-box">
+
+            <p>
+                Focus on your studies and complete your daily target.
+            </p>
+
+            <div class="goal-progress">
+                <div
+                    id="goalProgressBar"
+                    class="goal-progress-bar"
+                ></div>
+            </div>
+
+            <p
+                id="goalText"
+                style="margin-top:10px;"
+            >
+                0% completed
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+        © 2026 EduSphere 📚 — Learn. Explore. Grow.
+    </footer>
+
+
+    <!-- ========================= JAVASCRIPT ========================= -->
 
     <script>
-        // Basic DOM wiring for file chooser
-        const chooseFileBtn = document.getElementById('chooseFile');
-        const fileInput = document.getElementById('fileInput');
-        const selectedFileName = document.getElementById('selectedFileName');
 
-        chooseFileBtn.addEventListener('click', () => fileInput.click());
+        // =========================================================
+        // SUPABASE
+        // =========================================================
 
-        fileInput.addEventListener('change', (e) => {
-            const f = e.target.files[0];
-            if (f) selectedFileName.textContent = f.name;
+        const SUPABASE_URL =
+            "https://pjytoktykbaokkuhaera.supabase.co";
+
+        const SUPABASE_KEY =
+            "sb_publishable_jizTuUuoywy3im2S30OzXA_PfO4mWUY";
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+    
+
+
+        // =========================================================
+        // PDF.JS
+        // =========================================================
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+
+        // =========================================================
+        // GLOBAL VARIABLES
+        // =========================================================
+
+       
+        let selectedPDFFile = null;
+        let extractedPDFText = "";
+
+        let generatedQuiz = [];
+
+        // Study tracker state is timestamp-based, so it remains accurate
+        // when the tab is backgrounded or the browser is reopened.
+        const STUDY_STORAGE_KEY = "edusphereStudyTrackerV1";
+        const POMODORO_FOCUS_DEFAULT = 25;
+        const POMODORO_BREAK_DEFAULT = 5;
+        let timerInterval = null;
+        let studyMode = "stopwatch";
+        let studyState = loadStudyState();
+
+        let flashcardIndex = 0;
+        let flashcardFlipped = false;
+
+
+        // =========================================================
+        // DOM
+        // =========================================================
+
+        const fileInput =
+            document.getElementById("fileInput");
+
+        const selectedFileName =
+            document.getElementById("selectedFileName");
+
+
+        // =========================================================
+        // FILE SELECTION
+        // =========================================================
+
+        fileInput.addEventListener("change", function () {
+
+            console.log("File input changed");
+
+            if (!this.files || this.files.length === 0) {
+
+                selectedPDFFile = null;
+                document.getElementById("pdfPageSelectionBox").style.display = "none";
+                selectedFileName.textContent = "No file selected";
+                return;
+            }
+
+            const file = this.files[0];
+
+            selectedPDFFile = file;
+
+            // Hide PDF page controls whenever a new file is selected.
+            const pagePanel = document.getElementById("pdfPageSelectionBox");
+            if (pagePanel) pagePanel.style.display = "none";
+
+            const lowerName = file.name.toLowerCase();
+            const isPDF = file.type === "application/pdf" || lowerName.endsWith(".pdf");
+            const isImage = /^image\/(jpeg|png)$/.test(file.type) ||
+                /\.(jpe?g|png)$/.test(lowerName);
+
+            selectedFileName.textContent = "Selected: " + file.name;
+
+            if (!isPDF && !isImage) {
+                selectedPDFFile = null;
+                showStatus("uploadStatus", "Unsupported file. Please choose a PDF, JPG, JPEG, or PNG image.", true);
+                return;
+            }
+
+            showStatus(
+                "uploadStatus",
+                isPDF ? "PDF selected successfully." : "Image selected successfully. OCR can extract its text.",
+                false
+            );
+
+            console.log("Selected study material:", file);
+
         });
+
+
+        // =========================================================
+        // AUTH STATUS
+        // =========================================================
+
+       
+
+
+    
+
+   
+
+      
+
+    
+        // =========================================================
+        // OCR HELPER FOR SCANNED PDF PAGES
+        // =========================================================
+
+       
+
+        // =========================================================
+        // OCR HELPER - TWO REUSABLE WORKERS
+        // =========================================================
+
+        let sharedOCRWorkers = null;
+        let sharedOCRWorkersPromise = null;
+
+        async function getSharedOCRWorkers() {
+            if (sharedOCRWorkers) {
+                return sharedOCRWorkers;
+            }
+
+            if (!sharedOCRWorkersPromise) {
+                showStatus(
+                    "pdfExtractionStatus",
+                    "Loading two English + Bengali OCR workers...",
+                    false
+                );
+
+                sharedOCRWorkersPromise = Promise.all(
+                    [0, 1].map(workerIndex =>
+                        Tesseract.createWorker(
+                            "eng+ben",
+                            1,
+                            {
+                                logger: message => {
+                                    if (
+                                        message.status === "recognizing text"
+                                    ) {
+                                        const percent = Math.round(
+                                            (message.progress || 0) * 100
+                                        );
+
+                                        showStatus(
+                                            "pdfExtractionStatus",
+                                            `OCR worker ${workerIndex + 1}/2: ${percent}%`,
+                                            false
+                                        );
+                                    }
+                                }
+                            }
+                        )
+                    )
+                ).then(workers => {
+                    sharedOCRWorkers = workers;
+                    return workers;
+                }).catch(error => {
+                    sharedOCRWorkersPromise = null;
+                    throw error;
+                });
+            }
+
+            return sharedOCRWorkersPromise;
+        }
+
+        async function recognizePDFPage(
+            page,
+            pageNumber,
+            totalPages,
+            worker
+        ) {
+            const scale = 1.0;
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+
+            try {
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+
+                const result = await worker.recognize(canvas);
+
+                return result.data.text || "";
+
+            } finally {
+                canvas.width = 0;
+                canvas.height = 0;
+            }
+        }
+
+
+
+        // =========================================================
+        // PDF TEXT EXTRACTION
+        // =========================================================
+
+       
+
+function togglePDFPageSelection() {
+    const selectedMode = document.querySelector(
+        '#pdfPageSelectionBox input[name="pdfPageMode"]:checked'
+    )?.value || "all";
+
+    const rangeArea = document.getElementById("pdfPageRangeArea");
+    if (rangeArea) {
+        rangeArea.style.display = selectedMode === "selected" ? "block" : "none";
+    }
+}
+
+function showPDFPageSelection() {
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, or PNG file first.", true);
+        return;
+    }
+
+    const fileName = selectedPDFFile.name.toLowerCase();
+    const isPDF = selectedPDFFile.type === "application/pdf" || fileName.endsWith(".pdf");
+
+    // Images do not have pages to select, so send them straight to OCR.
+    if (!isPDF) {
+        const panel = document.getElementById("pdfPageSelectionBox");
+        if (panel) panel.style.display = "none";
+        extractSelectedImage();
+        return;
+    }
+
+    const panel = document.getElementById("pdfPageSelectionBox");
+    if (!panel) {
+        showStatus("pdfExtractionStatus", "Page-selection controls could not be found.", true);
+        return;
+    }
+
+    panel.style.display = "block";
+    const allPagesOption = panel.querySelector('input[name="pdfPageMode"][value="all"]');
+    if (allPagesOption) allPagesOption.checked = true;
+
+    const rangeInput = document.getElementById("pdfPageRange");
+    if (rangeInput) rangeInput.value = "";
+
+    togglePDFPageSelection();
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function startPDFExtraction() {
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a file first.", true);
+        return;
+    }
+
+    const fileName = selectedPDFFile.name.toLowerCase();
+    const isPDF = selectedPDFFile.type === "application/pdf" || fileName.endsWith(".pdf");
+
+    if (isPDF) {
+        extractSelectedPDF();
+    } else {
+        extractSelectedImage();
+    }
+}
+
+async function extractSelectedImage() {
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a JPG, JPEG, or PNG image first.", true);
+        return;
+    }
+
+    const fileName = selectedPDFFile.name.toLowerCase();
+    const isImage = /^image\/(jpeg|png)$/.test(selectedPDFFile.type) ||
+        /\.(jpe?g|png)$/.test(fileName);
+
+    if (!isImage) {
+        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, JPEG, or PNG file.", true);
+        return;
+    }
+
+    try {
+        showStatus("pdfExtractionStatus", "Preparing image OCR (English + Bengali)...", false);
+        const workers = await getSharedOCRWorkers();
+        showStatus("pdfExtractionStatus", "Reading text from image: " + selectedPDFFile.name, false);
+
+        // Tesseract can recognize text directly from the selected image File.
+        const result = await workers[0].recognize(selectedPDFFile);
+        extractedPDFText = (result?.data?.text || "").replace(/\r/g, "").trim();
+
+        if (!extractedPDFText) {
+            showStatus("pdfExtractionStatus", "No readable text was found. Try a clearer, well-lit image.", true);
+            return;
+        }
+
+        const textArea = document.getElementById("pdfExtractedText");
+        if (textArea) textArea.value = extractedPDFText;
+
+        const wordCount = extractedPDFText.split(/\\s+/).filter(Boolean).length;
+        const charCount = extractedPDFText.length;
+
+        const wordCountElement = document.getElementById("pdfWordCount");
+        if (wordCountElement) wordCountElement.textContent = wordCount;
+
+        const charCountElement = document.getElementById("pdfCharCount");
+        if (charCountElement) charCountElement.textContent = charCount;
+
+        showStatus(
+            "pdfExtractionStatus",
+            `Image text extraction complete! ${wordCount} words and ${charCount} characters extracted from ${selectedPDFFile.name}.`,
+            false
+        );
+    } catch (error) {
+        console.error("Image OCR error:", error);
+        showStatus(
+            "pdfExtractionStatus",
+            `Could not extract text from this image: ${error.message || "Unknown error"}. Please try a clearer JPG or PNG.`,
+            true
+        );
+    }
+}
+
+async function extractSelectedPDF() {
+    if (!selectedPDFFile) {
+        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, or PNG file first.", true);
+        return;
+    }
+
+    if (
+        selectedPDFFile.type !== "application/pdf" &&
+        !selectedPDFFile.name.toLowerCase().endsWith(".pdf")
+    ) {
+        showStatus("pdfExtractionStatus", "Please select a PDF file.", true);
+        return;
+    }
+
+    try {
+        showStatus("pdfExtractionStatus", "Opening PDF...", false);
+
+        const arrayBuffer = await selectedPDFFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        const selectedMode = document.querySelector(
+            '#pdfPageSelectionBox input[name="pdfPageMode"]:checked'
+        )?.value || "all";
+
+        let selectedPageNumbers = [];
+
+        if (selectedMode === "all") {
+            selectedPageNumbers = Array.from(
+                { length: pdf.numPages },
+                (_, index) => index + 1
+            );
+        } else {
+            const rangeInput = document.getElementById("pdfPageRange");
+            const rangeText = rangeInput?.value.trim() || "";
+
+            if (!rangeText) {
+                showStatus("pdfExtractionStatus", "Enter page numbers or ranges, such as 1-5, 8, 10-12.", true);
+                return;
+            }
+
+            const pageSet = new Set();
+            const parts = rangeText.split(",");
+
+            for (const part of parts) {
+                const item = part.trim();
+                const match = item.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+
+                if (!match) {
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `Invalid page entry: "${item}". Use a format such as 1-5, 8, 10-12.`,
+                        true
+                    );
+                    return;
+                }
+
+                const firstPage = Number(match[1]);
+                const lastPage = match[2] ? Number(match[2]) : firstPage;
+
+                if (
+                    firstPage < 1 ||
+                    lastPage < firstPage ||
+                    lastPage > pdf.numPages
+                ) {
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `Invalid range "${item}". This PDF has ${pdf.numPages} page(s).`,
+                        true
+                    );
+                    return;
+                }
+
+                for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber++) {
+                    pageSet.add(pageNumber);
+                }
+            }
+
+            selectedPageNumbers = [...pageSet].sort((a, b) => a - b);
+        }
+
+        // Extract only the requested pages, checking whether each needs OCR.
+        const pages = [];
+        for (let index = 0; index < selectedPageNumbers.length; index++) {
+            const pageNumber = selectedPageNumbers[index];
+            showStatus(
+                "pdfExtractionStatus",
+                `Reading selected page ${index + 1}/${selectedPageNumbers.length} (PDF page ${pageNumber})...`,
+                false
+            );
+
+            const page = await pdf.getPage(pageNumber);
+            const content = await page.getTextContent();
+            const pageText = content.items
+                .map(item => item.str || "")
+                .join(" ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            pages.push({
+                pageNumber,
+                pageText,
+                needsOCR: pageText.replace(/\s/g, "").length < 30
+            });
+        }
+
+        const scannedPages = pages.filter(page => page.needsOCR);
+        if (scannedPages.length > 0) {
+            const workers = await getSharedOCRWorkers();
+            let nextIndex = 0;
+            let completed = 0;
+
+            async function processWorker(worker) {
+                while (nextIndex < scannedPages.length) {
+                    const index = nextIndex++;
+                    const item = scannedPages[index];
+
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `OCR processing scanned pages: ${completed}/${scannedPages.length} completed...`,
+                        false
+                    );
+
+                    const page = await pdf.getPage(item.pageNumber);
+                    const ocrText = await recognizePDFPage(
+                        page,
+                        item.pageNumber,
+                        pdf.numPages,
+                        worker
+                    );
+
+                    if (ocrText.trim()) {
+                        item.pageText = ocrText.replace(/\s+/g, " ").trim();
+                    }
+
+                    completed++;
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `OCR progress: ${completed}/${scannedPages.length} scanned pages completed.`,
+                        false
+                    );
+                }
+            }
+
+            await Promise.all([
+                processWorker(workers[0]),
+                processWorker(workers[1])
+            ]);
+        }
+
+        extractedPDFText = pages
+            .map(item => `--- Page ${item.pageNumber} ---\n\n${item.pageText}`)
+            .join("\n\n");
+
+        if (!extractedPDFText.trim()) {
+            showStatus(
+                "pdfExtractionStatus",
+                "No readable text was found. The PDF may contain unclear or unsupported content.",
+                true
+            );
+            return;
+        }
+
+        const textArea = document.getElementById("pdfExtractedText");
+        if (textArea) textArea.value = extractedPDFText;
+
+        const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
+        const charCount = extractedPDFText.length;
+
+        const wordCountElement = document.getElementById("pdfWordCount");
+        if (wordCountElement) wordCountElement.textContent = wordCount;
+
+        const charCountElement = document.getElementById("pdfCharCount");
+        if (charCountElement) charCountElement.textContent = charCount;
+
+        showStatus(
+            "pdfExtractionStatus",
+            `PDF reading complete! ${pages.length} selected page(s) out of ${pdf.numPages} total; ${wordCount} words extracted.`,
+            false
+        );
+
+    } catch (error) {
+        console.error("PDF extraction error:", error);
+        showStatus(
+            "pdfExtractionStatus",
+            `Could not read the PDF: ${error.message || "Unknown error"}. Please try again.`,
+            true
+        );
+    }
+}
+        // =========================================================
+        // AI QUIZ GENERATION
+        // =========================================================
+async function generateQuizFromPDF() {
+
+   
+    if (!extractedPDFText) {
+
+        alert(
+            "Please select a PDF and extract its text first."
+        );
+
+        return;
+    }
+
+    if (extractedPDFText.length < 100) {
+
+        alert(
+            "Not enough text was extracted from this material."
+        );
+
+        return;
+    }
+
+    const button =
+        document.getElementById(
+            "generateQuizButton"
+        );
+
+    const container =
+        document.getElementById(
+            "generatedQuizContainer"
+        );
+
+    button.disabled = true;
+
+    button.textContent =
+        "🧠 Generating...";
+
+    container.innerHTML = `
+        <div class="ai-info">
+            🧠 AI is reading your material and creating
+            20 original MCQs. Please wait...
+        </div>
+    `;
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient.functions.invoke(
+            "generate-quiz",
+            {
+                body: {
+                    text: extractedPDFText,
+                    difficulty: "Mixed"
+                }
+            }
+        );
+
+
+        // =============================================
+        // READ THE REAL EDGE FUNCTION ERROR
+        // =============================================
+
+        if (error) {
+
+            console.error(
+                "Supabase Function Error:",
+                error
+            );
+
+            let realError =
+                error.message ||
+                "Unknown Edge Function error.";
+
+            try {
+
+                if (error.context) {
+
+                    const errorBody =
+                        await error.context.json();
+
+                    console.error(
+                        "Edge Function Response:",
+                        errorBody
+                    );
+
+                    if (errorBody.error) {
+
+                        realError =
+                            errorBody.error;
+
+                    } else if (errorBody.message) {
+
+                        realError =
+                            errorBody.message;
+                    }
+                }
+
+            } catch (readError) {
+
+                console.error(
+                    "Could not read Edge Function error:",
+                    readError
+                );
+            }
+
+            throw new Error(realError);
+        }
+
+
+        // =============================================
+        // CHECK AI RESPONSE
+        // =============================================
+
+        console.log(
+            "AI Quiz Response:",
+            data
+        );
+
+        if (
+            !data ||
+            !data.success ||
+            !Array.isArray(data.questions)
+        ) {
+
+            throw new Error(
+                data?.error ||
+                "The AI returned an invalid quiz."
+            );
+        }
+
+
+        if (data.questions.length !== 20) {
+
+            throw new Error(
+                "AI returned " +
+                data.questions.length +
+                " questions instead of 20."
+            );
+        }
+
+
+        // =============================================
+        // SAVE QUIZ
+        // =============================================
+
+        generatedQuiz =
+            data.questions;
+
+
+        // =============================================
+        // DISPLAY QUIZ
+        // =============================================
+
+        displayGeneratedQuiz();
+
+
+        document
+            .getElementById("quiz")
+            .scrollIntoView({
+                behavior: "smooth"
+            });
+
+
+    } catch (error) {
+
+        console.error(
+            "FINAL QUIZ ERROR:",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div
+                class="ai-info"
+                style="
+                    background:#fef2f2;
+                    border-color:#fecaca;
+                    color:#991b1b;
+                "
+            >
+
+                <strong>
+                    ❌ Quiz generation failed
+                </strong>
+
+                <p style="margin-top:10px;">
+                    ${escapeHTML(
+                        error.message ||
+                        "Unknown error"
+                    )}
+                </p>
+
+            </div>
+        `;
+
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+            "🧠 Generate 20 MCQs with AI";
+    }
+}
+
+
+        // =========================================================
+        // DISPLAY AI QUIZ
+        // =========================================================
+
+        function displayGeneratedQuiz() {
+
+            const container =
+                document.getElementById(
+                    "generatedQuizContainer"
+                );
+
+            if (!generatedQuiz.length) {
+
+                container.innerHTML =
+                    "<p>No questions available.</p>";
+
+                return;
+            }
+
+            let html = `
+                <div class="ai-info">
+                    <strong>
+                        🧠 Your AI-generated 20-question quiz
+                    </strong>
+
+                    <p>
+                        Answer all questions, then press
+                        <strong>Submit Quiz</strong>.
+                    </p>
+                </div>
+            `;
+
+            generatedQuiz.forEach(
+                (question, index) => {
+
+                    const questionText =
+                        question.question ||
+                        `Question ${index + 1}`;
+
+                    const options =
+                        Array.isArray(question.options)
+                            ? question.options
+                            : [];
+
+                    html += `
+                        <div
+                            class="quiz-question"
+                            id="question-${index}"
+                        >
+
+                            <h3>
+                                ${index + 1}.
+                                ${escapeHTML(questionText)}
+                            </h3>
+                    `;
+
+                    options.forEach(
+                        (option, optionIndex) => {
+
+                            html += `
+                                <label class="quiz-option">
+
+                                    <input
+                                        type="radio"
+                                        name="question-${index}"
+                                        value="${optionIndex}"
+                                    >
+
+                                    ${escapeHTML(option)}
+
+                                </label>
+                            `;
+                        }
+                    );
+
+                    html += `
+                            <div
+                                id="explanation-${index}"
+                                style="margin-top:12px;"
+                            ></div>
+
+                        </div>
+                    `;
+                }
+            );
+
+            html += `
+                <div
+                    class="button-row"
+                    style="justify-content:center;"
+                >
+
+                    <button
+                        onclick="submitGeneratedQuiz()"
+                        class="success"
+                    >
+                        ✅ Submit Quiz
+                    </button>
+
+                    <button
+                        onclick="generateQuizFromPDF()"
+                        class="secondary"
+                    >
+                        🔄 Generate Again
+                    </button>
+
+                </div>
+
+                <div
+                    id="quizFinalResult"
+                    class="ai-info"
+                    style="margin-top:20px;"
+                ></div>
+            `;
+
+            container.innerHTML =
+                html;
+        }
+
+
+        // =========================================================
+        // SUBMIT AI QUIZ
+        // =========================================================
+
+        function submitGeneratedQuiz() {
+
+            if (!generatedQuiz.length) {
+
+                alert("No quiz available.");
+
+                return;
+            }
+
+            let score = 0;
+
+            generatedQuiz.forEach(
+                (question, index) => {
+
+                    const selected =
+                        document.querySelector(
+                            `input[name="question-${index}"]:checked`
+                        );
+
+                    const explanation =
+                        document.getElementById(
+                            `explanation-${index}`
+                        );
+
+                    const correctAnswer =
+                        Number(question.answer);
+
+                    if (
+                        selected &&
+                        Number(selected.value) ===
+                        correctAnswer
+                    ) {
+
+                        score++;
+
+                        explanation.innerHTML = `
+                            <div class="correct-answer">
+                                ✅ Correct
+                            </div>
+                        `;
+
+                    } else {
+
+                        const correctText =
+                            question.options &&
+                            question.options[correctAnswer]
+                                ? question.options[correctAnswer]
+                                : "Unknown";
+
+                        explanation.innerHTML = `
+                            <div class="wrong-answer">
+                                ❌ Incorrect
+                            </div>
+
+                            <div>
+                                <strong>
+                                    Correct answer:
+                                </strong>
+
+                                ${escapeHTML(correctText)}
+                            </div>
+                        `;
+                    }
+
+                    if (question.explanation) {
+
+                        explanation.innerHTML += `
+                            <div style="margin-top:6px;">
+                                💡
+                                ${escapeHTML(
+                                    question.explanation
+                                )}
+                            </div>
+                        `;
+                    }
+
+                }
+            );
+
+            const percentage =
+                Math.round(
+                    (score / generatedQuiz.length) *
+                    100
+                );
+
+            const result =
+                document.getElementById(
+                    "quizFinalResult"
+                );
+
+            result.innerHTML = `
+                <h3>🏆 Quiz Result</h3>
+
+                <p>
+                    You scored
+                    <strong>
+                        ${score}/20
+                    </strong>
+                </p>
+
+                <p>
+                    Percentage:
+                    <strong>
+                        ${percentage}%
+                    </strong>
+                </p>
+            `;
+
+            result.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+
+      
+     
+        // =========================================================
+        // AI FLASHCARDS
+        // =========================================================
+
+        let flashcards = [];
+
+        function updateFlashcard() {
+            const element = document.getElementById("flashcard");
+            const counter = document.getElementById("flashcardCounter");
+            const hint = document.getElementById("flashcardHint");
+
+            if (!flashcards.length) return;
+
+            const card = flashcards[flashcardIndex];
+
+            element.textContent = flashcardFlipped
+                ? card.back
+                : card.front;
+
+            counter.textContent =
+                `Card ${flashcardIndex + 1} of ${flashcards.length}`;
+
+            hint.textContent = flashcardFlipped
+                ? "Tap to see the question."
+                : "Tap the card to reveal the answer.";
+        }
+
+        function flipFlashcard() {
+            if (!flashcards.length) return;
+
+            flashcardFlipped = !flashcardFlipped;
+            updateFlashcard();
+        }
+
+        function nextFlashcard() {
+            if (!flashcards.length) return;
+
+            flashcardIndex =
+                (flashcardIndex + 1) % flashcards.length;
+
+            flashcardFlipped = false;
+            updateFlashcard();
+        }
+
+        function previousFlashcard() {
+            if (!flashcards.length) return;
+
+            flashcardIndex =
+                (flashcardIndex - 1 + flashcards.length) %
+                flashcards.length;
+
+            flashcardFlipped = false;
+            updateFlashcard();
+        }
+
+
+  
+async function generateFlashcardsFromPDF() {
+    const status = document.getElementById("flashcardStatus");
+    const button = document.getElementById("generateFlashcardsButton");
+    const studyArea = document.getElementById("flashcardStudyArea");
+
+    const count = Number(
+        document.getElementById("flashcardCount").value
+    );
+
+    if (!extractedPDFText || extractedPDFText.trim().length < 100) {
+        status.textContent =
+            "Please select a PDF and extract its text in the AI Quiz section first.";
+        status.style.display = "block";
+        status.style.color = "#dc2626";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "✨ Generating...";
+    status.textContent = "AI is creating your flashcards...";
+    status.style.display = "block";
+    status.style.color = "";
+    studyArea.style.display = "none";
+
+    try {
+        const { data, error } =
+            await supabaseClient.functions.invoke(
+                "generate-flashcards",
+                {
+                    body: {
+                        text: extractedPDFText,
+                        count: count
+                    }
+                }
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        if (
+            !data ||
+            data.success !== true ||
+            !Array.isArray(data.flashcards) ||
+            data.flashcards.length === 0
+        ) {
+            throw new Error(
+                data?.error || "The AI returned no flashcards."
+            );
+        }
+
+        // Convert the backend's question/answer format
+        // into the front/back format used by the website.
+      
+        console.log("Flashcard API response:", data);
+
+        flashcards = data.flashcards
+            .filter(card =>
+                card &&
+                typeof (card.question ?? card.front) === "string" &&
+                typeof (card.answer ?? card.back) === "string" &&
+                (card.question ?? card.front).trim() &&
+                (card.answer ?? card.back).trim()
+            )
+            .map(card => ({
+                front: (card.question ?? card.front).trim(),
+                back: (card.answer ?? card.back).trim()
+            }));
+
+
+        if (flashcards.length === 0) {
+            throw new Error(
+                "The AI returned flashcards in an unexpected format."
+            );
+        }
+
+        flashcardIndex = 0;
+        flashcardFlipped = false;
+
+        updateFlashcard();
+        studyArea.style.display = "block";
+
+        status.textContent =
+            `Successfully generated ${flashcards.length} flashcards!`;
+        status.style.color = "#16a34a";
+
+    } catch (error) {
+        console.error("Flashcard generation error:", error);
+
+        status.textContent =
+            error.message ||
+            "Failed to generate flashcards. Please try again.";
+        status.style.color = "#dc2626";
+
+    } finally {
+        button.disabled = false;
+        button.textContent = "✨ Generate with AI";
+    }
+}
+
+        // =========================================================
+        // POMODORO & STUDY TRACKER
+        // =========================================================
+
+        function loadStudyState() {
+            const fallback = { sessions: [], active: null, mode: "stopwatch" };
+            try {
+                const saved = JSON.parse(localStorage.getItem(STUDY_STORAGE_KEY) || "null");
+                if (!saved || !Array.isArray(saved.sessions)) return fallback;
+                return { sessions: saved.sessions.filter(x => x && Number.isFinite(x.durationMs) && x.durationMs > 0), active: saved.active || null, mode: saved.mode === "pomodoro" ? "pomodoro" : "stopwatch" };
+            } catch (error) {
+                console.warn("Could not load study tracker data:", error);
+                return fallback;
+            }
+        }
+
+        function saveStudyState() {
+            try {
+                studyState.mode = studyMode;
+                localStorage.setItem(STUDY_STORAGE_KEY, JSON.stringify(studyState));
+            } catch (error) {
+                console.warn("Could not save study tracker data:", error);
+                const status = document.getElementById("studyStatus");
+                if (status) status.textContent = "Your browser could not save study data. Check browser storage settings.";
+            }
+        }
+
+        function formatDuration(ms, includeSeconds = false) {
+            const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            if (includeSeconds) return [hours, minutes, seconds].map(n => String(n).padStart(2, "0")).join(":");
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            if (minutes > 0) return `${minutes} min`;
+            return `${totalSeconds} sec`;
+        }
+
+        function getActiveElapsedMs(now = Date.now()) {
+            const active = studyState.active;
+            if (!active || active.phase === "break") return 0;
+            const base = Math.max(0, Number(active.phaseElapsedBeforeMs) || 0);
+            if (!active.running || !active.phaseStartedAt) return base;
+            return base + Math.max(0, now - active.phaseStartedAt);
+        }
+
+        function recordStudyBlock(durationMs, endedAt = Date.now(), label = "Study session") {
+            if (!Number.isFinite(durationMs) || durationMs < 1000) return;
+            studyState.sessions.push({ durationMs: Math.floor(durationMs), endedAt, label });
+            // Keep the local history manageable while preserving long-term totals for typical use.
+            if (studyState.sessions.length > 2000) studyState.sessions = studyState.sessions.slice(-2000);
+        }
+
+        function localDateKey(timestamp) {
+            const d = new Date(timestamp);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+
+        function renderStudyStats() {
+            const now = Date.now();
+            const activeMs = getActiveElapsedMs(now);
+            const sessions = studyState.sessions;
+            const totalMs = sessions.reduce((sum, session) => sum + session.durationMs, 0) + activeMs;
+            const todayKey = localDateKey(now);
+            const todayMs = sessions.reduce((sum, session) => sum + (localDateKey(session.endedAt) === todayKey ? session.durationMs : 0), 0) + (studyState.active && localDateKey(studyState.active.sessionStartedAt || now) === todayKey ? activeMs : 0);
+            const recordedMs = sessions.reduce((sum, session) => sum + session.durationMs, 0);
+            const avgMs = sessions.length ? recordedMs / sessions.length : 0;
+            document.getElementById("totalStudyTime").textContent = formatDuration(totalMs);
+            document.getElementById("todayStudyTime").textContent = formatDuration(todayMs);
+            document.getElementById("averageStudyTime").textContent = formatDuration(avgMs);
+            document.getElementById("completedStudySessions").textContent = String(sessions.length);
+
+            const list = document.getElementById("studyHistoryList");
+            const recent = sessions.slice(-6).reverse();
+            if (!recent.length) {
+                list.innerHTML = '<li class="study-history-empty">Your completed study sessions will show here.</li>';
+            } else {
+                list.innerHTML = "";
+                recent.forEach(session => {
+                    const li = document.createElement("li");
+                    const title = document.createElement("span");
+                    const duration = document.createElement("span");
+                    const date = new Date(session.endedAt);
+                    title.textContent = `${session.label || "Study session"} · ${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+                    duration.textContent = formatDuration(session.durationMs);
+                    li.append(title, duration);
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        function renderStudyTimer() {
+            const active = studyState.active;
+            const now = Date.now();
+            const display = document.getElementById("timerDisplay");
+            const phaseLabel = document.getElementById("studyPhaseLabel");
+            const hint = document.getElementById("studyTimerHint");
+            const startBtn = document.getElementById("studyStartBtn");
+            const pauseBtn = document.getElementById("studyPauseBtn");
+            const stopBtn = document.getElementById("studyStopBtn");
+            const modeIsPomodoro = studyMode === "pomodoro";
+            document.getElementById("stopwatchModeBtn").classList.toggle("active", !modeIsPomodoro);
+            document.getElementById("pomodoroModeBtn").classList.toggle("active", modeIsPomodoro);
+            document.getElementById("pomodoroSettings").hidden = !modeIsPomodoro;
+            document.getElementById("focusMinutes").disabled = !!active;
+            document.getElementById("breakMinutes").disabled = !!active;
+
+            if (!active) {
+                display.textContent = modeIsPomodoro ? `${String(Number(document.getElementById("focusMinutes").value)).padStart(2,"0")}:00` : "00:00:00";
+                phaseLabel.textContent = modeIsPomodoro ? "POMODORO · READY" : "STOPWATCH · READY";
+                hint.textContent = modeIsPomodoro ? "Start a focus block. A break begins automatically when it ends." : "Start when you're ready to study.";
+                startBtn.textContent = "▶ Start studying";
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+            } else {
+                const elapsed = active.phase === "break" ? Math.max(0, (active.phaseDurationMs || 0) - (active.phaseElapsedBeforeMs || 0) - (active.running && active.phaseStartedAt ? now - active.phaseStartedAt : 0)) : getActiveElapsedMs(now);
+                if (active.mode === "pomodoro") {
+                    const remaining = Math.max(0, (active.phaseDurationMs || 0) - (active.phaseElapsedBeforeMs || 0) - (active.running && active.phaseStartedAt ? now - active.phaseStartedAt : 0));
+                    const secs = Math.ceil(remaining / 1000);
+                    display.textContent = `${String(Math.floor(secs / 60)).padStart(2,"0")}:${String(secs % 60).padStart(2,"0")}`;
+                    phaseLabel.textContent = active.phase === "break" ? "☕ BREAK TIME" : "🍅 FOCUS SESSION";
+                    hint.textContent = active.running ? (active.phase === "break" ? "Rest your mind. Your break time isn't counted as study." : "Stay focused. Your study time is being recorded.") : "Paused. Resume whenever you're ready.";
+                } else {
+                    display.textContent = formatDuration(elapsed, true);
+                    phaseLabel.textContent = active.running ? "STOPWATCH · STUDYING" : "STOPWATCH · PAUSED";
+                    hint.textContent = active.running ? "Your study time is being recorded." : "Paused. Resume whenever you're ready.";
+                }
+                startBtn.textContent = active.running ? "● Studying…" : "▶ Resume";
+                startBtn.disabled = !!active.running;
+                pauseBtn.disabled = !active.running;
+                stopBtn.disabled = false;
+            }
+            renderStudyStats();
+        }
+
+        function setStudyMode(mode) {
+            if (studyState.active) {
+                document.getElementById("studyStatus").textContent = "Finish or pause and finish your current session before switching modes.";
+                return;
+            }
+            studyMode = mode === "pomodoro" ? "pomodoro" : "stopwatch";
+            saveStudyState();
+            renderStudyTimer();
+        }
+
+        function updatePomodoroSettings() {
+            if (studyState.active) return;
+            renderStudyTimer();
+        }
+
+        function startTimer() {
+            const now = Date.now();
+            if (studyState.active) {
+                const active = studyState.active;
+                if (active.running) return;
+                active.running = true;
+                active.phaseStartedAt = now;
+            } else {
+                const mode = studyMode;
+                const focusMs = Number(document.getElementById("focusMinutes").value || POMODORO_FOCUS_DEFAULT) * 60000;
+                const breakMs = Number(document.getElementById("breakMinutes").value || POMODORO_BREAK_DEFAULT) * 60000;
+                studyState.active = {
+                    mode,
+                    phase: "focus",
+                    running: true,
+                    phaseDurationMs: mode === "pomodoro" ? focusMs : 0,
+                    breakDurationMs: breakMs,
+                    phaseElapsedBeforeMs: 0,
+                    phaseStartedAt: now,
+                    sessionStartedAt: now,
+                    focusAccumulatedMs: 0
+                };
+            }
+            document.getElementById("studyStatus").textContent = "Session running. You can leave this page; the timer uses timestamps to stay accurate.";
+            saveStudyState();
+            renderStudyTimer();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(tickStudyTimer, 250);
+        }
+
+        function tickStudyTimer() {
+            const active = studyState.active;
+            if (!active || !active.running) {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = null;
+                renderStudyTimer();
+                return;
+            }
+            const now = Date.now();
+            if (active.mode === "pomodoro") {
+                const elapsedInPhase = (active.phaseElapsedBeforeMs || 0) + Math.max(0, now - (active.phaseStartedAt || now));
+                if (elapsedInPhase >= active.phaseDurationMs) {
+                    if (active.phase === "focus") {
+                        recordStudyBlock(active.phaseDurationMs, now, "Pomodoro focus");
+                        active.focusAccumulatedMs = (active.focusAccumulatedMs || 0) + active.phaseDurationMs;
+                        active.phase = "break";
+                        active.phaseDurationMs = active.breakDurationMs;
+                        active.phaseElapsedBeforeMs = 0;
+                        active.phaseStartedAt = now;
+                        document.getElementById("studyStatus").textContent = "Focus block complete! Your break has started.";
+                    } else {
+                        active.phase = "focus";
+                        active.phaseDurationMs = Number(document.getElementById("focusMinutes").value || POMODORO_FOCUS_DEFAULT) * 60000;
+                        active.phaseElapsedBeforeMs = 0;
+                        active.phaseStartedAt = now;
+                        document.getElementById("studyStatus").textContent = "Break complete. A new focus block has started.";
+                    }
+                    saveStudyState();
+                }
+            }
+            renderStudyTimer();
+        }
+
+        function pauseTimer() {
+            const active = studyState.active;
+            if (!active || !active.running) return;
+            const now = Date.now();
+            active.phaseElapsedBeforeMs = (active.phaseElapsedBeforeMs || 0) + Math.max(0, now - (active.phaseStartedAt || now));
+            active.phaseStartedAt = null;
+            active.running = false;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            saveStudyState();
+            document.getElementById("studyStatus").textContent = "Paused. Your progress has been saved on this device.";
+            renderStudyTimer();
+        }
+
+        function stopStudySession() {
+            const active = studyState.active;
+            if (!active) return;
+            const now = Date.now();
+            if (active.mode === "stopwatch") {
+                const duration = getActiveElapsedMs(now);
+                recordStudyBlock(duration, now, "Stopwatch session");
+            } else if (active.phase === "focus") {
+                const duration = (active.phaseElapsedBeforeMs || 0) + (active.running && active.phaseStartedAt ? Math.max(0, now - active.phaseStartedAt) : 0);
+                recordStudyBlock(duration, now, "Pomodoro focus (partial)");
+            }
+            studyState.active = null;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            saveStudyState();
+            document.getElementById("studyStatus").textContent = "Session finished and your study time has been recorded.";
+            renderStudyTimer();
+        }
+
+        function resetTimer() {
+            // Kept as a safe compatibility alias for any old timer references.
+            stopStudySession();
+        }
+
+        function clearStudyHistory() {
+            if (!confirm("Clear all recorded study sessions on this device? This cannot be undone.")) return;
+            studyState.sessions = [];
+            saveStudyState();
+            document.getElementById("studyStatus").textContent = "Study history cleared.";
+            renderStudyTimer();
+        }
+
+        // Restore the saved mode and active session after reload/reopening.
+        studyMode = studyState.mode || "stopwatch";
+        if (studyState.active && studyState.active.running) {
+            // A running session resumes from its saved timestamp; elapsed time is derived from Date.now().
+            if (!studyState.active.phaseStartedAt) studyState.active.phaseStartedAt = Date.now();
+            timerInterval = setInterval(tickStudyTimer, 250);
+        }
+        renderStudyTimer();
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                tickStudyTimer();
+                renderStudyTimer();
+            }
+        });
+        window.addEventListener("beforeunload", saveStudyState);
+
+
+        // =========================================================
+        // UTILITY FUNCTIONS
+        // =========================================================
+
+        function showStatus(
+            elementId,
+            message,
+            isError
+        ) {
+
+            const element =
+                document.getElementById(
+                    elementId
+                );
+
+            if (!element) return;
+
+            element.style.display =
+                "block";
+
+            element.textContent =
+                message;
+
+            if (isError) {
+
+                element.style.background =
+                    "#fef2f2";
+
+                element.style.color =
+                    "#dc2626";
+
+            } else {
+
+                element.style.background =
+                    "#eff6ff";
+
+                element.style.color =
+                    "#1d4ed8";
+            }
+        }
+
+
+        function formatBytes(bytes) {
+
+            if (!bytes) return "0 Bytes";
+
+            const units = [
+                "Bytes",
+                "KB",
+                "MB",
+                "GB"
+            ];
+
+            const index =
+                Math.floor(
+                    Math.log(bytes) /
+                    Math.log(1024)
+                );
+
+            return (
+                parseFloat(
+                    (
+                        bytes /
+                        Math.pow(1024, index)
+                    ).toFixed(2)
+                ) +
+                " " +
+                units[index]
+            );
+        }
+
+
+        function escapeHTML(value) {
+
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        // =========================================================
+        // SUPABASE AUTH LISTENER
+        // =========================================================
+
+       
+
+        // =========================================================
+        // INITIALIZE
+        // =========================================================
+
+      
+        updateTimerDisplay();
+
+        updateFlashcard();
+
     </script>
 
 </body>
