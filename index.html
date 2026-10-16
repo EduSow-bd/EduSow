@@ -1645,7 +1645,67 @@ footer {
     #pdfExtractedText { min-height: 150px; }
 }
 
-    </style>
+    
+/* =========================================================
+   APP-LIKE PAGE NAVIGATION (one website, separate views)
+   ========================================================= */
+body[data-page="home"] #materials,
+body[data-page="home"] #quiz,
+body[data-page="home"] #flashcards,
+body[data-page="home"] #timer {
+    display: none !important;
+}
+body[data-page="materials"] #home,
+body[data-page="materials"] #toolkit,
+body[data-page="materials"] #quiz,
+body[data-page="materials"] #flashcards,
+body[data-page="materials"] #timer {
+    display: none !important;
+}
+body[data-page="quiz"] #home,
+body[data-page="quiz"] #toolkit,
+body[data-page="quiz"] #materials,
+body[data-page="quiz"] #flashcards,
+body[data-page="quiz"] #timer {
+    display: none !important;
+}
+body[data-page="flashcards"] #home,
+body[data-page="flashcards"] #toolkit,
+body[data-page="flashcards"] #materials,
+body[data-page="flashcards"] #quiz,
+body[data-page="flashcards"] #timer {
+    display: none !important;
+}
+body[data-page="timer"] #home,
+body[data-page="timer"] #toolkit,
+body[data-page="timer"] #materials,
+body[data-page="timer"] #quiz,
+body[data-page="timer"] #flashcards {
+    display: none !important;
+}
+body[data-page="home"] #home,
+body[data-page="home"] #toolkit,
+body[data-page="materials"] #materials,
+body[data-page="quiz"] #quiz,
+body[data-page="flashcards"] #flashcards,
+body[data-page="timer"] #timer {
+    display: block;
+}
+body[data-page="home"] #toolkit {
+    display: block;
+}
+body[data-page="materials"] #materials,
+body[data-page="quiz"] #quiz,
+body[data-page="flashcards"] #flashcards,
+body[data-page="timer"] #timer {
+    min-height: calc(100vh - 85px);
+}
+nav ul a[aria-current="page"] {
+    color: var(--primary);
+    background: rgba(79, 70, 229, .09);
+}
+
+</style>
 </head>
 
 <body>
@@ -1678,7 +1738,7 @@ footer {
                 <h1>Free <span>AI-Guided</span> Education</h1>
                 <p>Learn smarter with AI-powered quizzes, flashcards, and study tools—all in one place, built for your progress.</p>
                 <div class="hero-actions">
-                    <button onclick="document.getElementById('materials').scrollIntoView({behavior:'smooth'})">Start Studying <span aria-hidden="true">↗</span></button>
+                    <button onclick="openPage('materials')">Start Studying <span aria-hidden="true">↗</span></button>
                     <a class="hero-secondary" href="#toolkit">Explore tools <span aria-hidden="true">↓</span></a>
                 </div>
                 <div class="hero-note"><span class="hero-note-icon">✦</span> Free tools to help you study with confidence</div>
@@ -3596,7 +3656,69 @@ async function generateFlashcardsFromPDF() {
         renderStudyTimer();
         updateFlashcard();
 
-    </script>
+    
+        // =========================================================
+        // APP-LIKE NAVIGATION: keep one GitHub Pages website, show
+        // one feature view at a time, and support browser back/forward.
+        // =========================================================
+        const EDUSOW_PAGES = ["home", "materials", "quiz", "flashcards", "timer"];
+
+        function openPage(page, options = {}) {
+            if (page === "toolkit") page = "home";
+            if (!EDUSOW_PAGES.includes(page)) page = "home";
+
+            document.body.dataset.page = page;
+
+            document.querySelectorAll('nav a[href^="#"]').forEach((link) => {
+                const target = link.getAttribute("href").slice(1);
+                const isCurrent = target === page || (page === "home" && target === "home");
+                if (isCurrent) {
+                    link.setAttribute("aria-current", "page");
+                } else {
+                    link.removeAttribute("aria-current");
+                }
+            });
+
+            if (!options.skipHistory) {
+                const hash = page === "home" ? "#home" : "#" + page;
+                if (window.location.hash !== hash) {
+                    window.history.pushState({ page }, "", hash);
+                }
+            }
+
+            if (!options.keepScroll) {
+                window.scrollTo({ top: 0, behavior: "auto" });
+            }
+        }
+
+        document.addEventListener("click", function (event) {
+            const link = event.target.closest('a[href^="#"]');
+            if (!link) return;
+
+            const target = link.getAttribute("href").slice(1);
+            if (target === "toolkit") {
+                event.preventDefault();
+                openPage("home", { keepScroll: true });
+                document.getElementById("toolkit")?.scrollIntoView({ behavior: "smooth" });
+                return;
+            }
+
+            if (EDUSOW_PAGES.includes(target)) {
+                event.preventDefault();
+                openPage(target);
+            }
+        });
+
+        window.addEventListener("popstate", function () {
+            const target = window.location.hash.slice(1) || "home";
+            openPage(EDUSOW_PAGES.includes(target) ? target : "home", { skipHistory: true });
+        });
+
+        // Open the requested feature directly when a hash is in the URL.
+        const initialPage = window.location.hash.slice(1);
+        openPage(EDUSOW_PAGES.includes(initialPage) ? initialPage : "home", { skipHistory: true });
+
+</script>
 
 </body>
 
