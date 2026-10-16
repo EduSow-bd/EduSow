@@ -1777,7 +1777,7 @@ footer {
                 <h1>Free <span>AI-Guided</span> Education</h1>
                 <p>Learn smarter with AI-powered quizzes, flashcards, and study tools—all in one place, built for your progress.</p>
                 <div class="hero-actions">
-                    <button onclick="openPage('materials')">Start Studying <span aria-hidden="true">↗</span></button>
+                    <button type="button" onclick="document.getElementById('materials').scrollIntoView({ behavior: 'smooth', block: 'start' })">Start Studying <span aria-hidden="true">↗</span></button>
                     <a class="hero-secondary" href="#toolkit">Explore tools <span aria-hidden="true">↓</span></a>
                 </div>
                 <div class="hero-note"><span class="hero-note-icon">✦</span> Free tools to help you study with confidence</div>
