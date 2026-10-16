@@ -1636,6 +1636,93 @@ footer {
     text-align: center;
     font-size: 13px;
 }
+.save-current-card-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    margin: 18px 0 8px;
+}
+.save-flashcard-button {
+    background: #ecfdf5 !important;
+    color: #166534 !important;
+    border: 1px solid #86efac !important;
+}
+.save-flashcard-button:hover { background: #dcfce7 !important; }
+.save-flashcard-button:disabled { opacity: .75; cursor: default; }
+#saveFlashcardStatus {
+    min-height: 20px;
+    color: #15803d;
+    font-size: 13px;
+    text-align: center;
+}
+.saved-flashcards-panel {
+    margin-top: 28px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+}
+.saved-flashcards-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.saved-flashcards-heading h3 { font-size: 19px; }
+#savedFlashcardCount {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 13px;
+    font-weight: 700;
+}
+.saved-flashcards-help {
+    margin: 7px 0 16px;
+    color: var(--text-soft);
+    font-size: 14px;
+}
+.saved-flashcards-empty {
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--surface-soft);
+    color: var(--text-soft);
+    text-align: center;
+}
+.saved-flashcard-item {
+    padding: 16px;
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fbfdff;
+}
+.saved-flashcard-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text);
+}
+.saved-flashcard-item p {
+    color: var(--text-soft);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.saved-flashcard-item .saved-answer { margin-top: 10px; }
+.saved-flashcard-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+.saved-flashcard-actions button {
+    padding: 7px 12px;
+    font-size: 13px;
+    background: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+}
+.saved-flashcard-actions button:hover { background: #ffe4e6; }
+
 @media (max-width: 850px) {
     .study-stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     .materials-box, #quiz .quiz-box, #flashcards .flashcard-box { padding: 22px; }
@@ -2024,6 +2111,24 @@ footer {
 
             </div>
 
+            <div class="save-current-card-row">
+                <button type="button" id="saveCurrentFlashcardButton" onclick="saveCurrentFlashcard()" class="save-flashcard-button">
+                    ☆ Save this flashcard
+                </button>
+                <p id="saveFlashcardStatus" role="status" aria-live="polite"></p>
+            </div>
+
+        </div>
+
+        <div class="saved-flashcards-panel" id="savedFlashcardsPanel">
+            <div class="saved-flashcards-heading">
+                <h3>⭐ My Saved Flashcards</h3>
+                <span id="savedFlashcardCount">0 saved</span>
+            </div>
+            <p class="saved-flashcards-help">Save cards you want to revise later. Your saved cards stay in this browser on this device.</p>
+            <div id="savedFlashcardsList">
+                <p class="saved-flashcards-empty">No saved flashcards yet. Generate cards, then select “Save this flashcard”.</p>
+            </div>
         </div>
 
     </div>
@@ -3091,6 +3196,122 @@ async function generateQuizFromPDF() {
         // =========================================================
 
         let flashcards = [];
+        const SAVED_FLASHCARDS_KEY = "edusowSavedFlashcardsV1";
+
+        function loadSavedFlashcards() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(SAVED_FLASHCARDS_KEY) || "[]");
+                return Array.isArray(saved)
+                    ? saved.filter(card => card && typeof card.front === "string" && typeof card.back === "string")
+                    : [];
+            } catch (error) {
+                console.warn("Could not load saved flashcards:", error);
+                return [];
+            }
+        }
+
+        let savedFlashcards = loadSavedFlashcards();
+
+        function persistSavedFlashcards() {
+            try {
+                localStorage.setItem(SAVED_FLASHCARDS_KEY, JSON.stringify(savedFlashcards));
+                return true;
+            } catch (error) {
+                console.error("Could not save flashcards:", error);
+                const status = document.getElementById("saveFlashcardStatus");
+                if (status) status.textContent = "Could not save. Check your browser storage settings.";
+                return false;
+            }
+        }
+
+        function saveCurrentFlashcard() {
+            if (!flashcards.length || !flashcards[flashcardIndex]) return;
+
+            const card = flashcards[flashcardIndex];
+            const status = document.getElementById("saveFlashcardStatus");
+            const alreadySaved = savedFlashcards.some(saved =>
+                saved.front === card.front && saved.back === card.back
+            );
+
+            if (alreadySaved) {
+                if (status) status.textContent = "This flashcard is already in My Saved Flashcards.";
+                return;
+            }
+
+            savedFlashcards.unshift({
+                front: card.front,
+                back: card.back,
+                savedAt: new Date().toISOString()
+            });
+
+            if (!persistSavedFlashcards()) {
+                savedFlashcards.shift();
+                return;
+            }
+
+            renderSavedFlashcards();
+            if (status) status.textContent = "✓ Flashcard saved for later revision!";
+            const button = document.getElementById("saveCurrentFlashcardButton");
+            if (button) button.textContent = "✓ Saved";
+        }
+
+        function removeSavedFlashcard(index) {
+            if (!Number.isInteger(index) || index < 0 || index >= savedFlashcards.length) return;
+            const removed = savedFlashcards.splice(index, 1)[0];
+            if (!persistSavedFlashcards()) {
+                savedFlashcards.splice(index, 0, removed);
+                return;
+            }
+            renderSavedFlashcards();
+            const status = document.getElementById("saveFlashcardStatus");
+            if (status) status.textContent = "Flashcard removed from your saved list.";
+        }
+
+        function renderSavedFlashcards() {
+            const list = document.getElementById("savedFlashcardsList");
+            const count = document.getElementById("savedFlashcardCount");
+            if (!list || !count) return;
+
+            count.textContent = `${savedFlashcards.length} saved`;
+            list.replaceChildren();
+
+            if (!savedFlashcards.length) {
+                const empty = document.createElement("p");
+                empty.className = "saved-flashcards-empty";
+                empty.textContent = "No saved flashcards yet. Generate cards, then select “Save this flashcard”.";
+                list.appendChild(empty);
+                return;
+            }
+
+            savedFlashcards.forEach((card, index) => {
+                const item = document.createElement("article");
+                item.className = "saved-flashcard-item";
+
+                const questionLabel = document.createElement("strong");
+                questionLabel.textContent = `Q${index + 1}. ${card.front}`;
+                item.appendChild(questionLabel);
+
+                const answer = document.createElement("p");
+                answer.className = "saved-answer";
+                const answerLabel = document.createElement("strong");
+                answerLabel.textContent = "Answer";
+                answer.appendChild(answerLabel);
+                answer.appendChild(document.createTextNode(card.back));
+                item.appendChild(answer);
+
+                const actions = document.createElement("div");
+                actions.className = "saved-flashcard-actions";
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.textContent = "Remove";
+                removeButton.setAttribute("aria-label", `Remove saved flashcard ${index + 1}`);
+                removeButton.addEventListener("click", () => removeSavedFlashcard(index));
+                actions.appendChild(removeButton);
+                item.appendChild(actions);
+
+                list.appendChild(item);
+            });
+        }
 
         function updateFlashcard() {
             const element = document.getElementById("flashcard");
@@ -3111,6 +3332,14 @@ async function generateQuizFromPDF() {
             hint.textContent = flashcardFlipped
                 ? "Tap to see the question."
                 : "Tap the card to reveal the answer.";
+
+            const saveButton = document.getElementById("saveCurrentFlashcardButton");
+            const saveStatus = document.getElementById("saveFlashcardStatus");
+            if (saveButton) {
+                const saved = savedFlashcards.some(item => item.front === card.front && item.back === card.back);
+                saveButton.textContent = saved ? "✓ Saved" : "☆ Save this flashcard";
+            }
+            if (saveStatus) saveStatus.textContent = "";
         }
 
         function flipFlashcard() {
@@ -3242,6 +3471,9 @@ async function generateFlashcardsFromPDF() {
         button.textContent = "✨ Generate with AI";
     }
 }
+
+        // Render previously saved flashcards whenever the page loads.
+        renderSavedFlashcards();
 
         // =========================================================
         // POMODORO & STUDY TRACKER
