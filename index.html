@@ -982,6 +982,17 @@ textarea {
 @media (max-width: 850px) { .study-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } }
 
+/* Feature-specific upload controls */
+.feature-upload-panel {
+    padding: 18px;
+    margin: 16px 0 22px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface-soft);
+}
+.feature-upload-status { margin-top: 10px; color: var(--text-soft); font-size: 14px; }
+.feature-upload-help { margin-top: 4px; color: var(--text-light); font-size: 12px; }
+
 /* =========================================================
    FOOTER
    ========================================================= */
@@ -1646,66 +1657,6 @@ footer {
 }
 
     
-/* =========================================================
-   APP-LIKE PAGE NAVIGATION (one website, separate views)
-   ========================================================= */
-body[data-page="home"] #materials,
-body[data-page="home"] #quiz,
-body[data-page="home"] #flashcards,
-body[data-page="home"] #timer {
-    display: none !important;
-}
-body[data-page="materials"] #home,
-body[data-page="materials"] #toolkit,
-body[data-page="materials"] #quiz,
-body[data-page="materials"] #flashcards,
-body[data-page="materials"] #timer {
-    display: none !important;
-}
-body[data-page="quiz"] #home,
-body[data-page="quiz"] #toolkit,
-body[data-page="quiz"] #materials,
-body[data-page="quiz"] #flashcards,
-body[data-page="quiz"] #timer {
-    display: none !important;
-}
-body[data-page="flashcards"] #home,
-body[data-page="flashcards"] #toolkit,
-body[data-page="flashcards"] #materials,
-body[data-page="flashcards"] #quiz,
-body[data-page="flashcards"] #timer {
-    display: none !important;
-}
-body[data-page="timer"] #home,
-body[data-page="timer"] #toolkit,
-body[data-page="timer"] #materials,
-body[data-page="timer"] #quiz,
-body[data-page="timer"] #flashcards {
-    display: none !important;
-}
-body[data-page="home"] #home,
-body[data-page="home"] #toolkit,
-body[data-page="materials"] #materials,
-body[data-page="quiz"] #quiz,
-body[data-page="flashcards"] #flashcards,
-body[data-page="timer"] #timer {
-    display: block;
-}
-body[data-page="home"] #toolkit {
-    display: block;
-}
-body[data-page="materials"] #materials,
-body[data-page="quiz"] #quiz,
-body[data-page="flashcards"] #flashcards,
-body[data-page="timer"] #timer {
-    min-height: calc(100vh - 85px);
-}
-nav ul a[aria-current="page"] {
-    color: var(--primary);
-    background: rgba(79, 70, 229, .09);
-}
-
-
 </style>
 </head>
 
@@ -1950,11 +1901,13 @@ nav ul a[aria-current="page"] {
 
             <div class="ai-info">
                 <strong>EduSow AI Quiz</strong>
+                <p>Upload study material for your quiz. PDF, JPG, and PNG are supported.</p>
+            </div>
 
-                <p>
-                    Generate a 20-question MCQ quiz from your selected
-                    PDF in the Materials section.
-                </p>
+            <div class="feature-upload-panel">
+                <button type="button" onclick="chooseMaterialForFeature('quiz')">📄 Upload material for Quiz</button>
+                <p id="quizUploadStatus" class="feature-upload-status">No quiz material selected yet.</p>
+                <p class="feature-upload-help">After choosing a PDF, extract its text in Study Materials above. Images are read with OCR.</p>
             </div>
 
             <div id="generatedQuizContainer">
@@ -1980,12 +1933,14 @@ nav ul a[aria-current="page"] {
     <div class="flashcard-box">
 
         <div class="ai-info">
-            <strong>📚 Learn from your PDF</strong>
-            <p>
-                Select a PDF or image in the Materials section and
-                extract its text first. Then generate
-                flashcards directly from your study material.
-            </p>
+            <strong>📚 Learn from your study material</strong>
+            <p>Upload material specifically for flashcards. PDF, JPG, and PNG are supported.</p>
+        </div>
+
+        <div class="feature-upload-panel">
+            <button type="button" onclick="chooseMaterialForFeature('flashcards')">🖼️ Upload material for Flashcards</button>
+            <p id="flashcardsUploadStatus" class="feature-upload-status">No flashcard material selected yet.</p>
+            <p class="feature-upload-help">After choosing a PDF, extract its text in Study Materials above. Images are read with OCR.</p>
         </div>
 
         <label for="flashcardCount">
@@ -2247,6 +2202,15 @@ nav ul a[aria-current="page"] {
             );
 
             console.log("Selected study material:", file);
+
+            if (featureUploadTarget) {
+                const target = featureUploadTarget;
+                featureUploadTarget = null;
+                const statusId = target === "quiz" ? "quizUploadStatus" : "flashcardsUploadStatus";
+                const status = document.getElementById(statusId);
+                if (status) status.textContent = "Selected: " + file.name + ". Extract its text in Study Materials above, then return here to generate.";
+                showPDFPageSelection();
+            }
 
         });
 
@@ -3655,66 +3619,17 @@ async function generateFlashcardsFromPDF() {
 
     
         // =========================================================
-        // APP-LIKE NAVIGATION: keep one GitHub Pages website, show
-        // one feature view at a time, and support browser back/forward.
-        // =========================================================
-        const EDUSOW_PAGES = ["home", "materials", "quiz", "flashcards", "timer"];
+        // The site uses one continuous page; navigation links scroll to sections.
 
-        function openPage(page, options = {}) {
-            if (page === "toolkit") page = "home";
-            if (!EDUSOW_PAGES.includes(page)) page = "home";
+        let featureUploadTarget = null;
 
-            document.body.dataset.page = page;
-
-            document.querySelectorAll('nav a[href^="#"]').forEach((link) => {
-                const target = link.getAttribute("href").slice(1);
-                const isCurrent = target === page || (page === "home" && target === "home");
-                if (isCurrent) {
-                    link.setAttribute("aria-current", "page");
-                } else {
-                    link.removeAttribute("aria-current");
-                }
-            });
-
-            if (!options.skipHistory) {
-                const hash = page === "home" ? "#home" : "#" + page;
-                if (window.location.hash !== hash) {
-                    window.history.pushState({ page }, "", hash);
-                }
-            }
-
-            if (!options.keepScroll) {
-                window.scrollTo({ top: 0, behavior: "auto" });
-            }
+        function chooseMaterialForFeature(target) {
+            if (target !== "quiz" && target !== "flashcards") return;
+            featureUploadTarget = target;
+            fileInput.value = "";
+            fileInput.accept = ".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png";
+            fileInput.click();
         }
-
-        document.addEventListener("click", function (event) {
-            const link = event.target.closest('a[href^="#"]');
-            if (!link) return;
-
-            const target = link.getAttribute("href").slice(1);
-            if (target === "toolkit") {
-                event.preventDefault();
-                openPage("home", { keepScroll: true });
-                document.getElementById("toolkit")?.scrollIntoView({ behavior: "smooth" });
-                return;
-            }
-
-            if (EDUSOW_PAGES.includes(target)) {
-                event.preventDefault();
-                openPage(target);
-            }
-        });
-
-        window.addEventListener("popstate", function () {
-            const target = window.location.hash.slice(1) || "home";
-            openPage(EDUSOW_PAGES.includes(target) ? target : "home", { skipHistory: true });
-        });
-
-        // Open the requested feature directly when a hash is in the URL.
-        const initialPage = window.location.hash.slice(1);
-        openPage(EDUSOW_PAGES.includes(initialPage) ? initialPage : "home", { skipHistory: true });
-
 
 </script>
 
