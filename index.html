@@ -1275,6 +1275,146 @@ input[type="checkbox"] {
     }
 
 }  
+    
+/* =========================================================
+   EDUSOW VISUAL UPGRADE — HERO + LEARNING TOOLKIT
+   Additive styling; existing study-tool functionality preserved.
+   ========================================================= */
+:root {
+    --primary: #5145e5;
+    --primary-dark: #3527b8;
+    --secondary: #8b5cf6;
+    --accent: #06b6d4;
+    --text: #17172b;
+    --text-soft: #696b82;
+    --background: #fbfaff;
+    --border: #e9e7f4;
+    --shadow-md: 0 16px 44px rgba(39, 30, 89, .08);
+}
+body {
+    background: #fbfaff;
+    background-image: radial-gradient(ellipse at 6% 10%, rgba(124, 92, 246, .07), transparent 32%), radial-gradient(ellipse at 94% 18%, rgba(6, 182, 212, .06), transparent 27%);
+}
+nav {
+    padding: 12px max(5%, calc((100% - 1180px) / 2));
+    background: rgba(255,255,255,.9);
+    border-bottom-color: rgba(226,223,242,.8);
+}
+.logo img { width: 44px; height: 44px; }
+nav ul { gap: 8px; }
+nav a { padding: 10px 13px; }
+nav a[href="#home"] { color: var(--primary); background: #f0edff; }
+.hero {
+    max-width: 1240px;
+    min-height: 620px;
+    padding: 68px 5% 28px;
+    display: block;
+    text-align: left;
+    overflow: hidden;
+}
+.hero::before { width: 500px; height: 500px; left: -260px; top: 2%; background: radial-gradient(circle, rgba(139,92,246,.13), transparent 68%); }
+.hero::after { width: 430px; height: 430px; right: -230px; bottom: 4%; background: radial-gradient(circle, rgba(6,182,212,.12), transparent 68%); }
+.hero-shell { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr); align-items: center; gap: 34px; min-height: 475px; }
+.hero-copy { max-width: 590px; }
+.hero-eyebrow, .section-eyebrow { display: inline-flex; align-items: center; gap: 9px; color: #6253cf; font-size: 11px; font-weight: 850; letter-spacing: 1.8px; }
+.eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: #20c5b4; box-shadow: 0 0 0 4px rgba(32,197,180,.13); }
+.hero h1 { margin: 22px 0 20px; max-width: 650px; font-size: clamp(43px, 5.2vw, 68px); line-height: 1.04; font-weight: 850; letter-spacing: -2.8px; color: #1c1a36; background: none; -webkit-text-fill-color: initial; }
+.hero h1 span { color: transparent; background: linear-gradient(110deg,#5545e8,#8b5cf6 70%,#06b6d4); -webkit-background-clip: text; background-clip: text; }
+.hero p { margin: 0; max-width: 520px; color: #6a6b83; font-size: 17px; line-height: 1.85; font-weight: 450; }
+.hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 13px; margin-top: 28px; }
+.hero-actions button { margin: 0; padding: 15px 22px; border-radius: 13px; box-shadow: 0 10px 24px rgba(81,69,229,.24); }
+.hero-actions button span { margin-left: 7px; font-size: 18px; }
+.hero-secondary { display: inline-flex; align-items: center; gap: 9px; padding: 13px 17px; color: #393253; text-decoration: none; font-size: 14px; font-weight: 750; border: 1px solid #e5e1f3; border-radius: 13px; background: rgba(255,255,255,.78); transition: .2s ease; }
+.hero-secondary:hover { color: var(--primary); border-color: #c9c1fa; transform: translateY(-2px); }
+.hero-note { display: flex; align-items: center; gap: 9px; margin-top: 28px; color: #85849a; font-size: 12px; font-weight: 650; }
+.hero-note-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 8px; background: #e7fbf7; color: #0b9c8c; }
+.hero-art { position: relative; min-height: 420px; display: flex; align-items: center; justify-content: center; isolation: isolate; }
+.art-glow { position: absolute; width: 340px; height: 340px; border-radius: 50%; background: linear-gradient(140deg,rgba(115,95,245,.18),rgba(6,182,212,.12)); filter: blur(3px); z-index: -2; }
+.art-orbit { position: absolute; border: 1px dashed rgba(119,103,207,.28); border-radius: 50%; transform: rotate(-20deg); }
+.orbit-one { width: 390px; height: 270px; }
+.orbit-two { width: 310px; height: 380px; transform: rotate(35deg); }
+.art-book { position: relative; width: 230px; height: 150px; margin-top: 36px; filter: drop-shadow(0 22px 22px rgba(50,37,112,.16)); transform: rotate(-5deg); }
+.book-page { position: absolute; bottom: 0; width: 112px; height: 116px; background: linear-gradient(150deg,#fff,#f2efff); border: 1px solid #ddd7f5; }
+.page-left { left: 0; border-radius: 14px 5px 7px 12px; transform: skewY(5deg); }
+.page-right { right: 0; border-radius: 5px 14px 12px 7px; transform: skewY(-5deg); background: linear-gradient(210deg,#fff,#e9f9fc); }
+.book-spine { position: absolute; left: 50%; top: 35px; bottom: 0; width: 8px; z-index: 2; background: #c5b8f5; border-radius: 50%; transform: translateX(-50%); }
+.book-line { display: block; width: 60%; height: 4px; margin: 13px 0 0 18px; border-radius: 5px; background: #d9d3f2; }
+.book-line.line-long { width: 68%; margin-top: 25px; }
+.book-line.line-short { width: 40%; }
+.book-highlight { display: block; width: 52px; height: 8px; margin: 12px 0 0 18px; border-radius: 4px; background: #c4f2ec; }
+.book-leaf { position: absolute; right: 20px; bottom: 17px; color: #23b8a7; font-size: 18px; }
+.book-sprout { position: absolute; z-index: 4; left: 50%; top: -72px; width: 66px; height: 92px; transform: translateX(-50%); }
+.sprout-stem { position: absolute; left: 32px; top: 24px; width: 4px; height: 64px; background: linear-gradient(#21b9a6,#149786); border-radius: 8px; transform: rotate(5deg); }
+.sprout-leaf { position: absolute; width: 28px; height: 43px; background: linear-gradient(145deg,#53dec4,#16a394); border-radius: 100% 0 100% 0; }
+.leaf-left { left: 7px; top: 20px; transform: rotate(-35deg); }
+.leaf-right { right: 2px; top: 0; transform: rotate(40deg) scale(.88); background: linear-gradient(145deg,#b1ed75,#42bf92); }
+.floating-tool { position: absolute; display: flex; align-items: center; gap: 11px; padding: 13px 15px; border: 1px solid rgba(231,227,247,.95); border-radius: 16px; background: rgba(255,255,255,.94); box-shadow: 0 14px 36px rgba(49,38,105,.10); backdrop-filter: blur(10px); }
+.floating-tool strong, .floating-tool small { display: block; white-space: nowrap; }
+.floating-tool strong { color: #272440; font-size: 12px; }
+.floating-tool small { margin-top: 2px; color: #89869e; font-size: 10px; }
+.tool-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 36px; border-radius: 11px; font-weight: 900; }
+.quiz-icon { background: #eeeaff; color: #6551e7; }
+.flash-icon { background: #e2fbf8; color: #0b9e8d; }
+.tool-arrow { color: #aaa4c7; margin-left: 5px; }
+.tool-quiz { top: 64px; right: -2px; }
+.tool-flash { left: -8px; top: 190px; }
+.tool-focus { right: 10px; bottom: 30px; }
+.focus-dot { width: 9px; height: 9px; border-radius: 50%; background: #28c7a7; box-shadow: 0 0 0 5px #e0faf4; margin: 0 6px; }
+.art-spark { position: absolute; color: #8b78ee; }
+.spark-one { top: 74px; left: 18%; font-size: 28px; }
+.spark-two { right: 12%; bottom: 68px; color: #19b7c7; font-size: 35px; }
+.hero-bottom-line { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 24px; padding-top: 22px; border-top: 1px solid #eae7f5; color: #8c8aa1; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; }
+.hero-bottom-divider { width: 4px; height: 4px; border-radius: 50%; background: #b6aaf3; }
+.toolkit-section { max-width: 1240px; padding-top: 65px; padding-bottom: 82px; }
+.toolkit-heading { margin-bottom: 30px; text-align: center; }
+.toolkit-heading h2 { margin: 12px 0 10px; font-size: clamp(29px,4vw,40px); letter-spacing: -1.2px; color: #211e3b; }
+.toolkit-heading h2::after { display: none; }
+.toolkit-heading p { color: #79788f; font-size: 15px; }
+.toolkit-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+.toolkit-card { position: relative; min-height: 235px; display: flex; flex-direction: column; align-items: flex-start; padding: 23px; border: 1px solid #e9e6f5; border-radius: 20px; text-decoration: none; background: rgba(255,255,255,.9); box-shadow: 0 8px 28px rgba(41,31,86,.04); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.toolkit-card:hover { transform: translateY(-6px); box-shadow: 0 18px 38px rgba(41,31,86,.10); border-color: #d6cff9; }
+.toolkit-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; font-size: 22px; font-weight: 800; }
+.toolkit-card-arrow { position: absolute; top: 24px; right: 22px; color: #b2adc8; font-size: 18px; }
+.toolkit-card h3 { margin: 20px 0 8px; color: #24213e; font-size: 16px; }
+.toolkit-card p { margin: 0 0 20px; color: #77768d; font-size: 12px; line-height: 1.7; }
+.toolkit-link { display: flex; align-items: center; gap: 8px; margin-top: auto; color: #5545d8; font-size: 12px; font-weight: 800; }
+.toolkit-purple .toolkit-icon { color: #6551e7; background: #eeeaff; }
+.toolkit-cyan .toolkit-icon { color: #079d9a; background: #e1faf7; }
+.toolkit-orange .toolkit-icon { color: #d98239; background: #fff1e4; }
+.toolkit-green .toolkit-icon { color: #28996e; background: #e4f8ed; }
+@media (max-width: 950px) {
+    .hero { min-height: auto; padding-top: 55px; }
+    .hero-shell { grid-template-columns: minmax(0,1fr) minmax(0,.85fr); gap: 15px; }
+    .hero h1 { font-size: clamp(40px,5vw,56px); letter-spacing: -2px; }
+    .hero-art { transform: scale(.9); }
+    .toolkit-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 680px) {
+    nav { gap: 10px; padding: 10px 4%; }
+    nav ul { justify-content: center; gap: 2px; }
+    nav a { padding: 8px 9px; font-size: 12px; }
+    .hero { padding: 48px 6% 24px; text-align: center; }
+    .hero-shell { grid-template-columns: 1fr; gap: 0; }
+    .hero-copy { margin: 0 auto; }
+    .hero-eyebrow { justify-content: center; font-size: 9px; letter-spacing: 1.2px; }
+    .hero h1 { margin-top: 18px; font-size: clamp(39px,11vw,55px); letter-spacing: -1.8px; }
+    .hero p { font-size: 15px; margin: 0 auto; }
+    .hero-actions { justify-content: center; }
+    .hero-note { justify-content: center; margin-top: 22px; }
+    .hero-art { min-height: 330px; margin-top: 0; transform: scale(.85); }
+    .art-book { transform: rotate(-5deg) scale(.9); }
+    .tool-quiz { right: 0; top: 35px; }
+    .tool-flash { left: 0; top: 150px; }
+    .tool-focus { right: 0; bottom: 10px; }
+    .hero-bottom-line { gap: 8px; font-size: 8px; letter-spacing: .8px; }
+    .toolkit-section { padding-top: 50px; }
+    .toolkit-grid { grid-template-columns: 1fr; gap: 12px; }
+    .toolkit-card { min-height: 190px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .toolkit-card, .hero-secondary { transition: none; }
+}
+
     </style>
 </head>
 
@@ -1302,22 +1442,63 @@ input[type="checkbox"] {
     <!-- ========================= HOME ========================= -->
 
     <section id="home" class="hero">
+        <div class="hero-shell">
+            <div class="hero-copy">
+                <span class="hero-eyebrow"><span class="eyebrow-dot"></span> YOUR PERSONAL LEARNING SPACE</span>
+                <h1>Free <span>AI-Guided</span> Education</h1>
+                <p>Learn smarter with AI-powered quizzes, flashcards, and study tools—all in one place, built for your progress.</p>
+                <div class="hero-actions">
+                    <button onclick="document.getElementById('materials').scrollIntoView({behavior:'smooth'})">Start Studying <span aria-hidden="true">↗</span></button>
+                    <a class="hero-secondary" href="#toolkit">Explore tools <span aria-hidden="true">↓</span></a>
+                </div>
+                <div class="hero-note"><span class="hero-note-icon">✦</span> Free tools to help you study with confidence</div>
+            </div>
 
-        <h1>Welcome to EduSow</h1>
-
-        <p>Free AI-Guided Education.</p>
-
-        <button onclick="document.getElementById('materials').scrollIntoView()">
-            Start Studying 🚀
-        </button>
-
+            <div class="hero-art" aria-label="Preview of EduSow study tools">
+                <div class="art-glow"></div>
+                <div class="art-orbit orbit-one"></div>
+                <div class="art-orbit orbit-two"></div>
+                <div class="art-book">
+                    <div class="book-spine"></div>
+                    <div class="book-page page-left"><span class="book-line line-long"></span><span class="book-line"></span><span class="book-line line-short"></span><span class="book-highlight"></span></div>
+                    <div class="book-page page-right"><span class="book-line line-long"></span><span class="book-line"></span><span class="book-line line-short"></span><span class="book-leaf">✦</span></div>
+                    <div class="book-sprout"><span class="sprout-stem"></span><span class="sprout-leaf leaf-left"></span><span class="sprout-leaf leaf-right"></span></div>
+                </div>
+                <div class="floating-tool tool-quiz"><span class="tool-icon quiz-icon">✓</span><span><strong>AI Quiz Generator</strong><small>Practice what you learn</small></span><span class="tool-arrow">↗</span></div>
+                <div class="floating-tool tool-flash"><span class="tool-icon flash-icon">▤</span><span><strong>Smart Flashcards</strong><small>Remember more</small></span></div>
+                <div class="floating-tool tool-focus"><span class="focus-dot"></span><span><strong>Focus time</strong><small>One step at a time</small></span></div>
+                <span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span>
+            </div>
+        </div>
+        <div class="hero-bottom-line"><span>LEARN AT YOUR PACE</span><span class="hero-bottom-divider"></span><span>BUILD BETTER HABITS</span><span class="hero-bottom-divider"></span><span>GROW EVERY DAY</span></div>
     </section>
 
+    <section id="toolkit" class="toolkit-section">
+        <div class="toolkit-heading">
+            <span class="section-eyebrow">MADE FOR THE WAY YOU LEARN</span>
+            <h2>Your learning toolkit</h2>
+            <p>Everything you need to turn study time into real progress.</p>
+        </div>
+        <div class="toolkit-grid">
+            <a class="toolkit-card toolkit-purple" href="#materials">
+                <span class="toolkit-icon">✦</span><span class="toolkit-card-arrow">↗</span>
+                <h3>AI Quiz Generator</h3><p>Turn your notes into practice questions and test your understanding.</p><span class="toolkit-link">Create a quiz <span>→</span></span>
+            </a>
+            <a class="toolkit-card toolkit-cyan" href="#flashcards">
+                <span class="toolkit-icon">▤</span><span class="toolkit-card-arrow">↗</span>
+                <h3>Smart Flashcards</h3><p>Use active recall to make important ideas easier to remember.</p><span class="toolkit-link">Review cards <span>→</span></span>
+            </a>
+            <a class="toolkit-card toolkit-orange" href="#materials">
+                <span class="toolkit-icon">▧</span><span class="toolkit-card-arrow">↗</span>
+                <h3>Study Materials</h3><p>Bring your PDFs and images into one simple learning workflow.</p><span class="toolkit-link">Open materials <span>→</span></span>
+            </a>
+            <a class="toolkit-card toolkit-green" href="#timer">
+                <span class="toolkit-icon">◷</span><span class="toolkit-card-arrow">↗</span>
+                <h3>Pomodoro Tracker</h3><p>Stay focused, track study time, and build a steady routine.</p><span class="toolkit-link">Start focusing <span>→</span></span>
+            </a>
+        </div>
+    </section>
 
-  
-
-
-   
     <!-- ========================= MATERIALS ========================= -->
 
     <section id="materials">
