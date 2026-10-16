@@ -1988,16 +1988,10 @@ footer {
 
             <div class="ai-info">
                 <strong>EduSow AI Quiz</strong>
-                <p>Upload study material for your quiz. PDF, JPG, and PNG are supported.</p>
+                <p>Generate a quiz from the text extracted in Study Materials above.</p>
             </div>
 
-            <div class="feature-upload-panel">
-                <button type="button" onclick="chooseMaterialForFeature('quiz')">📄 Upload material for Quiz</button>
-                <p id="quizUploadStatus" class="feature-upload-status">No quiz material selected yet.</p>
-                <p class="feature-upload-help">After choosing a PDF, extract its text in Study Materials above. Images are read with OCR.</p>
-            </div>
-
-            <div id="generatedQuizContainer">
+             <div id="generatedQuizContainer">
 
                 <p>
                     No AI quiz generated yet.
@@ -2021,16 +2015,10 @@ footer {
 
         <div class="ai-info">
             <strong>📚 Learn from your study material</strong>
-            <p>Upload material specifically for flashcards. PDF, JPG, and PNG are supported.</p>
+            <p>Generate flashcards from the text extracted in Study Materials above.</p>
         </div>
 
-        <div class="feature-upload-panel">
-            <button type="button" onclick="chooseMaterialForFeature('flashcards')">🖼️ Upload material for Flashcards</button>
-            <p id="flashcardsUploadStatus" class="feature-upload-status">No flashcard material selected yet.</p>
-            <p class="feature-upload-help">After choosing a PDF, extract its text in Study Materials above. Images are read with OCR.</p>
-        </div>
-
-        <label for="flashcardCount">
+         <label for="flashcardCount">
             Number of flashcards
         </label>
 
@@ -2308,16 +2296,7 @@ footer {
 
             console.log("Selected study material:", file);
 
-            if (featureUploadTarget) {
-                const target = featureUploadTarget;
-                featureUploadTarget = null;
-                const statusId = target === "quiz" ? "quizUploadStatus" : "flashcardsUploadStatus";
-                const status = document.getElementById(statusId);
-                if (status) status.textContent = "Selected: " + file.name + ". Extract its text in Study Materials above, then return here to generate.";
-                showPDFPageSelection();
-            }
-
-        });
+         });
 
 
         // =========================================================
@@ -3853,17 +3832,7 @@ async function generateFlashcardsFromPDF() {
         // =========================================================
         // The site uses one continuous page; navigation links scroll to sections.
 
-        let featureUploadTarget = null;
-
-        function chooseMaterialForFeature(target) {
-            if (target !== "quiz" && target !== "flashcards") return;
-            featureUploadTarget = target;
-            fileInput.value = "";
-            fileInput.accept = ".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png";
-            fileInput.click();
-        }
-
-</script>
+ </script>
 
 </body>
 
