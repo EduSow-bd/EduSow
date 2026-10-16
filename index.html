@@ -2719,6 +2719,50 @@ async function extractSelectedPDF() {
         );
     }
 }
+
+// =========================================================
+// GENERATION LANGUAGE GUARD
+// Detect the dominant script in extracted material and prevent
+// the UI from displaying AI results in the wrong language.
+// =========================================================
+function detectMaterialLanguage(text) {
+    const value = String(text || "");
+    const bengaliLetters = (value.match(/[\u0980-\u09FF]/g) || []).length;
+    const latinLetters = (value.match(/[A-Za-z]/g) || []).length;
+    const totalLetters = bengaliLetters + latinLetters;
+
+    // Prefer Bengali when Bengali script is a meaningful part of the source.
+    if (bengaliLetters >= 20 && totalLetters > 0 &&
+        bengaliLetters / totalLetters >= 0.12) {
+        return "Bengali";
+    }
+    return "English";
+}
+
+function outputMatchesLanguage(text, language) {
+    const value = String(text || "");
+    const bengaliLetters = (value.match(/[\u0980-\u09FF]/g) || []).length;
+    const latinLetters = (value.match(/[A-Za-z]/g) || []).length;
+    const totalLetters = bengaliLetters + latinLetters;
+
+    if (language === "Bengali") {
+        // Permit English technical terms, but reject predominantly English output.
+        return bengaliLetters >= 20 && totalLetters > 0 &&
+            bengaliLetters / totalLetters >= 0.12;
+    }
+    return latinLetters > bengaliLetters;
+}
+
+function requireExpectedLanguage(text, language, featureName) {
+    if (!outputMatchesLanguage(text, language)) {
+        throw new Error(
+            language === "Bengali"
+                ? `The AI returned ${featureName} in the wrong language. No cards/questions were displayed. Please try again; if this repeats, the AI generation function needs its Bengali-language rule updated.`
+                : `The AI returned ${featureName} in a language that does not match the source material. No results were displayed. Please try again.`
+        );
+    }
+}
+
         // =========================================================
         // AI QUIZ GENERATION
         // =========================================================
@@ -2775,6 +2819,7 @@ async function generateQuizFromPDF() {
             {
                 body: {
                     text: extractedPDFText,
+                    language: detectMaterialLanguage(extractedPDFText),
                     difficulty: "Mixed"
                 }
             }
@@ -2862,6 +2907,21 @@ async function generateQuizFromPDF() {
                 " questions instead of 20."
             );
         }
+
+        const expectedQuizLanguage = detectMaterialLanguage(extractedPDFText);
+        const quizTextForLanguageCheck = data.questions.map(question =>
+            [
+                question?.question,
+                ...(Array.isArray(question?.options) ? question.options : []),
+                question?.explanation
+            ].filter(Boolean).join(" ")
+        ).join(" ");
+
+        requireExpectedLanguage(
+            quizTextForLanguageCheck,
+            expectedQuizLanguage,
+            "MCQs"
+        );
 
 
         // =============================================
@@ -3382,6 +3442,7 @@ async function generateFlashcardsFromPDF() {
                 {
                     body: {
                         text: extractedPDFText,
+                        language: detectMaterialLanguage(extractedPDFText),
                         count: count
                     }
                 }
@@ -3426,6 +3487,17 @@ async function generateFlashcardsFromPDF() {
                 "The AI returned flashcards in an unexpected format."
             );
         }
+
+        const expectedFlashcardLanguage = detectMaterialLanguage(extractedPDFText);
+        const flashcardTextForLanguageCheck = flashcards
+            .map(card => card.front + " " + card.back)
+            .join(" ");
+
+        requireExpectedLanguage(
+            flashcardTextForLanguageCheck,
+            expectedFlashcardLanguage,
+            "flashcards"
+        );
 
         flashcardIndex = 0;
         flashcardFlipped = false;
