@@ -499,8 +499,7 @@ button:disabled {
 .generator-box,
 .quiz-box,
 .flashcard-box,
-.timer-box,
-.goal-box {
+.timer-box {
     background: rgba(255, 255, 255, 0.94);
 
     border:
@@ -984,39 +983,6 @@ textarea {
 @media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } }
 
 /* =========================================================
-   GOAL PROGRESS
-   ========================================================= */
-
-.goal-progress {
-    height: 14px;
-
-    background: #e2e8f0;
-
-    border-radius: 20px;
-
-    overflow: hidden;
-
-    margin-top: 15px;
-}
-
-.goal-progress-bar {
-    height: 100%;
-
-    width: 0%;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--primary),
-            var(--secondary)
-        );
-
-    transition:
-        width 0.4s ease;
-}
-
-
-/* =========================================================
    FOOTER
    ========================================================= */
 
@@ -1197,8 +1163,7 @@ input[type="checkbox"] {
     .generator-box,
     .quiz-box,
     .flashcard-box,
-    .timer-box,
-    .goal-box {
+    .timer-box {
         padding: 20px;
 
         border-radius: 18px;
@@ -1437,9 +1402,9 @@ section:not(.hero):not(.toolkit-section) > h2::after {
     margin-top: 14px;
     background: linear-gradient(90deg,#5545e8,#06b6d4);
 }
-#materials, #quiz, #flashcards, #timer, #goal { position: relative; }
-#materials, #flashcards, #goal { border-top: 1px solid rgba(226,223,242,.65); }
-.materials-box, .quiz-box, .flashcard-box, .timer-box, .goal-box, .study-history-box {
+#materials, #quiz, #flashcards, #timer { position: relative; }
+#materials, #flashcards { border-top: 1px solid rgba(226,223,242,.65); }
+.materials-box, .quiz-box, .flashcard-box, .timer-box, .study-history-box {
     border: 1px solid #e8e5f4;
     border-radius: 22px;
     background: rgba(255,255,255,.94);
@@ -1651,11 +1616,9 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
 .study-history-list li:last-child { border-bottom: 0; }
 .study-history-list li span:last-child { color: #5145d5; font-weight: 800; }
 .study-history-empty { color: #9591a6 !important; }
-#goal .goal-box { padding: 28px; }
 #goal .goal-box > p:first-child { color: #74718a; font-size: 14px; }
 .goal-progress { height: 14px; margin-top: 22px; overflow: hidden; border-radius: 999px; background: #eeeafa; }
 .goal-progress-bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#5145e5,#8b5cf6,#06b6d4); transition: width .35s ease; }
-#goal #goalText { color: #5145d5; font-size: 13px; font-weight: 800; }
 footer {
     margin-top: 0;
     padding: 30px 5%;
@@ -1671,8 +1634,7 @@ footer {
 }
 @media (max-width: 560px) {
     section:not(.hero):not(.toolkit-section) { padding: 56px 5%; }
-    .materials-box, #quiz .quiz-box, #flashcards .flashcard-box, #goal .goal-box { padding: 17px; border-radius: 17px; }
-    .generator-box { padding: 16px; }
+    .materials-box, #quiz .quiz-box, #flashcards .flashcard-box, .generator-box { padding: 16px; }
     .file-picker { padding: 22px 13px; }
     .study-stats-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
     .study-stat-card { padding: 15px 12px; }
@@ -2114,37 +2076,6 @@ footer {
             <div class="study-history-heading"><h3>Recent study sessions</h3><button type="button" class="secondary study-clear-btn" onclick="clearStudyHistory()">Clear history</button></div>
             <ul id="studyHistoryList" class="study-history-list"><li class="study-history-empty">Your completed study sessions will show here.</li></ul>
         </div>
-    </section>
-
-
-    <!-- ========================= GOAL ========================= -->
-
-    <section id="goal">
-
-        <h2>🎯 Today's Goal</h2>
-
-        <div class="goal-box">
-
-            <p>
-                Focus on your studies and complete your daily target.
-            </p>
-
-            <div class="goal-progress">
-                <div
-                    id="goalProgressBar"
-                    class="goal-progress-bar"
-                ></div>
-            </div>
-
-            <p
-                id="goalText"
-                style="margin-top:10px;"
-            >
-                0% completed
-            </p>
-
-        </div>
-
     </section>
 
 
