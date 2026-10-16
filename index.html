@@ -1705,6 +1705,40 @@ nav ul a[aria-current="page"] {
     background: rgba(79, 70, 229, .09);
 }
 
+
+/* Explicit PDF / JPG / PNG upload choices */
+.file-type-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto 12px;
+}
+.file-type-btn {
+    width: 100%;
+    min-height: 64px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 13px 12px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 750;
+}
+.file-type-icon { font-size: 21px; }
+.file-type-hint {
+    margin: 5px 0 0;
+    color: #77738b;
+    font-size: 13px;
+}
+@media (max-width: 560px) {
+    .file-type-options { grid-template-columns: 1fr; gap: 9px; }
+    .file-type-btn { min-height: 48px; }
+}
+
 </style>
 </head>
 
@@ -1815,13 +1849,22 @@ nav ul a[aria-current="page"] {
                         accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
                     >
 
-                    <!-- CLICKING THIS OPENS FILE PICKER -->
-                    <label
-                        for="fileInput"
-                        class="choose-file-btn"
-                    >
-                        📁 Choose PDF, JPG or PNG
-                    </label>
+                    <!-- Choose the kind of study material to open -->
+                    <div class="file-type-options" role="group" aria-label="Choose upload file type">
+                        <button type="button" class="choose-file-btn file-type-btn" onclick="chooseStudyFile('pdf')">
+                            <span class="file-type-icon">📄</span>
+                            <span>Choose PDF</span>
+                        </button>
+                        <button type="button" class="choose-file-btn file-type-btn" onclick="chooseStudyFile('jpg')">
+                            <span class="file-type-icon">🖼️</span>
+                            <span>Choose JPG</span>
+                        </button>
+                        <button type="button" class="choose-file-btn file-type-btn" onclick="chooseStudyFile('png')">
+                            <span class="file-type-icon">🌄</span>
+                            <span>Choose PNG</span>
+                        </button>
+                    </div>
+                    <p class="file-type-hint">PDF documents and JPG/PNG images are supported.</p>
 
                     <p id="selectedFileName">
                         No file selected
@@ -3717,6 +3760,22 @@ async function generateFlashcardsFromPDF() {
         // Open the requested feature directly when a hash is in the URL.
         const initialPage = window.location.hash.slice(1);
         openPage(EDUSOW_PAGES.includes(initialPage) ? initialPage : "home", { skipHistory: true });
+
+
+        // Open the file picker filtered to the selected supported format.
+        function chooseStudyFile(type) {
+            const acceptedTypes = {
+                pdf: ".pdf,application/pdf",
+                jpg: ".jpg,.jpeg,image/jpeg",
+                png: ".png,image/png"
+            };
+
+            if (!acceptedTypes[type]) return;
+
+            fileInput.value = "";
+            fileInput.accept = acceptedTypes[type];
+            fileInput.click();
+        }
 
 </script>
 
