@@ -2027,9 +2027,9 @@ footer {
                     ></textarea>
 
                     <!-- EXPLAIN MATERIALS -->
-                    <div id="explainMaterialsLaunch" class="explain-materials-launch" hidden>
+                    <div id="explainMaterialsLaunch" class="explain-materials-launch">
                         <h3>🎓 Explain Materials</h3>
-                        <p>Turn the extracted material into a guided AI lesson with interactive slides or teacher mode.</p>
+                        <p>Upload a PDF or image and extract its text first. Then turn your material into a guided AI lesson with interactive slides or teacher mode.</p>
                         <div class="explain-materials-options">
                             <label for="explainLanguage">Explanation language
                                 <select id="explainLanguage">
@@ -2046,7 +2046,7 @@ footer {
                             </label>
                         </div>
                         <div class="button-row">
-                            <button type="button" id="explainMaterialsButton" onclick="generateMaterialExplanation()">✨ Explain Materials</button>
+                            <button type="button" id="explainMaterialsButton" onclick="generateMaterialExplanation()" disabled>✨ Explain Materials</button>
                         </div>
                         <p class="explain-hint">The extracted text is sent to EduSow's AI service to create the lesson. Check important facts against your textbook.</p>
                         <div id="explainMaterialsStatus" class="status" hidden aria-live="polite"></div>
@@ -2523,7 +2523,10 @@ footer {
         function setExplainMaterialsAvailable(available) {
             const launch = document.getElementById("explainMaterialsLaunch");
             const presentation = document.getElementById("explainPresentation");
-            if (launch) launch.hidden = !available;
+            const button = document.getElementById("explainMaterialsButton");
+            // Keep the feature visible before a file is selected; only enable generation after extraction.
+            if (launch) launch.hidden = false;
+            if (button) button.disabled = !available;
             if (!available) {
                 if (presentation) presentation.hidden = true;
                 explainLesson = null;
