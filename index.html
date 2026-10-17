@@ -993,6 +993,40 @@ textarea {
 .feature-upload-status { margin-top: 10px; color: var(--text-soft); font-size: 14px; }
 .feature-upload-help { margin-top: 4px; color: var(--text-light); font-size: 12px; }
 
+
+/* EXPLAIN MATERIALS — AI LESSON PRESENTATION */
+.explain-materials-launch { margin-top:18px; padding:20px; border:1px solid #c7d2fe; border-radius:18px; background:linear-gradient(135deg,#eef2ff,#faf5ff); }
+.explain-materials-launch[hidden], .explain-presentation[hidden], .explain-materials-launch #explainMaterialsStatus[hidden] { display:none !important; }
+.explain-materials-launch h3 { color:#312e81; margin-bottom:6px; font-size:20px; }
+.explain-materials-launch p { color:#64748b; font-size:14px; margin-bottom:12px; }
+.explain-materials-options { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; align-items:end; }
+.explain-materials-options label { display:block; font-size:13px; font-weight:750; color:#475569; }
+.explain-materials-options select { margin-top:5px; }
+.explain-materials-launch .button-row { margin-top:14px; }
+.explain-materials-launch .explain-hint { margin:10px 0 0; font-size:12px; }
+.explain-presentation { margin-top:20px; border:1px solid var(--border); border-radius:20px; overflow:hidden; background:white; box-shadow:var(--shadow-md); }
+.explain-presentation-header { padding:20px 22px; background:linear-gradient(135deg,#312e81,#6d28d9); color:white; }
+.explain-presentation-header h3 { font-size:clamp(19px,3vw,26px); line-height:1.3; }
+.explain-presentation-header p { color:#e0e7ff; font-size:13px; margin-top:5px; }
+.explain-mode-tabs { display:flex; gap:8px; flex-wrap:wrap; padding:14px 18px 0; }
+.explain-mode-tabs button { background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; }
+.explain-mode-tabs button.active { background:#eef2ff; color:#4338ca; border-color:#a5b4fc; }
+.explain-slide-body { padding:clamp(18px,4vw,30px); min-height:260px; }
+.explain-slide-count { color:#6d28d9; font-size:12px; font-weight:850; letter-spacing:1px; text-transform:uppercase; }
+.explain-slide-body h4 { font-size:clamp(22px,4vw,30px); line-height:1.25; margin:8px 0 15px; color:#1e1b4b; }
+.explain-slide-body p { color:#475569; line-height:1.8; white-space:pre-wrap; }
+.explain-keypoints { margin:17px 0; padding-left:22px; color:#334155; }
+.explain-keypoints li { margin:8px 0; line-height:1.65; }
+.explain-example { margin-top:18px; padding:15px 17px; background:#f0fdfa; border:1px solid #99f6e4; border-radius:13px; }
+.explain-example strong { color:#115e59; display:block; margin-bottom:5px; }
+.explain-example p { color:#134e4a; }
+.explain-presentation-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:15px 20px; border-top:1px solid var(--border); background:#f8fafc; }
+.explain-presentation-controls span { color:#64748b; font-size:13px; font-weight:650; }
+.explain-teacher-script { padding:18px; border-radius:15px; background:#f5f3ff; border:1px solid #ddd6fe; margin-top:15px; }
+.explain-teacher-script strong { color:#5b21b6; display:block; margin-bottom:7px; }
+.explain-teacher-script p { color:#4c1d95; }
+@media(max-width:560px) { .explain-materials-options { grid-template-columns:1fr; gap:4px; } .explain-presentation-controls { align-items:stretch; } .explain-presentation-controls button { flex:1; } .explain-mode-tabs { padding:12px 12px 0; } }
+
 /* =========================================================
    FOOTER
    ========================================================= */
@@ -1992,6 +2026,49 @@ footer {
                         placeholder="Extracted PDF text will appear here..."
                     ></textarea>
 
+                    <!-- EXPLAIN MATERIALS -->
+                    <div id="explainMaterialsLaunch" class="explain-materials-launch" hidden>
+                        <h3>🎓 Explain Materials</h3>
+                        <p>Turn the extracted material into a guided AI lesson with interactive slides or teacher mode.</p>
+                        <div class="explain-materials-options">
+                            <label for="explainLanguage">Explanation language
+                                <select id="explainLanguage">
+                                    <option value="english">English</option>
+                                    <option value="bangla">বাংলা (Bangla)</option>
+                                </select>
+                            </label>
+                            <label for="explainDetail">Lesson detail
+                                <select id="explainDetail">
+                                    <option value="balanced">Balanced lesson</option>
+                                    <option value="simple">Very simple explanation</option>
+                                    <option value="detailed">Detailed explanation</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="button-row">
+                            <button type="button" id="explainMaterialsButton" onclick="generateMaterialExplanation()">✨ Explain Materials</button>
+                        </div>
+                        <p class="explain-hint">The extracted text is sent to EduSow's AI service to create the lesson. Check important facts against your textbook.</p>
+                        <div id="explainMaterialsStatus" class="status" hidden aria-live="polite"></div>
+                    </div>
+
+                    <div id="explainPresentation" class="explain-presentation" hidden aria-live="polite">
+                        <div class="explain-presentation-header">
+                            <h3 id="explainPresentationTitle">Your AI lesson</h3>
+                            <p id="explainPresentationSubtitle">Learn one concept at a time.</p>
+                        </div>
+                        <div class="explain-mode-tabs" role="group" aria-label="Presentation mode">
+                            <button type="button" id="explainSlidesMode" class="active" onclick="setExplainMode('slides')">▤ Interactive slides</button>
+                            <button type="button" id="explainTeacherMode" onclick="setExplainMode('teacher')">🧑‍🏫 AI teacher mode</button>
+                        </div>
+                        <div id="explainSlideContent" class="explain-slide-body"></div>
+                        <div class="explain-presentation-controls">
+                            <button type="button" class="secondary" id="explainPrevious" onclick="moveExplainSlide(-1)">← Previous</button>
+                            <span id="explainSlideProgress">Concept 1</span>
+                            <button type="button" id="explainNext" onclick="moveExplainSlide(1)">Next →</button>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -2297,6 +2374,7 @@ footer {
             }
 
             const file = this.files[0];
+            setExplainMaterialsAvailable(false);
 
             selectedPDFFile = file;
 
@@ -2436,6 +2514,135 @@ footer {
 
 
 
+
+        // EXPLAIN MATERIALS: interactive slides and AI teacher mode.
+        let explainLesson = null;
+        let explainSlideIndex = 0;
+        let explainMode = "slides";
+
+        function setExplainMaterialsAvailable(available) {
+            const launch = document.getElementById("explainMaterialsLaunch");
+            const presentation = document.getElementById("explainPresentation");
+            if (launch) launch.hidden = !available;
+            if (!available) {
+                if (presentation) presentation.hidden = true;
+                explainLesson = null;
+                explainSlideIndex = 0;
+                const status = document.getElementById("explainMaterialsStatus");
+                if (status) { status.hidden = true; status.textContent = ""; }
+            }
+        }
+
+        function setExplainStatus(message, isError = false) {
+            const status = document.getElementById("explainMaterialsStatus");
+            if (!status) return;
+            status.hidden = false;
+            status.textContent = message;
+            status.style.background = isError ? "#fef2f2" : "#eef2ff";
+            status.style.color = isError ? "#b91c1c" : "#4338ca";
+            status.style.borderColor = isError ? "#fecaca" : "#c7d2fe";
+        }
+
+        async function generateMaterialExplanation() {
+            const text = (extractedPDFText || document.getElementById("pdfExtractedText")?.value || "").trim();
+            if (text.length < 100) {
+                setExplainStatus("Please extract at least 100 characters of readable material first.", true);
+                return;
+            }
+            const button = document.getElementById("explainMaterialsButton");
+            const presentation = document.getElementById("explainPresentation");
+            const language = document.getElementById("explainLanguage")?.value || "english";
+            const detail = document.getElementById("explainDetail")?.value || "balanced";
+            if (button) { button.disabled = true; button.textContent = "⏳ Building your lesson…"; }
+            if (presentation) presentation.hidden = true;
+            setExplainStatus("EduSow is organizing the material into a lesson. This may take a little while…");
+            try {
+                const { data, error } = await supabaseClient.functions.invoke("explain-materials", {
+                    body: { text, language, detail }
+                });
+                if (error) throw error;
+                if (!data || !Array.isArray(data.slides) || !data.slides.length) {
+                    throw new Error(data?.error || "The AI response did not contain a valid lesson.");
+                }
+                explainLesson = data;
+                explainSlideIndex = 0;
+                explainMode = "slides";
+                renderExplainLesson();
+                if (presentation) presentation.hidden = false;
+                setExplainStatus("Your lesson is ready. Switch between slides and AI teacher mode at any time.");
+                presentation?.scrollIntoView({ behavior: "smooth", block: "start" });
+            } catch (error) {
+                console.error("Explain Materials error:", error);
+                setExplainStatus("Could not create the lesson. " + (error?.message || "Please try again in a moment."), true);
+            } finally {
+                if (button) { button.disabled = false; button.textContent = "✨ Explain Materials"; }
+            }
+        }
+
+        function setExplainMode(mode) {
+            explainMode = mode === "teacher" ? "teacher" : "slides";
+            renderExplainLesson();
+        }
+
+        function moveExplainSlide(direction) {
+            if (!explainLesson || !Array.isArray(explainLesson.slides)) return;
+            explainSlideIndex = Math.max(0, Math.min(explainLesson.slides.length - 1, explainSlideIndex + direction));
+            renderExplainLesson();
+        }
+
+        function addExplainText(parent, tag, value, className) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            node.textContent = String(value || "");
+            parent.appendChild(node);
+            return node;
+        }
+
+        function renderExplainLesson() {
+            if (!explainLesson || !Array.isArray(explainLesson.slides)) return;
+            const slides = explainLesson.slides;
+            explainSlideIndex = Math.max(0, Math.min(explainSlideIndex, slides.length - 1));
+            const slide = slides[explainSlideIndex] || {};
+            const content = document.getElementById("explainSlideContent");
+            if (!content) return;
+            content.replaceChildren();
+            const isTeacher = explainMode === "teacher";
+            document.getElementById("explainSlidesMode")?.classList.toggle("active", !isTeacher);
+            document.getElementById("explainTeacherMode")?.classList.toggle("active", isTeacher);
+            document.getElementById("explainPresentationTitle").textContent = explainLesson.title || "Your AI lesson";
+            document.getElementById("explainPresentationSubtitle").textContent = isTeacher
+                ? "Your AI teacher explains each concept in sequence."
+                : "Move through the lesson one concept at a time.";
+            addExplainText(content, "div", (isTeacher ? "TEACHER MODE" : "LESSON SLIDE") + " · " + (explainSlideIndex + 1) + " OF " + slides.length, "explain-slide-count");
+            addExplainText(content, "h4", slide.title || "Key concept");
+            if (isTeacher) {
+                const script = document.createElement("div");
+                script.className = "explain-teacher-script";
+                addExplainText(script, "strong", "🧑‍🏫 " + (explainLesson.teacherLabel || "Let's understand this together"));
+                addExplainText(script, "p", slide.teacherScript || slide.explanation || "No teacher explanation was returned for this concept.");
+                content.appendChild(script);
+            } else {
+                addExplainText(content, "p", slide.explanation || "");
+                if (Array.isArray(slide.keyPoints) && slide.keyPoints.length) {
+                    const list = document.createElement("ul");
+                    list.className = "explain-keypoints";
+                    slide.keyPoints.forEach(point => addExplainText(list, "li", point));
+                    content.appendChild(list);
+                }
+                if (slide.example) {
+                    const example = document.createElement("div");
+                    example.className = "explain-example";
+                    addExplainText(example, "strong", explainLesson.exampleLabel || "Example");
+                    addExplainText(example, "p", slide.example);
+                    content.appendChild(example);
+                }
+            }
+            document.getElementById("explainSlideProgress").textContent = "Concept " + (explainSlideIndex + 1) + " of " + slides.length;
+            document.getElementById("explainPrevious").disabled = explainSlideIndex === 0;
+            document.getElementById("explainNext").disabled = explainSlideIndex >= slides.length - 1;
+            document.getElementById("explainNext").textContent = explainSlideIndex >= slides.length - 1 ? "Lesson complete ✓" : "Next →";
+        }
+
         // =========================================================
         // PDF TEXT EXTRACTION
         // =========================================================
@@ -2534,6 +2741,7 @@ async function extractSelectedImage() {
 
         const textArea = document.getElementById("pdfExtractedText");
         if (textArea) textArea.value = extractedPDFText;
+        setExplainMaterialsAvailable(true);
 
         const wordCount = extractedPDFText.split(/\\s+/).filter(Boolean).length;
         const charCount = extractedPDFText.length;
@@ -2723,6 +2931,7 @@ async function extractSelectedPDF() {
 
         const textArea = document.getElementById("pdfExtractedText");
         if (textArea) textArea.value = extractedPDFText;
+        setExplainMaterialsAvailable(true);
 
         const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
         const charCount = extractedPDFText.length;
