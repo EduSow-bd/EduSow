@@ -1406,21 +1406,21 @@ nav a[href="#home"] { color: var(--primary); background: #f0edff; }
 .hero-bottom-divider { width: 4px; height: 4px; border-radius: 50%; background: #b6aaf3; }
 .toolkit-section { max-width: 1240px; padding-top: 65px; padding-bottom: 82px; }
 .toolkit-heading { margin-bottom: 30px; text-align: center; }
-.toolkit-heading h2 { margin: 12px 0 10px; font-size: clamp(29px,4vw,40px); letter-spacing: -1.2px; color: #211e3b; }
+.toolkit-heading h2 { margin: 12px 0 10px; font-size: clamp(29px,4vw,40px); letter-spacing: -1.2px; color: #1d4ed8; }
 .toolkit-heading h2::after { display: none; }
-.toolkit-heading p { color: #79788f; font-size: 15px; }
+.toolkit-heading p { color: #64748b; font-size: 15px; }
 .toolkit-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
-.toolkit-card { position: relative; min-height: 235px; display: flex; flex-direction: column; align-items: flex-start; padding: 23px; border: 1px solid #e9e6f5; border-radius: 20px; text-decoration: none; background: rgba(255,255,255,.9); box-shadow: 0 8px 28px rgba(41,31,86,.04); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
-.toolkit-card:hover { transform: translateY(-6px); box-shadow: 0 18px 38px rgba(41,31,86,.10); border-color: #d6cff9; }
+.toolkit-card { position: relative; min-height: 235px; display: flex; flex-direction: column; align-items: flex-start; padding: 23px; border: 1px solid #dbeafe; border-radius: 20px; text-decoration: none; background: rgba(255,255,255,.9); box-shadow: 0 8px 28px rgba(30,64,175,.05); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.toolkit-card:hover { transform: translateY(-6px); box-shadow: 0 18px 38px rgba(30,64,175,.10); border-color: #93c5fd; }
 .toolkit-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; font-size: 22px; font-weight: 800; }
-.toolkit-card-arrow { position: absolute; top: 24px; right: 22px; color: #b2adc8; font-size: 18px; }
+.toolkit-card-arrow { position: absolute; top: 24px; right: 22px; color: #93a4bd; font-size: 18px; }
 .toolkit-card h3 { margin: 20px 0 8px; color: #24213e; font-size: 16px; }
-.toolkit-card p { margin: 0 0 20px; color: #77768d; font-size: 12px; line-height: 1.7; }
-.toolkit-link { display: flex; align-items: center; gap: 8px; margin-top: auto; color: #5545d8; font-size: 12px; font-weight: 800; }
-.toolkit-purple .toolkit-icon { color: #6551e7; background: #eeeaff; }
-.toolkit-cyan .toolkit-icon { color: #079d9a; background: #e1faf7; }
-.toolkit-orange .toolkit-icon { color: #d98239; background: #fff1e4; }
-.toolkit-green .toolkit-icon { color: #28996e; background: #e4f8ed; }
+.toolkit-card p { margin: 0 0 20px; color: #64748b; font-size: 12px; line-height: 1.7; }
+.toolkit-link { display: flex; align-items: center; gap: 8px; margin-top: auto; color: #2563eb; font-size: 12px; font-weight: 800; }
+.toolkit-purple .toolkit-icon { color: #2563eb; background: #eff6ff; }
+.toolkit-cyan .toolkit-icon { color: #2563eb; background: #eff6ff; }
+.toolkit-orange .toolkit-icon { color: #2563eb; background: #eff6ff; }
+.toolkit-green .toolkit-icon { color: #2563eb; background: #eff6ff; }
 @media (max-width: 950px) {
     .hero { min-height: auto; padding-top: 55px; }
     .hero-shell { grid-template-columns: minmax(0,1fr) minmax(0,.85fr); gap: 15px; }
@@ -1897,9 +1897,9 @@ footer {
 
     .study-mode-btn {
         color: #ffffff !important;
-        background: #2563eb !important;
+        background: linear-gradient(135deg, #2563eb, #0891b2) !important;
         border-color: #2563eb !important;
-        box-shadow: none;
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.16);
     }
 
     .study-mode-btn.active {
