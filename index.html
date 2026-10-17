@@ -1932,7 +1932,7 @@ footer {
 
                 <div class="generator-box">
 
-                    <h3>🧠 AI Study Generator</h3>
+                    <h3>📄 File Extraction</h3>
 
                     <div class="ai-info">
 
@@ -1953,15 +1953,6 @@ footer {
 <div class="button-row">
     <button type="button" onclick="showPDFPageSelection()">
         📖 Extract Text
-    </button>
-
-    <button
-        type="button"
-        onclick="generateQuizFromPDF()"
-        class="success"
-        id="generateQuizButton"
-    >
-        🧠 Generate 20 MCQs with AI
     </button>
 </div>
 
@@ -2088,10 +2079,21 @@ footer {
 
             <div class="ai-info">
                 <strong>EduSow AI Quiz</strong>
-                <p>Generate a quiz from the text extracted in Study Materials above.</p>
+                <p>Extract text from a PDF or image in Study Materials, then generate 20 MCQs here.</p>
             </div>
 
-             <div id="generatedQuizContainer">
+            <div class="button-row quiz-generate-row">
+                <button
+                    type="button"
+                    onclick="generateQuizFromPDF()"
+                    class="success"
+                    id="generateQuizButton"
+                >
+                    🧠 Generate 20 MCQs with AI
+                </button>
+            </div>
+
+            <div id="generatedQuizContainer">
 
                 <p>
                     No AI quiz generated yet.
