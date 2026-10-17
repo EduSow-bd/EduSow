@@ -1807,6 +1807,66 @@ footer {
 }
 
     
+
+
+/* Keep the logo prominent and readable on small screens too. */
+@media (max-width: 430px) {
+    .logo img { width: 60px; height: 60px; }
+    .logo { gap: 10px; font-size: 21px; }
+}
+
+
+/* MOBILE BLUE BRAND THEME — keep text and buttons blue on phones. */
+@media (max-width: 700px) {
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --secondary: #0891b2;
+        --accent: #06b6d4;
+    }
+
+    button,
+    .button-row button,
+    .study-controls button,
+    .study-clear-btn {
+        background: linear-gradient(135deg, #2563eb, #0891b2) !important;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
+    }
+
+    .logo span:not(.brand-plant) {
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    nav a[href="#home"] {
+        color: #1d4ed8;
+        background: #eff6ff;
+    }
+
+    .hero h1 span {
+        background: linear-gradient(110deg, #2563eb, #0891b2 75%, #06b6d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    .hero-eyebrow,
+    .section-eyebrow,
+    .hero-secondary:hover {
+        color: #2563eb;
+    }
+
+    .hero-actions button {
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .study-mode-btn.active {
+        background: linear-gradient(135deg, #2563eb, #0891b2) !important;
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.2);
+    }
+}
+
 </style>
 </head>
 
@@ -4157,10 +4217,3 @@ async function generateFlashcardsFromPDF() {
 </body>
 
 </html>
-
-
-/* Keep the logo prominent and readable on small screens too. */
-@media (max-width: 430px) {
-    .logo img { width: 60px; height: 60px; }
-    .logo { gap: 10px; font-size: 21px; }
-}
