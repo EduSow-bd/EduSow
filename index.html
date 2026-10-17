@@ -131,9 +131,9 @@ nav {
 .logo {
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 13px;
 
-    font-size: 21px;
+    font-size: 23px;
     font-weight: 800;
 
     color: var(--text);
@@ -1339,7 +1339,7 @@ nav {
     background: rgba(255,255,255,.9);
     border-bottom-color: rgba(226,223,242,.8);
 }
-.logo img { width: 56px; height: 56px; }
+.logo img { width: 72px; height: 72px; padding: 3px; flex-shrink: 0; object-fit: contain; background: #ffffff; border: 1px solid rgba(81,69,229,.14); border-radius: 16px; box-shadow: 0 4px 14px rgba(39,30,89,.12); }
 nav ul { gap: 8px; }
 nav a { padding: 10px 13px; }
 nav a[href="#home"] { color: var(--primary); background: #f0edff; }
@@ -4157,3 +4157,10 @@ async function generateFlashcardsFromPDF() {
 </body>
 
 </html>
+
+
+/* Keep the logo prominent and readable on small screens too. */
+@media (max-width: 430px) {
+    .logo img { width: 60px; height: 60px; }
+    .logo { gap: 10px; font-size: 21px; }
+}
