@@ -3374,8 +3374,61 @@ async function generateQuizFromPDF() {
 
 
         // =========================================================
-        // DISPLAY AI QUIZ
+        // DISPLAY AI QUIZ AS ONE QUESTION PER SLIDE
         // =========================================================
+
+        let currentQuizQuestionIndex = 0;
+
+        function showQuizQuestion(index) {
+            if (!generatedQuiz.length) return;
+
+            currentQuizQuestionIndex = Math.max(
+                0,
+                Math.min(index, generatedQuiz.length - 1)
+            );
+
+            generatedQuiz.forEach((_, questionIndex) => {
+                const questionElement = document.getElementById(
+                    `question-${questionIndex}`
+                );
+                if (questionElement) {
+                    questionElement.style.display =
+                        questionIndex === currentQuizQuestionIndex ? "block" : "none";
+                }
+            });
+
+            const progress = document.getElementById("quizSlideProgress");
+            if (progress) {
+                progress.textContent =
+                    `Question ${currentQuizQuestionIndex + 1} of ${generatedQuiz.length}`;
+            }
+
+            const progressBar = document.getElementById("quizSlideProgressBar");
+            if (progressBar) {
+                progressBar.style.width =
+                    `${((currentQuizQuestionIndex + 1) / generatedQuiz.length) * 100}%`;
+            }
+
+            const previousButton = document.getElementById("quizPreviousButton");
+            const nextButton = document.getElementById("quizNextButton");
+            const submitButton = document.getElementById("quizSlideSubmitButton");
+
+            if (previousButton) {
+                previousButton.disabled = currentQuizQuestionIndex === 0;
+                previousButton.style.opacity = previousButton.disabled ? "0.5" : "1";
+                previousButton.style.cursor = previousButton.disabled ? "not-allowed" : "pointer";
+            }
+
+            if (nextButton) {
+                nextButton.style.display =
+                    currentQuizQuestionIndex === generatedQuiz.length - 1 ? "none" : "inline-flex";
+            }
+
+            if (submitButton) {
+                submitButton.style.display =
+                    currentQuizQuestionIndex === generatedQuiz.length - 1 ? "inline-flex" : "none";
+            }
+        }
 
         function displayGeneratedQuiz() {
 
@@ -3395,12 +3448,12 @@ async function generateQuizFromPDF() {
             let html = `
                 <div class="ai-info">
                     <strong>
-                        🧠 Your AI-generated 20-question quiz
+                        🧠 Your AI-generated ${generatedQuiz.length}-question quiz
                     </strong>
 
                     <p>
-                        Answer all questions, then press
-                        <strong>Submit Quiz</strong>.
+                        Answer one question at a time. Use Previous and Next to move between questions.
+                        Your answers will be reviewed after you submit.
                     </p>
                 </div>
             `;
@@ -3421,6 +3474,7 @@ async function generateQuizFromPDF() {
                         <div
                             class="quiz-question"
                             id="question-${index}"
+                            style="display:none;"
                         >
 
                             <h3>
@@ -3460,25 +3514,40 @@ async function generateQuizFromPDF() {
             );
 
             html += `
-                <div
-                    class="button-row"
-                    style="justify-content:center;"
-                >
+                <div class="ai-info" style="text-align:center; margin-top:18px; padding:12px;">
+                    <strong id="quizSlideProgress">Question 1 of ${generatedQuiz.length}</strong>
+                    <div style="height:6px; background:#dbeafe; border-radius:999px; overflow:hidden; margin-top:10px;">
+                        <div id="quizSlideProgressBar" style="height:100%; width:${100 / generatedQuiz.length}%; background:linear-gradient(90deg,#2563eb,#60a5fa); border-radius:999px; transition:width .2s ease;"></div>
+                    </div>
+                </div>
+
+                <div class="button-row" style="justify-content:center; gap:10px; margin-top:14px;">
+                    <button
+                        id="quizPreviousButton"
+                        type="button"
+                        onclick="showQuizQuestion(currentQuizQuestionIndex - 1)"
+                        class="secondary"
+                    >← Previous</button>
 
                     <button
+                        id="quizNextButton"
+                        type="button"
+                        onclick="showQuizQuestion(currentQuizQuestionIndex + 1)"
+                        class="primary"
+                    >Next →</button>
+
+                    <button
+                        id="quizSlideSubmitButton"
+                        type="button"
                         onclick="submitGeneratedQuiz()"
                         class="success"
-                    >
-                        ✅ Submit Quiz
-                    </button>
+                        style="display:none;"
+                    >✅ Submit Quiz</button>
 
                     <button
                         onclick="generateQuizFromPDF()"
                         class="secondary"
-                    >
-                        🔄 Generate Again
-                    </button>
-
+                    >🔄 Generate Again</button>
                 </div>
 
                 <div
@@ -3488,8 +3557,9 @@ async function generateQuizFromPDF() {
                 ></div>
             `;
 
-            container.innerHTML =
-                html;
+            container.innerHTML = html;
+            currentQuizQuestionIndex = 0;
+            showQuizQuestion(0);
         }
 
 
@@ -3505,6 +3575,23 @@ async function generateQuizFromPDF() {
 
                 return;
             }
+
+            // Reveal every question so the submitted answers and explanations
+            // are shown in the familiar scrollable review layout.
+            generatedQuiz.forEach((_, index) => {
+                const questionElement = document.getElementById(`question-${index}`);
+                if (questionElement) questionElement.style.display = "block";
+            });
+
+            const slideNavigation = document.getElementById("quizSlideProgress");
+            if (slideNavigation) {
+                slideNavigation.parentElement.style.display = "none";
+            }
+
+            ["quizPreviousButton", "quizNextButton", "quizSlideSubmitButton"].forEach(id => {
+                const navButton = document.getElementById(id);
+                if (navButton) navButton.style.display = "none";
+            });
 
             let score = 0;
 
@@ -3593,7 +3680,7 @@ async function generateQuizFromPDF() {
                 <p>
                     You scored
                     <strong>
-                        ${score}/20
+                        ${score}/${generatedQuiz.length}
                     </strong>
                 </p>
 
