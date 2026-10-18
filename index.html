@@ -834,6 +834,28 @@ textarea {
    QUIZ
    ========================================================= */
 
+.quiz-question-viewport {
+    height: min(62vh, 560px);
+    min-height: 300px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 12px;
+    background: var(--surface-soft, #f8fafc);
+    scroll-behavior: smooth;
+}
+
+.quiz-question-viewport:focus {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+.quiz-question-viewport .quiz-question {
+    margin-bottom: 12px;
+}
+
 .quiz-question {
     background: #ffffff;
 
@@ -3458,6 +3480,8 @@ async function generateQuizFromPDF() {
                 </div>
             `;
 
+            html += '<div id="quizQuestionViewport" class="quiz-question-viewport" tabindex="0" aria-label="Quiz questions and answer review">';
+
             generatedQuiz.forEach(
                 (question, index) => {
 
@@ -3514,7 +3538,14 @@ async function generateQuizFromPDF() {
             );
 
             html += `
-                <div class="ai-info" style="text-align:center; margin-top:18px; padding:12px;">
+                <div
+                    id="quizFinalResult"
+                    class="ai-info"
+                    style="margin-top:12px; display:none;"
+                ></div>
+            </div>
+
+            <div class="ai-info" style="text-align:center; margin-top:18px; padding:12px;">
                     <strong id="quizSlideProgress">Question 1 of ${generatedQuiz.length}</strong>
                     <div style="height:6px; background:#dbeafe; border-radius:999px; overflow:hidden; margin-top:10px;">
                         <div id="quizSlideProgressBar" style="height:100%; width:${100 / generatedQuiz.length}%; background:linear-gradient(90deg,#2563eb,#60a5fa); border-radius:999px; transition:width .2s ease;"></div>
@@ -3550,11 +3581,6 @@ async function generateQuizFromPDF() {
                     >🔄 Generate Again</button>
                 </div>
 
-                <div
-                    id="quizFinalResult"
-                    class="ai-info"
-                    style="margin-top:20px;"
-                ></div>
             `;
 
             container.innerHTML = html;
@@ -3576,8 +3602,8 @@ async function generateQuizFromPDF() {
                 return;
             }
 
-            // Reveal every question so the submitted answers and explanations
-            // are shown in the familiar scrollable review layout.
+            // Keep the quiz in a fixed inner viewport. After submission, all
+            // questions and explanations scroll inside this panel, not the homepage.
             generatedQuiz.forEach((_, index) => {
                 const questionElement = document.getElementById(`question-${index}`);
                 if (questionElement) questionElement.style.display = "block";
@@ -3674,6 +3700,7 @@ async function generateQuizFromPDF() {
                     "quizFinalResult"
                 );
 
+            result.style.display = "block";
             result.innerHTML = `
                 <h3>🏆 Quiz Result</h3>
 
@@ -3692,10 +3719,8 @@ async function generateQuizFromPDF() {
                 </p>
             `;
 
-            result.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
+            const reviewViewport = document.getElementById("quizQuestionViewport");
+            if (reviewViewport) reviewViewport.scrollTo({ top: 0, behavior: "smooth" });
         }
 
 
