@@ -3819,6 +3819,10 @@ async function generateFlashcardsFromPDF() {
         return;
     }
 
+    const previousQuestions = Array.isArray(flashcards)
+        ? flashcards.map(card => card?.front).filter(question => typeof question === "string" && question.trim()).slice(0, 30)
+        : [];
+
     button.disabled = true;
     button.textContent = "✨ Generating...";
     status.textContent = "AI is creating your flashcards...";
@@ -3836,6 +3840,7 @@ async function generateFlashcardsFromPDF() {
                         language: detectMaterialLanguage(extractedPDFText),
                         count: count,
                         regenerate: button.dataset.generated === "true",
+                        previousQuestions: previousQuestions,
                         generationRequestId: (typeof crypto !== "undefined" && crypto.randomUUID)
                             ? crypto.randomUUID()
                             : String(Date.now()) + "-" + Math.random().toString(36).slice(2)
