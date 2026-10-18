@@ -3409,6 +3409,9 @@ async function generateQuizFromPDF() {
                 Math.min(index, generatedQuiz.length - 1)
             );
 
+            const questionViewport = document.getElementById("quizQuestionViewport");
+            if (questionViewport) questionViewport.scrollTop = 0;
+
             generatedQuiz.forEach((_, questionIndex) => {
                 const questionElement = document.getElementById(
                     `question-${questionIndex}`
