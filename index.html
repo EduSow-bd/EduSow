@@ -2212,8 +2212,12 @@ footer {
 
             <div class="ai-info">
                 <strong>EduSow AI Quiz</strong>
-                <p>Extract text from a PDF or image in Study Materials, then generate 20 MCQs here.</p>
+                <p>Extract text from a PDF or image in Study Materials, then choose how many MCQs to generate (maximum 30).</p>
             </div>
+
+            <label for="quizQuestionCount">Number of questions (1–30)</label>
+            <input id="quizQuestionCount" type="number" min="1" max="30" step="1" value="20" inputmode="numeric" aria-describedby="quizCountHelp">
+            <p id="quizCountHelp" class="small-help">Choose any amount from 1 to 30.</p>
 
             <div class="button-row quiz-generate-row">
                 <button
@@ -2222,7 +2226,7 @@ footer {
                     class="success"
                     id="generateQuizButton"
                 >
-                    🧠 Generate 20 MCQs with AI
+                    🧠 Generate MCQs with AI
                 </button>
             </div>
 
@@ -2257,12 +2261,8 @@ footer {
             Number of flashcards
         </label>
 
-        <select id="flashcardCount">
-            <option value="5">5 flashcards</option>
-            <option value="10" selected>10 flashcards</option>
-            <option value="15">15 flashcards</option>
-            <option value="20">20 flashcards</option>
-        </select>
+        <input id="flashcardCount" type="number" min="1" max="30" step="1" value="10" inputmode="numeric" aria-describedby="flashcardCountHelp">
+        <p id="flashcardCountHelp" class="small-help">Choose any amount from 1 to 30.</p>
 
         <div class="button-row">
 
@@ -3163,6 +3163,14 @@ async function generateQuizFromPDF() {
         return;
     }
 
+    const countInput = document.getElementById("quizQuestionCount");
+    const requestedCount = Number(countInput.value);
+    if (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > 30) {
+        alert("Please enter a whole number from 1 to 30.");
+        countInput.focus();
+        return;
+    }
+
     const button =
         document.getElementById(
             "generateQuizButton"
@@ -3181,7 +3189,7 @@ async function generateQuizFromPDF() {
     container.innerHTML = `
         <div class="ai-info">
             🧠 AI is reading your material and creating
-            20 original MCQs. Please wait...
+            ${requestedCount} original MCQs. Please wait...
         </div>
     `;
 
@@ -3196,6 +3204,7 @@ async function generateQuizFromPDF() {
                 body: {
                     text: extractedPDFText,
                     language: detectMaterialLanguage(extractedPDFText),
+                    count: requestedCount,
                     difficulty: "Mixed"
                 }
             }
@@ -3275,12 +3284,11 @@ async function generateQuizFromPDF() {
         }
 
 
-        if (data.questions.length !== 20) {
-
+        if (data.questions.length !== requestedCount) {
             throw new Error(
-                "AI returned " +
-                data.questions.length +
-                " questions instead of 20."
+                "AI returned " + data.questions.length +
+                " questions instead of the " + requestedCount + " requested. " +
+                "The quiz generator may need to be updated to support custom counts."
             );
         }
 
@@ -3360,7 +3368,7 @@ async function generateQuizFromPDF() {
         button.disabled = false;
 
         button.textContent =
-            "🧠 Generate 20 MCQs with AI";
+            "🧠 Generate MCQs with AI";
     }
 }
 
@@ -3792,9 +3800,16 @@ async function generateFlashcardsFromPDF() {
     const button = document.getElementById("generateFlashcardsButton");
     const studyArea = document.getElementById("flashcardStudyArea");
 
-    const count = Number(
-        document.getElementById("flashcardCount").value
-    );
+    const countInput = document.getElementById("flashcardCount");
+    const count = Number(countInput.value);
+
+    if (!Number.isInteger(count) || count < 1 || count > 30) {
+        status.textContent = "Please enter a whole number from 1 to 30.";
+        status.style.display = "block";
+        status.style.color = "#dc2626";
+        countInput.focus();
+        return;
+    }
 
     if (!extractedPDFText || extractedPDFText.trim().length < 100) {
         status.textContent =
@@ -3819,7 +3834,11 @@ async function generateFlashcardsFromPDF() {
                     body: {
                         text: extractedPDFText,
                         language: detectMaterialLanguage(extractedPDFText),
-                        count: count
+                        count: count,
+                        regenerate: button.dataset.generated === "true",
+                        generationRequestId: (typeof crypto !== "undefined" && crypto.randomUUID)
+                            ? crypto.randomUUID()
+                            : String(Date.now()) + "-" + Math.random().toString(36).slice(2)
                     }
                 }
             );
@@ -3884,6 +3903,7 @@ async function generateFlashcardsFromPDF() {
         status.textContent =
             `Successfully generated ${flashcards.length} flashcards!`;
         status.style.color = "#16a34a";
+        button.dataset.generated = "true";
 
     } catch (error) {
         console.error("Flashcard generation error:", error);
@@ -3895,7 +3915,9 @@ async function generateFlashcardsFromPDF() {
 
     } finally {
         button.disabled = false;
-        button.textContent = "✨ Generate with AI";
+        button.textContent = button.dataset.generated === "true"
+            ? "🔄 Generate Again"
+            : "✨ Generate Flashcards";
     }
 }
 
