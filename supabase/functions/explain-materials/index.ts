@@ -38,44 +38,11 @@ function normalizeLesson(value: unknown) {
     .filter((slide) => slide.title && (slide.explanation || slide.teacherScript));
 
   if (slides.length < 2) throw new Error("The AI did not create enough usable lesson slides.");
-  const kinds = ["process", "timeline", "cause-effect", "comparison", "cycle", "worked-example", "concept-map", "sequence"];
-  const demo = record.interactiveDemo && typeof record.interactiveDemo === "object" ? record.interactiveDemo as Record<string, unknown> : {};
-  let stages = (Array.isArray(demo.stages) ? demo.stages : [])
-    .filter((stage): stage is Record<string, unknown> => !!stage && typeof stage === "object")
-    .map((stage) => {
-      const choices = Array.isArray(stage.choices) ? stage.choices.slice(0, 4).map((choice) => String(choice).slice(0, 240)) : [];
-      const answer = Number.isInteger(stage.correctIndex) ? Number(stage.correctIndex) : 0;
-      return {
-        label: String(stage.label ?? stage.title ?? "").slice(0, 100),
-        title: String(stage.title ?? stage.label ?? "").slice(0, 180),
-        visual: String(stage.visual ?? "").slice(0, 220),
-        visuals: Array.isArray(stage.visuals) ? stage.visuals.slice(0, 3).map((item) => String(item).slice(0, 120)) : [],
-        connector: String(stage.connector ?? "→").slice(0, 24),
-        explanation: String(stage.explanation ?? "").slice(0, 1800),
-        question: String(stage.question ?? "").slice(0, 500),
-        choices,
-        correctIndex: answer >= 0 && answer < choices.length ? answer : 0,
-        feedback: String(stage.feedback ?? stage.explanation ?? "").slice(0, 900),
-      };
-    }).filter((stage) => stage.label && stage.title && stage.explanation);
-  if (stages.length < 3) {
-    stages = slides.slice(0, Math.min(7, slides.length)).map((slide) => ({
-      label: slide.title.slice(0, 100), title: slide.title,
-      visual: slide.example ? slide.example.slice(0, 220) : slide.title,
-      visuals: [slide.title, "Key idea", "What follows"], connector: "→",
-      explanation: slide.explanation.slice(0, 1800),
-      question: "Which option best summarizes this step?",
-      choices: [(slide.explanation || slide.title).slice(0, 220), "This step has no connection to the lesson.", "The material says the opposite without evidence."],
-      correctIndex: 0, feedback: slide.explanation.slice(0, 700),
-    }));
-  }
-  const kind = String(demo.kind ?? "process");
   return {
     title: record.title.slice(0, 240),
     teacherLabel: typeof record.teacherLabel === "string" ? record.teacherLabel.slice(0, 120) : "Let's learn this together",
     exampleLabel: typeof record.exampleLabel === "string" ? record.exampleLabel.slice(0, 80) : "Example",
     slides: slides.slice(0, 14),
-    interactiveDemo: { kind: kinds.includes(kind) ? kind : "process", intro: String(demo.intro ?? "").slice(0, 500), stages: stages.slice(0, 8) },
   };
 }
 
@@ -126,15 +93,12 @@ STRICT SOURCE RULES:
 - Organize the lesson into 5 to 12 meaningful slides when supported; use fewer for short material. Do not create filler slides.
 - Include an overview slide, concept slides, and a final recap slide.
 - Each slide needs a concise title, understandable explanation, 2 to 5 key points, an example when useful, and a friendly spoken-style teacherScript.
-- Also create an INTERACTIVE DEMONSTRATION suitable for the actual subject. Support science, mathematics, history, geography, literature, languages, social studies, arts, economics, and other subjects. Do not force every subject into a science experiment: show events and consequences for history, character/theme/plot relationships for literature, word or sentence changes for languages, worked steps for mathematics, and relationships or processes for geography/social studies.
-- Choose one structure: process, timeline, cause-effect, comparison, cycle, worked-example, concept-map, or sequence. Create 3 to 7 meaningful stages. Each stage needs 2 or 3 concrete short visual labels, a connector such as "→", "↔", "causes", or "then", a clear explanation, a checkpoint question with exactly 3 plausible choices, a zero-based correctIndex, and helpful feedback. Localize learner-facing text in the requested language. Ground the demonstration in the source; do not claim to run a real-world physical simulation.
 - Output valid JSON only, using this shape:
 {
   "title": "lesson title",
   "teacherLabel": "short teacher-mode heading",
   "exampleLabel": "localized label for Example",
-  "slides": [{"title":"slide title","explanation":"student-friendly explanation","keyPoints":["point 1","point 2"],"example":"short example or empty string","teacherScript":"spoken-style explanation"}],
-  "interactiveDemo": {"kind":"process","intro":"what the student will explore","stages":[{"label":"short stage label","title":"stage title","visual":"single visual description","visuals":["first element","relationship/action","result or related element"],"connector":"→","explanation":"what the scene demonstrates","question":"checkpoint question","choices":["choice A","choice B","choice C"],"correctIndex":0,"feedback":"explain the answer"}]}
+  "slides": [{"title":"slide title","explanation":"student-friendly explanation","keyPoints":["point 1","point 2"],"example":"short example or empty string","teacherScript":"spoken-style explanation"}]
 }
 
 STUDENT'S EXTRACTED STUDY MATERIAL:
