@@ -2781,7 +2781,7 @@ footer a:hover { color: #2563eb !important; }
             }
             const button = document.getElementById("explainMaterialsButton");
             const presentation = document.getElementById("explainPresentation");
-            const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || "English";
+            const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || "Auto-detect";
             const detail = document.getElementById("explainDetail")?.value || "balanced";
             if (button) { button.disabled = true; button.textContent = "⏳ Building your lesson…"; }
             if (presentation) presentation.hidden = true;
