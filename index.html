@@ -2954,7 +2954,7 @@ footer a:hover { color: #2563eb !important; }
         }
 
         function setExplainMode(mode) {
-            explainMode = mode === "teacher" ? "teacher" : "slides";
+            explainMode = mode === "teacher" ? "teacher" : mode === "animation" ? "animation" : "slides";
             renderExplainLesson();
         }
 
