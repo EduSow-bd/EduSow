@@ -2009,6 +2009,19 @@ footer a:hover { color: #2563eb !important; }
   /* Same blue palette on wide screens; preserve each page's existing layout. */
   button, .button, a.button, .choose-file-btn { color: #fff !important; }
 }
+
+/* Search-friendly study guide links: useful to visitors and discoverable to crawlers. */
+.seo-guides-section { padding-top: 52px; padding-bottom: 64px; }
+.seo-guides-intro { max-width: 760px; margin: -12px 0 26px; color: #64748b; }
+.seo-guides-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.seo-guide-card { display: block; min-width: 0; padding: 21px; border: 1px solid #dbeafe; border-radius: 16px; background: #fff; text-decoration: none; box-shadow: 0 6px 20px rgba(37,99,235,.05); transition: transform .18s ease, box-shadow .18s ease; }
+.seo-guide-card:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(37,99,235,.10); }
+.seo-guide-card h3 { margin: 0 0 8px; color: #1d4ed8; font-size: 17px; line-height: 1.4; }
+.seo-guide-card p { margin: 0; color: #64748b; font-size: 14px; line-height: 1.7; }
+.seo-guides-cta { margin-top: 22px; }
+.seo-guides-cta a { display: inline-block; padding: 10px 15px; border-radius: 10px; background: #eff6ff; color: #1d4ed8; font-weight: 750; text-decoration: none; }
+@media (max-width: 850px) { .seo-guides-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .seo-guides-grid { grid-template-columns: 1fr; } .seo-guide-card { padding: 18px; } }
 </style>
   <link rel="canonical" href="https://edusow.com/">
   <meta property="og:type" content="website">
@@ -2558,6 +2571,34 @@ footer a:hover { color: #2563eb !important; }
         </div>
     </section>
 
+
+    <section class="seo-guides-section" aria-labelledby="seo-guides-heading">
+        <h2 id="seo-guides-heading">Free Study Guides and Learning Tips</h2>
+        <p class="seo-guides-intro">Explore practical guides for studying more effectively, turning your notes into practice questions, making flashcards, and planning your study time. Use the tips first, then try the free EduSow tools when they fit your needs.</p>
+        <div class="seo-guides-grid">
+            <a class="seo-guide-card" href="pdf-to-quiz-guide.html">
+                <h3>How to Turn a PDF into a Quiz and Flashcards</h3>
+                <p>Learn a step-by-step workflow for extracting study text and creating practice questions and revision cards.</p>
+            </a>
+            <a class="seo-guide-card" href="photo-notes-to-quiz-guide.html">
+                <h3>Turn a Photo of Study Notes into a Quiz</h3>
+                <p>Find out how to take clear notes photos, check extracted text, and build a useful practice quiz.</p>
+            </a>
+            <a class="seo-guide-card" href="flashcards-guide.html">
+                <h3>How to Use Flashcards Effectively</h3>
+                <p>Practise active recall, review at useful intervals, and avoid common flashcard mistakes.</p>
+            </a>
+            <a class="seo-guide-card" href="learn.html">
+                <h3>How to Study Effectively</h3>
+                <p>Explore practical study methods, self-testing, spaced practice, and a simple revision plan.</p>
+            </a>
+            <a class="seo-guide-card" href="study-timetable.html">
+                <h3>Make a Study Timetable You Can Follow</h3>
+                <p>Plan study blocks, breaks, revision, and rest with a realistic schedule.</p>
+            </a>
+        </div>
+        <p class="seo-guides-cta"><a href="#toolkit">Explore EduSow's free study tools ↓</a></p>
+    </section>
 
     <footer>
         © 2026 EduSow 🌱 — Learn. Explore. Grow.
