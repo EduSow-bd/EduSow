@@ -2067,6 +2067,7 @@ footer a:hover { color: #2563eb !important; }
   "description": "Turn PDFs and images into practice quizzes and flashcards, extract study text with OCR, understand notes with AI lessons, and track focused study time for free."
 }
 </script>
+  <link rel="stylesheet" href="interactive-lesson.css">
 </head>
 
 <body>
@@ -2366,8 +2367,10 @@ footer a:hover { color: #2563eb !important; }
                             <button type="button" id="explainSlidesMode" class="active" onclick="setExplainMode('slides')">▤ Interactive slides</button>
                             <button type="button" id="explainTeacherMode" onclick="setExplainMode('teacher')">🧑‍🏫 AI teacher mode</button>
                             <button type="button" id="explainAnimationMode" onclick="setExplainMode('animation')">▶ Interactive animation</button>
+                            <button type="button" id="explainAnimationMode" onclick="setExplainMode('animation')">▶ Interactive animation</button>
                         </div>
                         <div id="explainSlideContent" class="explain-slide-body"></div>
+                        <p class="explain-animation-intro" id="explainAnimationHint" hidden>Explore the lesson one step at a time. Select a stage, inspect the demonstration, and answer its checkpoint question.</p>
                         <p class="explain-animation-intro" id="explainAnimationHint" hidden>Explore the lesson one step at a time. Select a stage, inspect the demonstration, and answer its checkpoint question.</p>
                         <div class="explain-presentation-controls">
                             <button type="button" class="secondary" id="explainPrevious" onclick="moveExplainSlide(-1)">← Previous</button>
@@ -4756,6 +4759,7 @@ async function generateFlashcardsFromPDF() {
 
  </script>
 
+  <script src="interactive-lesson.js"></script>
 </body>
 
 </html>
