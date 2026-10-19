@@ -1065,7 +1065,7 @@ textarea {
 .explain-teacher-script p { color:#334155; }
 
 /* Silent lesson video generator */
-.explain-video-generator{display:grid;gap:14px}.explain-video-intro{color:#475569;line-height:1.7}.explain-video-canvas{display:block;width:100%;height:auto;border:1px solid #bfdbfe;border-radius:16px;background:#eff6ff;box-shadow:0 8px 24px rgba(37,99,235,.08)}.explain-video-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.explain-video-download{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:11px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-weight:750;text-decoration:none}.explain-video-download[hidden]{display:none}.explain-video-status{color:#475569;font-size:14px;line-height:1.6}.explain-presentation-controls[hidden]{display:none}@media(max-width:560px){.explain-video-controls{align-items:stretch;flex-direction:column}.explain-video-controls button,.explain-video-download{width:100%;text-align:center}}
+.explain-presentation-controls[hidden]{display:none}
 /* =========================================================
    FOOTER
    ========================================================= */
@@ -2327,7 +2327,7 @@ footer a:hover { color: #2563eb !important; }
                         <div class="button-row">
                             <button type="button" id="explainMaterialsButton" onclick="generateMaterialExplanation()" disabled>✨ Explain Materials</button>
                         </div>
-                        <p class="explain-hint">Create a lesson from extracted text, then export its scenes as a silent animated WebM video. Check important facts against your textbook.</p>
+                        <p class="explain-hint">Create a lesson from extracted text. Check important facts against your textbook.</p>
                         <div id="explainMaterialsStatus" class="status" hidden aria-live="polite"></div>
                     </div>
 
@@ -2339,7 +2339,6 @@ footer a:hover { color: #2563eb !important; }
                         <div class="explain-mode-tabs" role="group" aria-label="Presentation mode">
                             <button type="button" id="explainSlidesMode" class="active" onclick="setExplainMode('slides')">▤ Interactive slides</button>
                             <button type="button" id="explainTeacherMode" onclick="setExplainMode('teacher')">🧑‍🏫 AI teacher mode</button>
-                            <button type="button" id="explainVideoMode" onclick="setExplainMode('video')">🎬 Video generator</button>
                         </div>
                         <div id="explainSlideContent" class="explain-slide-body"></div>
 
@@ -2913,7 +2912,7 @@ footer a:hover { color: #2563eb !important; }
                 explainMode = "slides";
                 renderExplainLesson();
                 if (presentation) presentation.hidden = false;
-                setExplainStatus("Your lesson is ready. Explore the slides, use AI teacher mode, or create a silent animated video.");
+                setExplainStatus("Your lesson is ready. Explore the slides or use AI teacher mode.");
                 presentation?.scrollIntoView({ behavior: "smooth", block: "start" });
             } catch (error) {
                 console.error("Explain Materials error:", error);
@@ -2923,38 +2922,8 @@ footer a:hover { color: #2563eb !important; }
             }
         }
 
-        function setExplainMode(mode){explainMode=mode==="teacher"?"teacher":mode==="video"?"video":"slides";renderExplainLesson();}
-        function moveExplainSlide(direction){if(!explainLesson?.slides||explainMode==="video")return;explainSlideIndex=Math.max(0,Math.min(explainLesson.slides.length-1,explainSlideIndex+direction));renderExplainLesson();}
-        function renderExplainVideoMode(content){
-            const wrap=document.createElement("div");wrap.className="explain-video-generator";addExplainText(wrap,"p","Create a silent animated video from this AI lesson. Each slide becomes a scene with moving graphics and on-screen text. No voice or audio is added.","explain-video-intro");
-            const canvas=document.createElement("canvas");canvas.id="explainVideoCanvas";canvas.width=960;canvas.height=540;canvas.className="explain-video-canvas";canvas.setAttribute("aria-label","Preview of the silent animated lesson video");wrap.appendChild(canvas);
-            const controls=document.createElement("div");controls.className="explain-video-controls";const generate=document.createElement("button");generate.type="button";generate.id="generateExplainVideoButton";generate.textContent="🎬 Generate silent video";generate.addEventListener("click",generateExplainVideo);controls.appendChild(generate);
-            const download=document.createElement("a");download.id="downloadExplainVideo";download.className="explain-video-download";download.hidden=true;download.textContent="Download video (.webm)";controls.appendChild(download);wrap.appendChild(controls);
-            const status=addExplainText(wrap,"p","Ready to create a video from "+explainLesson.slides.length+" lesson scenes.","explain-video-status");status.id="explainVideoStatus";content.appendChild(wrap);drawExplainVideoScene(canvas.getContext("2d"),explainLesson.slides[0]||{},0,explainLesson.slides.length,0);
-        }
-        function wrapExplainCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
-            const words=String(text||"").split(/\\s+/);let line="",lines=0;for(const word of words){const test=line?line+" "+word:word;if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y+lines*lineHeight);lines++;line=word;if(lines>=maxLines-1)break;}else line=test;}
-            if(line&&lines<maxLines){let last=line;while(ctx.measureText(last).width>maxWidth&&last.length>3)last=last.slice(0,-2)+"…";ctx.fillText(last,x,y+lines*lineHeight);}
-        }
-        function drawExplainVideoScene(ctx,slide,index,total,progress){
-            const w=ctx.canvas.width,h=ctx.canvas.height;ctx.clearRect(0,0,w,h);const bg=ctx.createLinearGradient(0,0,w,h);bg.addColorStop(0,"#eff6ff");bg.addColorStop(1,"#fff");ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.fillStyle="#2563eb";ctx.fillRect(0,0,w,12);
-            ctx.fillStyle="#1d4ed8";ctx.font="700 17px Arial,sans-serif";ctx.fillText("EDUSOW  •  "+(index===total-1?"RECAP":"LESSON VIDEO"),48,54);ctx.fillStyle="#172554";ctx.font="700 34px Arial,sans-serif";wrapExplainCanvasText(ctx,slide.title||"Key concept",48,112,w-96,42,2);
-            const points=Array.isArray(slide.keyPoints)&&slide.keyPoints.length?slide.keyPoints.slice(0,4):[slide.explanation||""];points.forEach((point,i)=>{const y=190+i*62,reveal=Math.max(0,Math.min(1,progress*1.8-i*.18));ctx.globalAlpha=.35+reveal*.65;ctx.fillStyle="#dbeafe";ctx.beginPath();ctx.roundRect(48+Math.sin(progress*5+i)*5,y-23,w-96,48,12);ctx.fill();ctx.fillStyle="#2563eb";ctx.beginPath();ctx.arc(72,y,7+Math.sin(progress*6+i)*2,0,Math.PI*2);ctx.fill();ctx.fillStyle="#1e293b";ctx.font="600 19px Arial,sans-serif";wrapExplainCanvasText(ctx,point,96,y+6,w-170,24,2);ctx.globalAlpha=1;});
-            if(slide.example){ctx.fillStyle="#0e7490";ctx.font="700 15px Arial,sans-serif";ctx.fillText(String(explainLesson.exampleLabel||"Example").toUpperCase(),50,h-70);ctx.fillStyle="#334155";ctx.font="16px Arial,sans-serif";wrapExplainCanvasText(ctx,slide.example,160,h-70,w-210,21,2);}
-            ctx.fillStyle="#cbd5e1";ctx.fillRect(48,h-24,w-96,5);ctx.fillStyle="#2563eb";ctx.fillRect(48,h-24,(w-96)*((index+progress)/total),5);ctx.fillStyle="#64748b";ctx.font="13px Arial,sans-serif";ctx.fillText((index+1)+" / "+total,w-90,h-42);
-        }
-        async function generateExplainVideo(){
-            const canvas=document.getElementById("explainVideoCanvas"),button=document.getElementById("generateExplainVideoButton"),status=document.getElementById("explainVideoStatus"),download=document.getElementById("downloadExplainVideo");
-            if(!canvas||!explainLesson?.slides?.length||!canvas.captureStream||!window.MediaRecorder){if(status)status.textContent="Video export is not supported by this browser. Try the latest Chrome or Edge.";return;}
-            if(button){button.disabled=true;button.textContent="Creating video…";}if(download)download.hidden=true;if(explainVideoUrl){URL.revokeObjectURL(explainVideoUrl);explainVideoUrl=null;}let stream;
-            try{const mimeType=["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"].find(type=>MediaRecorder.isTypeSupported(type));if(!mimeType)throw Error("This browser cannot encode WebM. Try the latest Chrome or Edge.");
-                stream=canvas.captureStream(24);const recorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:1400000}),chunks=[];const finished=new Promise((resolve,reject)=>{recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};recorder.onerror=()=>reject(Error("The browser stopped recording unexpectedly."));recorder.onstop=()=>resolve(new Blob(chunks,{type:mimeType}));});
-                recorder.start(250);const slides=explainLesson.slides,sceneMs=3200;for(let i=0;i<slides.length;i++){const started=performance.now();while(performance.now()-started<sceneMs){const p=Math.min(1,(performance.now()-started)/sceneMs);drawExplainVideoScene(canvas.getContext("2d"),slides[i],i,slides.length,p);if(status)status.textContent="Rendering scene "+(i+1)+" of "+slides.length+"…";await new Promise(resolve=>requestAnimationFrame(resolve));}}
-                drawExplainVideoScene(canvas.getContext("2d"),slides.at(-1),slides.length-1,slides.length,1);await new Promise(resolve=>setTimeout(resolve,250));recorder.stop();const blob=await finished;if(!blob.size)throw Error("The video file was empty. Please try again.");
-                explainVideoUrl=URL.createObjectURL(blob);if(download){download.href=explainVideoUrl;download.download=(String(explainLesson.title||"edusow-lesson").replace(/[^a-z0-9-_]+/gi,"-").replace(/^-+|-+$/g,"").slice(0,70)||"edusow-lesson")+".webm";download.hidden=false;}if(status)status.textContent="Video ready ("+(blob.size/1048576).toFixed(1)+" MB). It has no audio. Use Download video to save it.";
-            }catch(error){if(status)status.textContent=error?.message||"Could not create the video. Please try again.";}finally{if(stream)stream.getTracks().forEach(t=>t.stop());if(button){button.disabled=false;button.textContent="↻ Generate video again";}}
-        }
-
+        function setExplainMode(mode){explainMode=mode==="teacher"?"teacher":"slides";renderExplainLesson();}
+        function moveExplainSlide(direction){if(!explainLesson?.slides)return;explainSlideIndex=Math.max(0,Math.min(explainLesson.slides.length-1,explainSlideIndex+direction));renderExplainLesson();}
         function addExplainText(parent, tag, value, className) {
             const node = document.createElement(tag);
             if (className) node.className = className;
@@ -2965,8 +2934,8 @@ footer a:hover { color: #2563eb !important; }
 
         function renderExplainLesson(){
             if(!explainLesson||!Array.isArray(explainLesson.slides))return;const slides=explainLesson.slides;explainSlideIndex=Math.max(0,Math.min(explainSlideIndex,slides.length-1));const slide=slides[explainSlideIndex]||{},content=document.getElementById("explainSlideContent");if(!content)return;content.replaceChildren();
-            const teacher=explainMode==="teacher",video=explainMode==="video";document.getElementById("explainSlidesMode")?.classList.toggle("active",!teacher&&!video);document.getElementById("explainTeacherMode")?.classList.toggle("active",teacher);document.getElementById("explainVideoMode")?.classList.toggle("active",video);
-            const nav=document.querySelector(".explain-presentation-controls");if(nav)nav.hidden=video;document.getElementById("explainPresentationTitle").textContent=explainLesson.title||"Your AI lesson";document.getElementById("explainPresentationSubtitle").textContent=video?"Turn this lesson into a downloadable silent animated video.":teacher?"Your AI teacher explains each concept in sequence.":"Move through the lesson one concept at a time.";if(video){renderExplainVideoMode(content);return;}
+            const teacher=explainMode==="teacher";document.getElementById("explainSlidesMode")?.classList.toggle("active",!teacher);document.getElementById("explainTeacherMode")?.classList.toggle("active",teacher);
+            const nav=document.querySelector(".explain-presentation-controls");if(nav)nav.hidden=false;document.getElementById("explainPresentationTitle").textContent=explainLesson.title||"Your AI lesson";document.getElementById("explainPresentationSubtitle").textContent=teacher?"Your AI teacher explains each concept in sequence.":"Move through the lesson one concept at a time.";
             document.getElementById("explainPrevious").textContent="← Previous";document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";addExplainText(content,"div",(teacher?"TEACHER MODE":"LESSON SLIDE")+" · "+(explainSlideIndex+1)+" OF "+slides.length,"explain-slide-count");addExplainText(content,"h4",slide.title||"Key concept");
             if(teacher){const script=document.createElement("div");script.className="explain-teacher-script";addExplainText(script,"strong","🧑‍🏫 "+(explainLesson.teacherLabel||"Let's understand this together"));addExplainText(script,"p",slide.teacherScript||slide.explanation||"No teacher explanation was returned for this concept.");content.appendChild(script);}else{addExplainText(content,"p",slide.explanation||"");if(Array.isArray(slide.keyPoints)&&slide.keyPoints.length){const list=document.createElement("ul");list.className="explain-keypoints";slide.keyPoints.forEach(p=>addExplainText(list,"li",p));content.appendChild(list);}if(slide.example){const example=document.createElement("div");example.className="explain-example";addExplainText(example,"strong",explainLesson.exampleLabel||"Example");addExplainText(example,"p",slide.example);content.appendChild(example);}}
             document.getElementById("explainSlideProgress").textContent="Concept "+(explainSlideIndex+1)+" of "+slides.length;document.getElementById("explainPrevious").disabled=explainSlideIndex===0;document.getElementById("explainNext").disabled=explainSlideIndex>=slides.length-1;document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";
