@@ -1063,6 +1063,33 @@ textarea {
 .explain-teacher-script { padding:18px; border-radius:15px; background:#f0f9ff; border:1px solid #bae6fd; margin-top:15px; }
 .explain-teacher-script strong { color:#5b21b6; display:block; margin-bottom:7px; }
 .explain-teacher-script p { color:#4c1d95; }
+
+/* Interactive animated lesson — blue EduSow palette */
+.explain-animation-intro { color:#475569; margin:0; line-height:1.7; }
+.explain-animation-path { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:9px; margin-bottom:16px; }
+.explain-animation-step { display:flex; flex-direction:column; align-items:flex-start; gap:7px; min-height:92px; padding:12px; border:1px solid #bfdbfe; border-radius:13px; background:#f8fbff; color:#1e3a8a; text-align:left; white-space:normal; }
+.explain-animation-step.active { border-color:#2563eb; background:#eff6ff; box-shadow:0 0 0 2px rgba(37,99,235,.12); }
+.explain-animation-step span { font-size:11px; font-weight:850; letter-spacing:.6px; text-transform:uppercase; color:#2563eb; }
+.explain-animation-step strong { font-size:13px; line-height:1.4; color:#172554; }
+.explain-animation-stage { border:1px solid #bfdbfe; border-radius:18px; overflow:hidden; background:linear-gradient(135deg,#eff6ff,#ffffff); animation:explainSceneIn .28s ease-out; }
+.explain-animation-stage-head { padding:16px 18px; background:#dbeafe; }
+.explain-animation-stage-head span { font-size:11px; font-weight:850; letter-spacing:.8px; color:#1d4ed8; text-transform:uppercase; }
+.explain-animation-stage-head h4 { margin:5px 0 0; color:#172554; font-size:clamp(19px,3vw,25px); }
+.explain-animation-visual { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; padding:22px 16px; min-height:125px; }
+.explain-animation-object { max-width:42%; min-width:90px; padding:13px 15px; border:1px solid #93c5fd; border-radius:14px; background:white; box-shadow:0 8px 20px rgba(37,99,235,.08); color:#1e3a8a; text-align:center; font-size:13px; font-weight:750; animation:explainObjectFloat 2.4s ease-in-out infinite; }
+.explain-animation-arrow { color:#2563eb; font-size:15px; font-weight:900; text-align:center; animation:explainArrowPulse 1.5s ease-in-out infinite; }
+.explain-animation-description { padding:0 18px 18px; color:#334155; line-height:1.75; white-space:pre-wrap; }
+.explain-animation-challenge { margin-top:16px; padding:17px; border:1px solid #bfdbfe; border-radius:15px; background:#f8fbff; }
+.explain-animation-challenge h5 { margin:0 0 12px; font-size:16px; color:#172554; }
+.explain-animation-choices { display:grid; gap:8px; }
+.explain-animation-choice { background:white !important; color:#1e3a8a !important; border:1px solid #bfdbfe !important; text-align:left; white-space:normal; }
+.explain-animation-choice.correct { border-color:#16a34a !important; background:#f0fdf4 !important; color:#166534 !important; }
+.explain-animation-choice.incorrect { border-color:#dc2626 !important; background:#fef2f2 !important; color:#991b1b !important; }
+.explain-animation-feedback { margin:11px 0 0; padding:11px 12px; border-radius:10px; background:#eff6ff; color:#1e40af; line-height:1.6; }
+@keyframes explainSceneIn { from { opacity:.45; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+@keyframes explainObjectFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
+@keyframes explainArrowPulse { 0%,100% { opacity:.55; transform:translateX(0); } 50% { opacity:1; transform:translateX(3px); } }
+@media(prefers-reduced-motion:reduce) { .explain-animation-stage,.explain-animation-object,.explain-animation-arrow { animation:none !important; } }
 @media(max-width:560px) { .explain-materials-options { grid-template-columns:1fr; gap:4px; } .explain-presentation-controls { align-items:stretch; } .explain-presentation-controls button { flex:1; } .explain-mode-tabs { padding:12px 12px 0; } }
 
 /* =========================================================
@@ -2338,8 +2365,10 @@ footer a:hover { color: #2563eb !important; }
                         <div class="explain-mode-tabs" role="group" aria-label="Presentation mode">
                             <button type="button" id="explainSlidesMode" class="active" onclick="setExplainMode('slides')">▤ Interactive slides</button>
                             <button type="button" id="explainTeacherMode" onclick="setExplainMode('teacher')">🧑‍🏫 AI teacher mode</button>
+                            <button type="button" id="explainAnimationMode" onclick="setExplainMode('animation')">▶ Interactive animation</button>
                         </div>
                         <div id="explainSlideContent" class="explain-slide-body"></div>
+                        <p class="explain-animation-intro" id="explainAnimationHint" hidden>Explore the lesson one step at a time. Select a stage, inspect the demonstration, and answer its checkpoint question.</p>
                         <div class="explain-presentation-controls">
                             <button type="button" class="secondary" id="explainPrevious" onclick="moveExplainSlide(-1)">← Previous</button>
                             <span id="explainSlideProgress">Concept 1</span>
@@ -2855,6 +2884,8 @@ footer a:hover { color: #2563eb !important; }
         let explainLesson = null;
         let explainSlideIndex = 0;
         let explainMode = "slides";
+        let explainAnimationIndex = 0;
+        let explainAnimationAnswers = {};
 
         function setExplainMaterialsAvailable(available) {
             const launch = document.getElementById("explainMaterialsLaunch");
@@ -2867,6 +2898,8 @@ footer a:hover { color: #2563eb !important; }
                 if (presentation) presentation.hidden = true;
                 explainLesson = null;
                 explainSlideIndex = 0;
+                explainAnimationIndex = 0;
+                explainAnimationAnswers = {};
                 const status = document.getElementById("explainMaterialsStatus");
                 if (status) { status.hidden = true; status.textContent = ""; }
             }
@@ -2905,6 +2938,8 @@ footer a:hover { color: #2563eb !important; }
                 }
                 explainLesson = data;
                 explainSlideIndex = 0;
+                explainAnimationIndex = 0;
+                explainAnimationAnswers = {};
                 explainMode = "slides";
                 renderExplainLesson();
                 if (presentation) presentation.hidden = false;
@@ -2925,8 +2960,101 @@ footer a:hover { color: #2563eb !important; }
 
         function moveExplainSlide(direction) {
             if (!explainLesson || !Array.isArray(explainLesson.slides)) return;
-            explainSlideIndex = Math.max(0, Math.min(explainLesson.slides.length - 1, explainSlideIndex + direction));
+            if (explainMode === "animation") {
+                const stages = explainLesson.interactiveDemo?.stages || [];
+                explainAnimationIndex = Math.max(0, Math.min(stages.length - 1, explainAnimationIndex + direction));
+            } else {
+                explainSlideIndex = Math.max(0, Math.min(explainLesson.slides.length - 1, explainSlideIndex + direction));
+            }
             renderExplainLesson();
+        }
+
+        function selectExplainAnimationStep(index) {
+            const stages = explainLesson?.interactiveDemo?.stages || [];
+            if (index < 0 || index >= stages.length) return;
+            explainAnimationIndex = index;
+            renderExplainLesson();
+        }
+
+        function answerExplainAnimation(choiceIndex) {
+            explainAnimationAnswers[explainAnimationIndex] = choiceIndex;
+            renderExplainLesson();
+        }
+
+        function renderExplainAnimation(content) {
+            const demo = explainLesson?.interactiveDemo;
+            if (!demo || !Array.isArray(demo.stages) || !demo.stages.length) {
+                addExplainText(content, "p", "This lesson did not include an interactive demonstration. You can still use the slides and AI teacher modes.", "explain-animation-intro");
+                return;
+            }
+            explainAnimationIndex = Math.max(0, Math.min(explainAnimationIndex, demo.stages.length - 1));
+            const stage = demo.stages[explainAnimationIndex] || {};
+            const path = document.createElement("div");
+            path.className = "explain-animation-path";
+            path.setAttribute("role", "group");
+            path.setAttribute("aria-label", "Interactive lesson steps");
+            demo.stages.forEach((item, index) => {
+                const step = document.createElement("button");
+                step.type = "button";
+                step.className = "explain-animation-step" + (index === explainAnimationIndex ? " active" : "");
+                step.setAttribute("aria-pressed", String(index === explainAnimationIndex));
+                addExplainText(step, "span", "Step " + (index + 1));
+                addExplainText(step, "strong", item.label || item.title || ("Explore " + (index + 1)));
+                step.addEventListener("click", () => selectExplainAnimationStep(index));
+                path.appendChild(step);
+            });
+            content.appendChild(path);
+
+            const scene = document.createElement("section");
+            scene.className = "explain-animation-stage";
+            scene.setAttribute("aria-label", "Animated demonstration step " + (explainAnimationIndex + 1));
+            const sceneHead = document.createElement("div");
+            sceneHead.className = "explain-animation-stage-head";
+            addExplainText(sceneHead, "span", (demo.kind || "interactive model").replace(/-/g, " ") + " · Step " + (explainAnimationIndex + 1) + " of " + demo.stages.length);
+            addExplainText(sceneHead, "h4", stage.title || stage.label || "Explore this step");
+            scene.appendChild(sceneHead);
+
+            const visual = document.createElement("div");
+            visual.className = "explain-animation-visual";
+            const objects = Array.isArray(stage.visuals) ? stage.visuals.slice(0, 3) : [];
+            if (objects.length) {
+                objects.forEach((object, index) => {
+                    if (index > 0) addExplainText(visual, "span", stage.connector || "→", "explain-animation-arrow");
+                    addExplainText(visual, "div", object, "explain-animation-object");
+                });
+            } else {
+                addExplainText(visual, "div", stage.visual || stage.label || stage.title || "Observe this concept", "explain-animation-object");
+            }
+            scene.appendChild(visual);
+            addExplainText(scene, "div", stage.explanation || "", "explain-animation-description");
+            content.appendChild(scene);
+
+            if (stage.question && Array.isArray(stage.choices) && stage.choices.length >= 2) {
+                const challenge = document.createElement("section");
+                challenge.className = "explain-animation-challenge";
+                addExplainText(challenge, "h5", "🧩 Check your understanding");
+                addExplainText(challenge, "p", stage.question);
+                const choices = document.createElement("div");
+                choices.className = "explain-animation-choices";
+                const selected = explainAnimationAnswers[explainAnimationIndex];
+                stage.choices.slice(0, 4).forEach((choice, index) => {
+                    const option = document.createElement("button");
+                    option.type = "button";
+                    option.className = "explain-animation-choice";
+                    if (selected !== undefined && index === Number(stage.correctIndex)) option.classList.add("correct");
+                    else if (selected === index && selected !== Number(stage.correctIndex)) option.classList.add("incorrect");
+                    option.textContent = String(choice);
+                    option.setAttribute("aria-pressed", String(selected === index));
+                    option.addEventListener("click", () => answerExplainAnimation(index));
+                    choices.appendChild(option);
+                });
+                challenge.appendChild(choices);
+                if (selected !== undefined) {
+                    const isCorrect = selected === Number(stage.correctIndex);
+                    addExplainText(challenge, "p", (isCorrect ? "✓ " : "↻ ") + (stage.feedback || stage.explanation || "Review this step and try again."), "explain-animation-feedback");
+                }
+                content.appendChild(challenge);
+            }
         }
 
         function addExplainText(parent, tag, value, className) {
@@ -2946,12 +3074,33 @@ footer a:hover { color: #2563eb !important; }
             if (!content) return;
             content.replaceChildren();
             const isTeacher = explainMode === "teacher";
+            const isAnimation = explainMode === "animation";
             document.getElementById("explainSlidesMode")?.classList.toggle("active", !isTeacher);
+            document.getElementById("explainSlidesMode")?.classList.toggle("active", !isTeacher && !isAnimation);
             document.getElementById("explainTeacherMode")?.classList.toggle("active", isTeacher);
+            document.getElementById("explainAnimationMode")?.classList.toggle("active", isAnimation);
+            const animationHint = document.getElementById("explainAnimationHint");
+            if (animationHint) animationHint.hidden = !isAnimation;
             document.getElementById("explainPresentationTitle").textContent = explainLesson.title || "Your AI lesson";
-            document.getElementById("explainPresentationSubtitle").textContent = isTeacher
+            document.getElementById("explainPresentationSubtitle").textContent = isAnimation
+                ? "Explore a subject-specific demonstration, then answer each checkpoint."
+                : isTeacher
                 ? "Your AI teacher explains each concept in sequence."
                 : "Move through the lesson one concept at a time.";
+            if (isAnimation) {
+                renderExplainAnimation(content);
+                const stages = explainLesson.interactiveDemo?.stages || [];
+                document.getElementById("explainSlideProgress").textContent = stages.length
+                    ? "Step " + (explainAnimationIndex + 1) + " of " + stages.length
+                    : "Interactive demonstration";
+                document.getElementById("explainPrevious").disabled = explainAnimationIndex <= 0;
+                document.getElementById("explainNext").disabled = !stages.length || explainAnimationIndex >= stages.length - 1;
+                document.getElementById("explainPrevious").textContent = "← Previous step";
+                document.getElementById("explainNext").textContent = stages.length && explainAnimationIndex >= stages.length - 1 ? "Demonstration complete ✓" : "Next step →";
+                return;
+            }
+            document.getElementById("explainPrevious").textContent = "← Previous";
+            document.getElementById("explainNext").textContent = explainSlideIndex >= slides.length - 1 ? "Lesson complete ✓" : "Next →";
             addExplainText(content, "div", (isTeacher ? "TEACHER MODE" : "LESSON SLIDE") + " · " + (explainSlideIndex + 1) + " OF " + slides.length, "explain-slide-count");
             addExplainText(content, "h4", slide.title || "Key concept");
             if (isTeacher) {
