@@ -1940,6 +1940,70 @@ footer {
     }
 
 }
+
+
+/* EDUSOW GLOBAL BLUE THEME OVERRIDE — keep all layouts unchanged */
+:root {
+  color-scheme: light;
+  --primary: #2563eb !important;
+  --primary-dark: #1d4ed8 !important;
+  --secondary: #0ea5e9 !important;
+  --accent: #0284c7 !important;
+  --ink: #172554 !important;
+  --muted: #64748b !important;
+  --line: #dbeafe !important;
+  --bg: #f8fbff !important;
+}
+html { accent-color: #2563eb !important; }
+body {
+  --primary: #2563eb !important;
+  --primary-dark: #1d4ed8 !important;
+  --secondary: #0ea5e9 !important;
+  --accent: #0284c7 !important;
+  --border: #dbeafe !important;
+  --surface-soft: #eff6ff !important;
+}
+button, .button, a.button, .choose-file-btn, input[type="button"], input[type="submit"], input[type="reset"] {
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%) !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+button:hover, .button:hover, a.button:hover, .choose-file-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%) !important;
+}
+a:not(.button):not(button) { --primary: #2563eb; }
+nav a:hover, .nav a:hover, .study-mode-btn.active, .active {
+  color: #1d4ed8;
+}
+.hero h1, .logo span:not(.brand-plant), h1, .gradient-text {
+  background-image: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #0ea5e9 100%) !important;
+}
+section > h2::after, .section-heading::after {
+  background: linear-gradient(90deg, #2563eb, #0ea5e9) !important;
+}
+.hero::before, .hero::after {
+  background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(14,165,233,.08)) !important;
+}
+.file-picker, .ai-info, .flashcard, .status, .quiz-option:hover {
+  background: linear-gradient(135deg, #eff6ff, #f0f9ff) !important;
+  border-color: #bfdbfe !important;
+}
+.study-controls #studyStartBtn, .study-mode-btn.active {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+.study-phase-label, .timer-display, .ai-info strong { color: #1d4ed8 !important; }
+input:focus, textarea:focus, select:focus, .quiz-question-viewport:focus {
+  border-color: #3b82f6 !important;
+  outline-color: #93c5fd !important;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12) !important;
+}
+footer a:hover { color: #2563eb !important; }
+@media (min-width: 851px) {
+  /* Same blue palette on wide screens; preserve each page's existing layout. */
+  button, .button, a.button, .choose-file-btn { color: #fff !important; }
+}
 </style>
   <link rel="canonical" href="https://edusow.com/">
   <meta property="og:type" content="website">
