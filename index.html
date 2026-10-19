@@ -2250,12 +2250,7 @@ footer a:hover { color: #2563eb !important; }
                         <h3>🎓 Explain Materials</h3>
                         <p>Upload a PDF or image and extract its text first. Then turn your material into a guided AI lesson with interactive slides or teacher mode.</p>
                         <div class="explain-materials-options">
-                            <label for="explainLanguage">Explanation language
-                                <select id="explainLanguage">
-                                    <option value="english">English</option>
-                                    <option value="bangla">বাংলা (Bangla)</option>
-                                </select>
-                            </label>
+                            <label for="explainLanguage">Explanation language<select id="explainLanguage"><option value="Auto-detect">Auto-detect from material</option><option value="English">English</option><option value="Bengali">বাংলা (Bengali)</option><option value="Hindi">हिन्दी (Hindi)</option><option value="Arabic">العربية (Arabic)</option><option value="Spanish">Español (Spanish)</option><option value="French">Français (French)</option><option value="Chinese">中文 (Chinese)</option><option value="Portuguese">Português (Portuguese)</option><option value="Russian">Русский (Russian)</option><option value="Urdu">اردو (Urdu)</option><option value="Japanese">日本語 (Japanese)</option><option value="Korean">한국어 (Korean)</option><option value="German">Deutsch (German)</option><option value="Indonesian">Bahasa Indonesia</option><option value="Turkish">Türkçe (Turkish)</option><option value="Vietnamese">Tiếng Việt (Vietnamese)</option><option value="Nepali">नेपाली (Nepali)</option><option value="Thai">ไทย (Thai)</option><option value="Italian">Italiano (Italian)</option><option value="Persian">فارسی (Persian)</option><option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option><option value="Swahili">Kiswahili (Swahili)</option><option value="Other">Other language…</option></select></label><label for="explainCustomLanguage">Or enter any language name<input id="explainCustomLanguage" type="text" maxlength="60" placeholder="e.g. Greek, Tamil, Ukrainian" autocomplete="off"></label>
                             <label for="explainDetail">Lesson detail
                                 <select id="explainDetail">
                                     <option value="balanced">Balanced lesson</option>
@@ -2310,6 +2305,7 @@ footer a:hover { color: #2563eb !important; }
                 <p>Extract text from a PDF or image in Study Materials, then choose how many MCQs to generate (maximum 30).</p>
             </div>
 
+            <label for="quizOutputLanguage">Quiz output language<select id="quizOutputLanguage"><option value="Auto-detect">Auto-detect from material</option><option value="English">English</option><option value="Bengali">বাংলা (Bengali)</option><option value="Hindi">हिन्दी (Hindi)</option><option value="Arabic">العربية (Arabic)</option><option value="Spanish">Español (Spanish)</option><option value="French">Français (French)</option><option value="Chinese">中文 (Chinese)</option><option value="Portuguese">Português (Portuguese)</option><option value="Russian">Русский (Russian)</option><option value="Urdu">اردو (Urdu)</option><option value="Japanese">日本語 (Japanese)</option><option value="Korean">한국어 (Korean)</option><option value="German">Deutsch (German)</option><option value="Indonesian">Bahasa Indonesia</option><option value="Turkish">Türkçe (Turkish)</option><option value="Vietnamese">Tiếng Việt (Vietnamese)</option><option value="Nepali">नेपाली (Nepali)</option><option value="Thai">ไทย (Thai)</option><option value="Italian">Italiano (Italian)</option><option value="Persian">فارسی (Persian)</option><option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option><option value="Swahili">Kiswahili (Swahili)</option><option value="Other">Other language…</option></select></label><label for="quizCustomLanguage">Or enter any language name<input id="quizCustomLanguage" type="text" maxlength="60" placeholder="e.g. Greek, Tamil, Ukrainian" autocomplete="off"></label>
             <label for="quizQuestionCount">Number of questions (1–30)</label>
             <input id="quizQuestionCount" type="number" min="1" max="30" step="1" value="20" inputmode="numeric" aria-describedby="quizCountHelp">
             <p id="quizCountHelp" class="small-help">Choose any amount from 1 to 30.</p>
@@ -2352,6 +2348,7 @@ footer a:hover { color: #2563eb !important; }
             <p>Generate flashcards from the text extracted in Study Materials above.</p>
         </div>
 
+         <label for="flashcardOutputLanguage">Flashcard output language<select id="flashcardOutputLanguage"><option value="Auto-detect">Auto-detect from material</option><option value="English">English</option><option value="Bengali">বাংলা (Bengali)</option><option value="Hindi">हिन्दी (Hindi)</option><option value="Arabic">العربية (Arabic)</option><option value="Spanish">Español (Spanish)</option><option value="French">Français (French)</option><option value="Chinese">中文 (Chinese)</option><option value="Portuguese">Português (Portuguese)</option><option value="Russian">Русский (Russian)</option><option value="Urdu">اردو (Urdu)</option><option value="Japanese">日本語 (Japanese)</option><option value="Korean">한국어 (Korean)</option><option value="German">Deutsch (German)</option><option value="Indonesian">Bahasa Indonesia</option><option value="Turkish">Türkçe (Turkish)</option><option value="Vietnamese">Tiếng Việt (Vietnamese)</option><option value="Nepali">नेपाली (Nepali)</option><option value="Thai">ไทย (Thai)</option><option value="Italian">Italiano (Italian)</option><option value="Persian">فارسی (Persian)</option><option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option><option value="Swahili">Kiswahili (Swahili)</option><option value="Other">Other language…</option></select></label><label for="flashcardCustomLanguage">Or enter any language name<input id="flashcardCustomLanguage" type="text" maxlength="60" placeholder="e.g. Greek, Tamil, Ukrainian" autocomplete="off"></label>
          <label for="flashcardCount">
             Number of flashcards
         </label>
@@ -2784,7 +2781,7 @@ footer a:hover { color: #2563eb !important; }
             }
             const button = document.getElementById("explainMaterialsButton");
             const presentation = document.getElementById("explainPresentation");
-            const language = document.getElementById("explainLanguage")?.value || "english";
+            const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || "English";
             const detail = document.getElementById("explainDetail")?.value || "balanced";
             if (button) { button.disabled = true; button.textContent = "⏳ Building your lesson…"; }
             if (presentation) presentation.hidden = true;
@@ -3215,13 +3212,15 @@ function outputMatchesLanguage(text, language) {
     const bengaliLetters = (value.match(/[\u0980-\u09FF]/g) || []).length;
     const latinLetters = (value.match(/[A-Za-z]/g) || []).length;
     const totalLetters = bengaliLetters + latinLetters;
-
-    if (language === "Bengali") {
-        // Permit English technical terms, but reject predominantly English output.
-        return bengaliLetters >= 20 && totalLetters > 0 &&
-            bengaliLetters / totalLetters >= 0.12;
-    }
+    if (language !== "Bengali" && language !== "English") return true;
+    if (language === "Bengali") return bengaliLetters >= 20 && totalLetters > 0 && bengaliLetters / totalLetters >= 0.12;
     return latinLetters > bengaliLetters;
+}
+function getSelectedOutputLanguage(selectId, customId) {
+    const custom = (document.getElementById(customId)?.value || "").trim();
+    if (custom) return custom;
+    const value = document.getElementById(selectId)?.value || "Auto-detect";
+    return value === "Other" ? "" : value;
 }
 
 function requireExpectedLanguage(text, language, featureName) {
@@ -3299,6 +3298,7 @@ async function generateQuizFromPDF() {
                 body: {
                     text: extractedPDFText,
                     language: detectMaterialLanguage(extractedPDFText),
+                    outputLanguage: getSelectedOutputLanguage("quizOutputLanguage", "quizCustomLanguage"),
                     count: requestedCount,
                     difficulty: "Mixed"
                 }
@@ -3387,7 +3387,7 @@ async function generateQuizFromPDF() {
             );
         }
 
-        const expectedQuizLanguage = detectMaterialLanguage(extractedPDFText);
+        const expectedQuizLanguage = getSelectedOutputLanguage("quizOutputLanguage", "quizCustomLanguage") || detectMaterialLanguage(extractedPDFText);
         const quizTextForLanguageCheck = data.questions.map(question =>
             [
                 question?.question,
@@ -4026,6 +4026,7 @@ async function generateFlashcardsFromPDF() {
                     body: {
                         text: extractedPDFText,
                         language: detectMaterialLanguage(extractedPDFText),
+                        outputLanguage: getSelectedOutputLanguage("flashcardOutputLanguage", "flashcardCustomLanguage"),
                         count: count,
                         regenerate: button.dataset.generated === "true",
                         previousQuestions: previousQuestions,
@@ -4076,7 +4077,7 @@ async function generateFlashcardsFromPDF() {
             );
         }
 
-        const expectedFlashcardLanguage = detectMaterialLanguage(extractedPDFText);
+        const expectedFlashcardLanguage = getSelectedOutputLanguage("flashcardOutputLanguage", "flashcardCustomLanguage") || detectMaterialLanguage(extractedPDFText);
         const flashcardTextForLanguageCheck = flashcards
             .map(card => card.front + " " + card.back)
             .join(" ");
