@@ -16,7 +16,7 @@
 
     <title>EduSow | Free Study Tools, Quizzes & Flashcards</title>
     <meta name="description" content="Free study tools to turn notes and PDFs into practice MCQs, revise with flashcards, and track focused study time with EduSow.">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#2563eb">
     <link rel="icon" type="image/png" href="edusow-logo.png">
 
     <!-- Supabase -->
@@ -34,9 +34,9 @@
    ========================================================= */
 
 :root {
-    --primary: #4f46e5;
-    --primary-dark: #3730a3;
-    --secondary: #7c3aed;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --secondary: #0891b2;
     --accent: #06b6d4;
 
     --text: #111827;
@@ -89,12 +89,12 @@ body {
     background:
         radial-gradient(
             circle at 10% 10%,
-            rgba(99, 102, 241, 0.05),
+            rgba(37, 99, 235, 0.05),
             transparent 30%
         ),
         radial-gradient(
             circle at 90% 20%,
-            rgba(124, 58, 237, 0.05),
+            rgba(14, 165, 233, 0.05),
             transparent 30%
         ),
         var(--background);
@@ -219,7 +219,7 @@ nav a {
 nav a:hover {
     color: var(--primary);
 
-    background: #eef2ff;
+    background: #eff6ff;
 
     transform: translateY(-1px);
 }
@@ -320,8 +320,8 @@ section > h2::after {
     background:
         linear-gradient(
             135deg,
-            rgba(79, 70, 229, 0.13),
-            rgba(124, 58, 237, 0.08)
+            rgba(37, 99, 235, 0.13),
+            rgba(14, 165, 233, 0.08)
         );
 
     filter: blur(2px);
@@ -346,7 +346,7 @@ section > h2::after {
         linear-gradient(
             135deg,
             rgba(6, 182, 212, 0.10),
-            rgba(79, 70, 229, 0.08)
+            rgba(37, 99, 235, 0.08)
         );
 
     bottom: -120px;
@@ -377,9 +377,9 @@ section > h2::after {
     background:
         linear-gradient(
             135deg,
-            #312e81 0%,
-            #4f46e5 45%,
-            #7c3aed 100%
+            #1e40af 0%,
+            #2563eb 45%,
+            #0891b2 100%
         );
 
     -webkit-background-clip: text;
@@ -416,7 +416,7 @@ section > h2::after {
     font-size: 16px;
 
     box-shadow:
-        0 10px 25px rgba(79, 70, 229, 0.25);
+        0 10px 25px rgba(37, 99, 235, 0.25);
 }
 
 
@@ -460,7 +460,7 @@ button:hover {
     transform: translateY(-2px);
 
     box-shadow:
-        0 8px 20px rgba(79, 70, 229, 0.20);
+        0 8px 20px rgba(37, 99, 235, 0.20);
 
     opacity: 1;
 }
@@ -571,7 +571,7 @@ select:focus {
 
     box-shadow:
         0 0 0 4px
-        rgba(79, 70, 229, 0.10);
+        rgba(37, 99, 235, 0.10);
 }
 
 input::placeholder,
@@ -612,11 +612,11 @@ textarea {
 
     border-radius: 11px;
 
-    background: #eef2ff;
+    background: #eff6ff;
 
-    border: 1px solid #c7d2fe;
+    border: 1px solid #bfdbfe;
 
-    color: #4338ca;
+    color: #1d4ed8;
 
     font-size: 14px;
 }
@@ -628,7 +628,7 @@ textarea {
 
 .file-picker {
     border:
-        2px dashed #a5b4fc;
+        2px dashed #93c5fd;
 
     border-radius: 18px;
 
@@ -639,8 +639,8 @@ textarea {
     background:
         linear-gradient(
             135deg,
-            #eef2ff,
-            #f5f3ff
+            #eff6ff,
+            #f0f9ff
         );
 
     margin-top: 18px;
@@ -698,7 +698,7 @@ textarea {
 
     box-shadow:
         0 8px 20px
-        rgba(79, 70, 229, 0.18);
+        rgba(37, 99, 235, 0.18);
 
     transition:
         transform 0.2s ease,
@@ -710,7 +710,7 @@ textarea {
 
     box-shadow:
         0 12px 25px
-        rgba(79, 70, 229, 0.24);
+        rgba(37, 99, 235, 0.24);
 }
 
 .choose-file-btn:active {
@@ -801,12 +801,12 @@ textarea {
     background:
         linear-gradient(
             135deg,
-            #eef2ff,
-            #f5f3ff
+            #eff6ff,
+            #f0f9ff
         );
 
     border:
-        1px solid #c7d2fe;
+        1px solid #bfdbfe;
 
     border-radius: 15px;
 
@@ -900,9 +900,9 @@ textarea {
 }
 
 .quiz-option:hover {
-    background: #eef2ff;
+    background: #eff6ff;
 
-    border-color: #c7d2fe;
+    border-color: #bfdbfe;
 }
 
 .quiz-option input {
@@ -942,17 +942,17 @@ textarea {
 
     font-weight: 750;
 
-    color: #312e81;
+    color: #1e40af;
 
     background:
         linear-gradient(
             135deg,
-            #eef2ff,
-            #f5f3ff
+            #eff6ff,
+            #f0f9ff
         );
 
     border:
-        1px solid #c7d2fe;
+        1px solid #bfdbfe;
 
     border-radius: 18px;
 
@@ -988,7 +988,7 @@ textarea {
 .study-tracker-box { text-align: center; overflow: hidden; }
 .study-mode-switch { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .study-mode-btn { border: 1px solid var(--border); background: var(--surface-soft); color: var(--text-soft); border-radius: 999px; padding: 10px 20px; font-weight: 750; cursor: pointer; }
-.study-mode-btn.active { background: #eef2ff; color: var(--primary); border-color: #c7d2fe; }
+.study-mode-btn.active { background: #eff6ff; color: var(--primary); border-color: #bfdbfe; }
 .study-phase-label { margin-top: 28px; color: var(--primary); font-size: 12px; font-weight: 850; letter-spacing: 2px; }
 .study-tracker-box .timer-display { margin: 8px 0 0; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
 .study-timer-hint { color: var(--text-soft); min-height: 26px; margin: 4px 0 20px; }
@@ -1033,9 +1033,9 @@ textarea {
 
 
 /* EXPLAIN MATERIALS — AI LESSON PRESENTATION */
-.explain-materials-launch { margin-top:18px; padding:20px; border:1px solid #c7d2fe; border-radius:18px; background:linear-gradient(135deg,#eef2ff,#faf5ff); }
+.explain-materials-launch { margin-top:18px; padding:20px; border:1px solid #bfdbfe; border-radius:18px; background:linear-gradient(135deg,#eff6ff,#faf5ff); }
 .explain-materials-launch[hidden], .explain-presentation[hidden], .explain-materials-launch #explainMaterialsStatus[hidden] { display:none !important; }
-.explain-materials-launch h3 { color:#312e81; margin-bottom:6px; font-size:20px; }
+.explain-materials-launch h3 { color:#1e40af; margin-bottom:6px; font-size:20px; }
 .explain-materials-launch p { color:#64748b; font-size:14px; margin-bottom:12px; }
 .explain-materials-options { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; align-items:end; }
 .explain-materials-options label { display:block; font-size:13px; font-weight:750; color:#475569; }
@@ -1043,12 +1043,12 @@ textarea {
 .explain-materials-launch .button-row { margin-top:14px; }
 .explain-materials-launch .explain-hint { margin:10px 0 0; font-size:12px; }
 .explain-presentation { margin-top:20px; border:1px solid var(--border); border-radius:20px; overflow:hidden; background:white; box-shadow:var(--shadow-md); }
-.explain-presentation-header { padding:20px 22px; background:linear-gradient(135deg,#312e81,#6d28d9); color:white; }
+.explain-presentation-header { padding:20px 22px; background:linear-gradient(135deg,#1e40af,#6d28d9); color:white; }
 .explain-presentation-header h3 { font-size:clamp(19px,3vw,26px); line-height:1.3; }
-.explain-presentation-header p { color:#e0e7ff; font-size:13px; margin-top:5px; }
+.explain-presentation-header p { color:#dbeafe; font-size:13px; margin-top:5px; }
 .explain-mode-tabs { display:flex; gap:8px; flex-wrap:wrap; padding:14px 18px 0; }
 .explain-mode-tabs button { background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; }
-.explain-mode-tabs button.active { background:#eef2ff; color:#4338ca; border-color:#a5b4fc; }
+.explain-mode-tabs button.active { background:#eff6ff; color:#1d4ed8; border-color:#93c5fd; }
 .explain-slide-body { padding:clamp(18px,4vw,30px); min-height:260px; }
 .explain-slide-count { color:#6d28d9; font-size:12px; font-weight:850; letter-spacing:1px; text-transform:uppercase; }
 .explain-slide-body h4 { font-size:clamp(22px,4vw,30px); line-height:1.25; margin:8px 0 15px; color:#1e1b4b; }
@@ -1060,7 +1060,7 @@ textarea {
 .explain-example p { color:#134e4a; }
 .explain-presentation-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:15px 20px; border-top:1px solid var(--border); background:#f8fafc; }
 .explain-presentation-controls span { color:#64748b; font-size:13px; font-weight:650; }
-.explain-teacher-script { padding:18px; border-radius:15px; background:#f5f3ff; border:1px solid #ddd6fe; margin-top:15px; }
+.explain-teacher-script { padding:18px; border-radius:15px; background:#f0f9ff; border:1px solid #bae6fd; margin-top:15px; }
 .explain-teacher-script strong { color:#5b21b6; display:block; margin-bottom:7px; }
 .explain-teacher-script p { color:#4c1d95; }
 @media(max-width:560px) { .explain-materials-options { grid-template-columns:1fr; gap:4px; } .explain-presentation-controls { align-items:stretch; } .explain-presentation-controls button { flex:1; } .explain-mode-tabs { padding:12px 12px 0; } }
@@ -1104,7 +1104,7 @@ footer strong {
     margin-top: 16px;
 }
 footer .footer-links a {
-    color: #e0e7ff;
+    color: #dbeafe;
     text-decoration: underline;
     text-underline-offset: 3px;
     padding: 4px 2px;
@@ -1351,9 +1351,9 @@ input[type="checkbox"] {
    Additive styling; existing study-tool functionality preserved.
    ========================================================= */
 :root {
-    --primary: #5145e5;
+    --primary: #2563eb;
     --primary-dark: #3527b8;
-    --secondary: #8b5cf6;
+    --secondary: #0891b2;
     --accent: #06b6d4;
     --text: #17172b;
     --text-soft: #696b82;
@@ -1389,7 +1389,7 @@ nav a[href="#home"] { color: var(--primary); background: #f0edff; }
 .hero-eyebrow, .section-eyebrow { display: inline-flex; align-items: center; gap: 9px; color: #6253cf; font-size: 11px; font-weight: 850; letter-spacing: 1.8px; }
 .eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: #20c5b4; box-shadow: 0 0 0 4px rgba(32,197,180,.13); }
 .hero h1 { margin: 22px 0 20px; max-width: 650px; font-size: clamp(43px, 5.2vw, 68px); line-height: 1.04; font-weight: 850; letter-spacing: -2.8px; color: #1c1a36; background: none; -webkit-text-fill-color: initial; }
-.hero h1 span { color: transparent; background: linear-gradient(110deg,#5545e8,#8b5cf6 70%,#06b6d4); -webkit-background-clip: text; background-clip: text; }
+.hero h1 span { color: transparent; background: linear-gradient(110deg,#2563eb,#0891b2 70%,#06b6d4); -webkit-background-clip: text; background-clip: text; }
 .hero p { margin: 0; max-width: 520px; color: #6a6b83; font-size: 17px; line-height: 1.85; font-weight: 450; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 13px; margin-top: 28px; }
 .hero-actions button { margin: 0; padding: 15px 22px; border-radius: 13px; box-shadow: 0 10px 24px rgba(81,69,229,.24); }
@@ -1497,7 +1497,7 @@ section:not(.hero):not(.toolkit-section) {
 }
 section:not(.hero):not(.toolkit-section) > h2 {
     margin-bottom: 30px;
-    color: #211e3b;
+    color: #172554;
     font-size: clamp(29px, 3.5vw, 38px);
     letter-spacing: -1.1px;
 }
@@ -1505,12 +1505,12 @@ section:not(.hero):not(.toolkit-section) > h2::after {
     width: 54px;
     height: 4px;
     margin-top: 14px;
-    background: linear-gradient(90deg,#5545e8,#06b6d4);
+    background: linear-gradient(90deg,#2563eb,#06b6d4);
 }
 #materials, #quiz, #flashcards, #timer { position: relative; }
 #materials, #flashcards { border-top: 1px solid rgba(226,223,242,.65); }
 .materials-box, .quiz-box, .flashcard-box, .timer-box, .study-history-box {
-    border: 1px solid #e8e5f4;
+    border: 1px solid #dbeafe;
     border-radius: 22px;
     background: rgba(255,255,255,.94);
     box-shadow: 0 12px 36px rgba(39,30,89,.055);
@@ -1527,7 +1527,7 @@ section:not(.hero):not(.toolkit-section) > h2::after {
     padding: 27px 20px;
     border: 1.5px dashed #c9c2f2;
     border-radius: 18px;
-    background: linear-gradient(135deg,#faf9ff,#f3fbff);
+    background: linear-gradient(135deg,#f8fbff,#f3fbff);
     transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
 .file-picker:hover {
@@ -1542,7 +1542,7 @@ section:not(.hero):not(.toolkit-section) > h2::after {
     gap: 8px;
     border-radius: 12px;
     padding: 12px 18px;
-    background: #5545e8;
+    background: #2563eb;
     color: #fff;
     font-weight: 750;
     box-shadow: 0 8px 18px rgba(85,69,232,.18);
@@ -1585,7 +1585,7 @@ button.secondary, .study-controls .secondary, .study-clear-btn {
     box-shadow: none;
 }
 button.success, .study-controls #studyStartBtn {
-    background: linear-gradient(135deg,#5145e5,#7957e9);
+    background: linear-gradient(135deg,#2563eb,#7957e9);
 }
 button.danger, .study-controls .danger {
     background: linear-gradient(135deg,#e34d68,#c73553);
@@ -1623,7 +1623,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
 .quiz-question {
     margin: 16px 0;
     padding: 22px;
-    border: 1px solid #e8e5f4;
+    border: 1px solid #dbeafe;
     border-radius: 17px;
     background: #fff;
     box-shadow: 0 5px 16px rgba(39,30,89,.035);
@@ -1686,7 +1686,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
     background: #f7f5ff;
 }
 .study-mode-btn { border-radius: 11px; padding: 11px 17px; color: #77738e; background: transparent; box-shadow: none; }
-.study-mode-btn.active { color: #fff; background: linear-gradient(135deg,#5145e5,#8959ec); box-shadow: 0 6px 15px rgba(81,69,229,.22); }
+.study-mode-btn.active { color: #fff; background: linear-gradient(135deg,#2563eb,#8959ec); box-shadow: 0 6px 15px rgba(81,69,229,.22); }
 .study-phase-label { margin: 28px 0 6px; color: #7b6ae3; font-size: 11px; font-weight: 850; letter-spacing: 2px; }
 .study-tracker-box .timer-display {
     color: #27213f;
@@ -1768,8 +1768,8 @@ footer {
 #savedFlashcardCount {
     padding: 4px 10px;
     border-radius: 999px;
-    background: #eef2ff;
-    color: #4338ca;
+    background: #eff6ff;
+    color: #1d4ed8;
     font-size: 13px;
     font-weight: 700;
 }
@@ -2698,9 +2698,9 @@ footer {
             if (!status) return;
             status.hidden = false;
             status.textContent = message;
-            status.style.background = isError ? "#fef2f2" : "#eef2ff";
-            status.style.color = isError ? "#b91c1c" : "#4338ca";
-            status.style.borderColor = isError ? "#fecaca" : "#c7d2fe";
+            status.style.background = isError ? "#fef2f2" : "#eff6ff";
+            status.style.color = isError ? "#b91c1c" : "#1d4ed8";
+            status.style.borderColor = isError ? "#fecaca" : "#bfdbfe";
         }
 
         async function generateMaterialExplanation() {
