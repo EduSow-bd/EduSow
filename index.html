@@ -2223,10 +2223,11 @@ footer a:hover { color: #2563eb !important; }
     </label>
 
     <div class="ocr-language-picker" style="margin-top:14px;">
-        <label for="ocrLanguages">OCR languages (select one or more; English and Bengali are selected by default)</label>
-        <select id="ocrLanguages" multiple size="7" aria-describedby="ocrLanguageHelp">
-            <option value="eng" selected>English</option>
-            <option value="ben" selected>Bengali</option>
+        <label for="ocrLanguages">OCR language</label>
+        <select id="ocrLanguages" size="1" aria-describedby="ocrLanguageHelp">
+            <option value="auto" selected>Auto-detect language</option>
+            <option value="eng">English</option>
+            <option value="ben">Bengali</option>
             <option value="hin">Hindi</option>
             <option value="urd">Urdu</option>
             <option value="ara">Arabic</option>
@@ -2270,7 +2271,7 @@ footer a:hover { color: #2563eb !important; }
             <option value="srp">Serbian</option>
             <option value="bul">Bulgarian</option>
         </select>
-        <small id="ocrLanguageHelp">Hold Ctrl (Windows) or ⌘ (Mac) to select multiple languages. Additional language data downloads when first used.</small>
+        <small id="ocrLanguageHelp">Auto-detect uses the PDF's readable text when available. For scanned pages, EduSow selects a suitable OCR language automatically. You can choose any language manually.</small>
     </div>
 
     <div id="pdfPageRangeArea" style="display:none; margin-top:12px;">
@@ -2753,13 +2754,17 @@ footer a:hover { color: #2563eb !important; }
         let sharedOCRWorkers = null;
         let sharedOCRWorkersPromise = null;
         let sharedOCRLanguageCode = null;
+        let detectedOCRLanguageCode = null;
 
         function getSelectedOCRLanguageCode() {
             const selector = document.getElementById("ocrLanguages");
-            const selected = selector
-                ? Array.from(selector.selectedOptions).map(option => option.value)
-                : ["eng", "ben"];
-            return (selected.length ? selected : ["eng", "ben"]).join("+");
+            const selected = selector?.value || "auto";
+            if (selected === "auto") {
+                // Text PDFs are detected from their native text layer. If every page is
+                // scanned, bilingual OCR is the safest fallback until text is available.
+                return detectedOCRLanguageCode || "eng+ben";
+            }
+            return selected;
         }
 
         async function getSharedOCRWorkers() {
@@ -2787,28 +2792,26 @@ footer a:hover { color: #2563eb !important; }
                     false
                 );
 
-                sharedOCRWorkersPromise = Promise.all(
-                    [0, 1].map(workerIndex =>
-                        Tesseract.createWorker(
-                            requestedLanguageCode,
-                            1,
-                            {
-                                logger: message => {
-                                    if (message.status === "recognizing text") {
-                                        const percent = Math.round((message.progress || 0) * 100);
-                                        showStatus(
-                                            "pdfExtractionStatus",
-                                            `OCR worker ${workerIndex + 1}/2: ${percent}%`,
-                                            false
-                                        );
-                                    }
-                                }
+                // Only one worker is used by the current fallback path. Creating a second
+                // worker doubled startup/download work without processing any extra pages.
+                sharedOCRWorkersPromise = Tesseract.createWorker(
+                    requestedLanguageCode,
+                    1,
+                    {
+                        logger: message => {
+                            if (message.status === "recognizing text") {
+                                const percent = Math.round((message.progress || 0) * 100);
+                                showStatus(
+                                    "pdfExtractionStatus",
+                                    `OCR progress: ${percent}%`,
+                                    false
+                                );
                             }
-                        )
-                    )
-                ).then(workers => {
-                    sharedOCRWorkers = workers;
-                    return workers;
+                        }
+                    }
+                ).then(worker => {
+                    sharedOCRWorkers = [worker];
+                    return sharedOCRWorkers;
                 }).catch(error => {
                     sharedOCRWorkersPromise = null;
                     sharedOCRLanguageCode = null;
@@ -3201,8 +3204,9 @@ async function extractSelectedPDF() {
             selectedPageNumbers = [...pageSet].sort((a, b) => a - b);
         }
 
-        // Read normal PDF text first. Use vision OCR for scanned pages and pages likely
-        // to contain maths, because general-purpose OCR often loses operators and fractions.
+        // Read the native PDF text layer first. This is fast and preserves selectable text.
+        // Only send pages with no meaningful text to the slower OCR fallback; do not make
+        // a network OCR request for every readable page just because it contains maths.
         const pages = [];
         for (let index = 0; index < selectedPageNumbers.length; index++) {
             const pageNumber = selectedPageNumbers[index];
@@ -3223,35 +3227,46 @@ async function extractSelectedPDF() {
             pages.push({
                 pageNumber,
                 pageText,
-                needsOCR: pageText.replace(/\s/g, "").length < 30,
-                needsMathOCR: pageText.replace(/\s/g, "").length < 30 || looksLikeMathPage(pageText)
+                needsOCR: pageText.replace(/\s/g, "").length < 30
             });
         }
 
-        const visionPages = pages.filter(page => page.needsMathOCR);
+        // Auto-detect language from any native text we successfully extracted.
+        // This avoids loading multiple language models for ordinary text-based PDFs.
+        const nativeText = pages.map(page => page.pageText).filter(Boolean).join("\n");
+        const hasNativeText = nativeText.replace(/\s/g, "").length >= 30;
+        detectedOCRLanguageCode = hasNativeText
+            ? (detectMaterialLanguage(nativeText) === "Bengali" ? "ben" : "eng")
+            : null;
+
+        // OCR only scanned/image-only pages. Keep AI maths OCR as a fallback for pages
+        // that local OCR cannot read, rather than blocking every maths-heavy text page.
+        const ocrPages = pages.filter(page => page.needsOCR);
         let completed = 0;
-        for (const item of visionPages) {
+        for (const item of ocrPages) {
             showStatus(
                 "pdfExtractionStatus",
-                `Improving text and maths symbols: ${completed}/${visionPages.length} pages completed…`,
+                `Reading scanned page ${completed + 1}/${ocrPages.length} (PDF page ${item.pageNumber})…`,
                 false
             );
             try {
+                const workers = await getSharedOCRWorkers();
                 const page = await pdf.getPage(item.pageNumber);
-                const visionText = await recognizePDFPageWithMathOCR(page);
-                if (visionText.trim()) item.pageText = visionText.replace(/\r/g, "").trim();
-            } catch (visionError) {
-                console.warn("Math-aware OCR failed for PDF page", item.pageNumber, visionError);
-                // Fall back to local OCR for scanned pages if the vision request fails.
-                if (item.needsOCR) {
-                    try {
-                        const workers = await getSharedOCRWorkers();
-                        const page = await pdf.getPage(item.pageNumber);
-                        const localText = await recognizePDFPage(page, item.pageNumber, pdf.numPages, workers[0]);
-                        if (localText.trim()) item.pageText = localText.replace(/\s+/g, " ").trim();
-                    } catch (localError) {
-                        console.warn("Fallback OCR failed for PDF page", item.pageNumber, localError);
-                    }
+                const localText = await recognizePDFPage(page, item.pageNumber, pdf.numPages, workers[0]);
+                if (localText.trim()) item.pageText = localText.replace(/\s+/g, " ").trim();
+            } catch (localError) {
+                console.warn("Local OCR failed for scanned PDF page", item.pageNumber, localError);
+            }
+
+            // If local OCR cannot recover a scanned page, use the existing math-aware
+            // OCR service as a last resort. This preserves a path for difficult scans.
+            if (item.pageText.replace(/\s/g, "").length < 30) {
+                try {
+                    const page = await pdf.getPage(item.pageNumber);
+                    const visionText = await recognizePDFPageWithMathOCR(page);
+                    if (visionText.trim()) item.pageText = visionText.replace(/\r/g, "").trim();
+                } catch (visionError) {
+                    console.warn("Math-aware OCR fallback failed for PDF page", item.pageNumber, visionError);
                 }
             }
             completed++;
