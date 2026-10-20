@@ -1064,6 +1064,24 @@ textarea {
 .explain-teacher-script strong { color:#1d4ed8; display:block; margin-bottom:7px; }
 .explain-teacher-script p { color:#334155; }
 
+/* Contextual Explain Materials follow-up chat */
+.explain-followup { padding:22px; border-top:1px solid var(--border); background:#f8fbff; }
+.explain-followup-heading h4 { margin:0 0 6px; color:#1e3a8a; font-size:20px; }
+.explain-followup-heading p,.explain-followup-note { color:#64748b; font-size:13px; line-height:1.6; margin:0 0 14px; }
+.explain-followup-suggestions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.explain-followup-suggestions button { font-size:13px; padding:8px 11px; border-radius:999px; }
+.explain-followup-messages { display:flex; flex-direction:column; gap:12px; max-height:390px; overflow-y:auto; margin:12px 0; }
+.explain-followup-empty { color:#64748b; font-size:13px; padding:12px 0; }
+.explain-followup-message { max-width:92%; padding:12px 14px; border-radius:14px; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.65; font-size:14px; }
+.explain-followup-message.user { align-self:flex-end; background:#dbeafe; color:#1e3a8a; border-bottom-right-radius:4px; }
+.explain-followup-message.assistant { align-self:flex-start; background:#fff; border:1px solid #dbeafe; color:#334155; border-bottom-left-radius:4px; }
+.explain-followup-message strong { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; color:#2563eb; }
+.explain-followup-form { display:flex; align-items:flex-end; gap:10px; }
+.explain-followup-form textarea { flex:1; min-width:0; resize:vertical; min-height:54px; border:1px solid #bfdbfe; border-radius:12px; padding:12px; background:#fff; color:#1e293b; font:inherit; }
+.explain-followup-form button { flex:0 0 auto; min-height:48px; }
+.explain-followup-note { margin:10px 0 0; font-size:12px; }
+@media(max-width:600px){.explain-followup{padding:16px}.explain-followup-form{flex-direction:column;align-items:stretch}.explain-followup-form button{width:100%}.explain-followup-message{max-width:100%}}
+
 /* Silent lesson video generator */
 .explain-presentation-controls[hidden]{display:none}
 /* =========================================================
@@ -2344,6 +2362,29 @@ footer a:hover { color: #2563eb !important; }
                             <span id="explainSlideProgress">Concept 1</span>
                             <button type="button" id="explainNext" onclick="moveExplainSlide(1)">Next →</button>
                         </div>
+
+                        <section class="explain-followup" aria-labelledby="explainFollowupTitle">
+                            <div class="explain-followup-heading">
+                                <div>
+                                    <h4 id="explainFollowupTitle">Still have a question?</h4>
+                                    <p>Ask about this lesson. EduSow will use your study material and the slide you're viewing to answer.</p>
+                                </div>
+                            </div>
+                            <div id="explainFollowupSuggestions" class="explain-followup-suggestions">
+                                <button type="button" class="secondary" onclick="useExplainFollowupSuggestion('Explain this in simpler words.')">Explain more simply</button>
+                                <button type="button" class="secondary" onclick="useExplainFollowupSuggestion('Show me another example.')">Give another example</button>
+                                <button type="button" class="secondary" onclick="useExplainFollowupSuggestion('Why does this work?')">Explain why</button>
+                            </div>
+                            <div id="explainFollowupMessages" class="explain-followup-messages" aria-live="polite">
+                                <p class="explain-followup-empty">Your questions and answers will appear here.</p>
+                            </div>
+                            <form id="explainFollowupForm" class="explain-followup-form" onsubmit="submitExplainFollowup(event)">
+                                <label class="sr-only" for="explainFollowupInput">Ask a question about this lesson</label>
+                                <textarea id="explainFollowupInput" rows="2" maxlength="1500" placeholder="Ask a question about this lesson…" required></textarea>
+                                <button type="submit" id="explainFollowupSend">Ask EduSow</button>
+                            </form>
+                            <p class="explain-followup-note">Your current lesson and selected language stay in context. Check important answers against your learning material.</p>
+                        </section>
                     </div>
 
                 </div>
@@ -2855,6 +2896,9 @@ footer a:hover { color: #2563eb !important; }
         // EXPLAIN MATERIALS: interactive slide lessons.
         let explainLesson = null;
         let explainSlideIndex = 0;
+        let explainSourceText = "";
+        let explainFollowupHistory = [];
+        let explainFollowupBusy = false;
 
         function setExplainMaterialsAvailable(available) {
             const launch = document.getElementById("explainMaterialsLaunch");
@@ -2867,6 +2911,10 @@ footer a:hover { color: #2563eb !important; }
                 if (presentation) presentation.hidden = true;
                 explainLesson = null;
                 explainSlideIndex = 0;
+                explainSourceText = "";
+                explainFollowupHistory = [];
+                const followupMessages = document.getElementById("explainFollowupMessages");
+                if (followupMessages) followupMessages.innerHTML = '<p class="explain-followup-empty">Your questions and answers will appear here.</p>';
 
                 const status = document.getElementById("explainMaterialsStatus");
                 if (status) { status.hidden = true; status.textContent = ""; }
@@ -2893,6 +2941,10 @@ footer a:hover { color: #2563eb !important; }
             const presentation = document.getElementById("explainPresentation");
             const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || "Auto-detect";
             const detail = document.getElementById("explainDetail")?.value || "simple";
+            explainSourceText = text;
+            explainFollowupHistory = [];
+            const followupMessages = document.getElementById("explainFollowupMessages");
+            if (followupMessages) followupMessages.innerHTML = '<p class="explain-followup-empty">Your questions and answers will appear here.</p>';
             if (button) { button.disabled = true; button.textContent = "⏳ Building your lesson…"; }
             if (presentation) presentation.hidden = true;
             setExplainStatus("EduSow is organizing the material into a lesson. This may take a little while…");
@@ -2917,6 +2969,97 @@ footer a:hover { color: #2563eb !important; }
                 setExplainStatus("Could not create the lesson. " + (error?.message || "Please try again in a moment."), true);
             } finally {
                 if (button) { button.disabled = false; button.textContent = "✨ Explain Materials"; }
+            }
+        }
+
+        function renderExplainFollowupMessage(role, text) {
+            const container = document.getElementById("explainFollowupMessages");
+            if (!container) return;
+            container.querySelector(".explain-followup-empty")?.remove();
+            const bubble = document.createElement("div");
+            bubble.className = "explain-followup-message " + (role === "user" ? "user" : "assistant");
+            const label = document.createElement("strong");
+            label.textContent = role === "user" ? "You" : "EduSow";
+            bubble.appendChild(label);
+            bubble.appendChild(document.createTextNode(String(text || "")));
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+            return bubble;
+        }
+
+        function useExplainFollowupSuggestion(question) {
+            const input = document.getElementById("explainFollowupInput");
+            if (!input) return;
+            input.value = question;
+            input.focus();
+            document.getElementById("explainFollowupForm")?.requestSubmit();
+        }
+
+        async function submitExplainFollowup(event) {
+            event?.preventDefault();
+            if (explainFollowupBusy) return;
+            const input = document.getElementById("explainFollowupInput");
+            const send = document.getElementById("explainFollowupSend");
+            const question = String(input?.value || "").trim();
+            if (!question) return;
+            if (!explainLesson || !explainSourceText) {
+                setExplainStatus("Create a lesson first, then ask a follow-up question.", true);
+                return;
+            }
+            if (question.length > 1500) {
+                setExplainStatus("Please keep your question under 1,500 characters.", true);
+                return;
+            }
+            const slide = explainLesson.slides?.[explainSlideIndex] || {};
+            const context = "Lesson: " + (explainLesson.title || "") +
+                "\nCurrent slide (" + (explainSlideIndex + 1) + "): " + (slide.title || "") +
+                "\nSlide explanation: " + (slide.explanation || "") +
+                "\nSlide key points: " + (Array.isArray(slide.keyPoints) ? slide.keyPoints.join("; ") : "") +
+                "\nSlide example: " + (slide.example || "");
+            const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || explainLesson.language || "Auto-detect";
+            explainFollowupBusy = true;
+            if (send) { send.disabled = true; send.textContent = "Thinking…"; }
+            if (input) input.disabled = true;
+            renderExplainFollowupMessage("user", question);
+            if (input) input.value = "";
+            const pending = renderExplainFollowupMessage("assistant", "Thinking through your question…");
+            try {
+                const { data, error } = await supabaseClient.functions.invoke("explain-materials", {
+                    body: {
+                        action: "followup",
+                        question,
+                        sourceText: explainSourceText.slice(0, 50000),
+                        lessonContext: context.slice(0, 9000),
+                        lessonTitle: explainLesson.title || "",
+                        language,
+                        detail: document.getElementById("explainDetail")?.value || "simple",
+                        history: explainFollowupHistory.slice(-8)
+                    }
+                });
+                if (error) throw error;
+                if (!data || typeof data.answer !== "string" || !data.answer.trim()) {
+                    throw new Error(data?.error || "EduSow could not create an answer.");
+                }
+                if (pending) {
+                    pending.replaceChildren();
+                    const label = document.createElement("strong");
+                    label.textContent = "EduSow";
+                    pending.appendChild(label);
+                    pending.appendChild(document.createTextNode(data.answer.trim()));
+                }
+                explainFollowupHistory.push({ role: "user", text: question }, { role: "assistant", text: data.answer.trim() });
+                explainFollowupHistory = explainFollowupHistory.slice(-8);
+                const container = document.getElementById("explainFollowupMessages");
+                if (container) container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                console.error("Explain Materials follow-up error:", error);
+                if (pending) pending.remove();
+                renderExplainFollowupMessage("assistant", "I couldn't answer that just now. Please try again. " + (error?.message || ""));
+                if (input) input.value = question;
+            } finally {
+                explainFollowupBusy = false;
+                if (send) { send.disabled = false; send.textContent = "Ask EduSow"; }
+                if (input) { input.disabled = false; input.focus(); }
             }
         }
 
