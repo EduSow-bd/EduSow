@@ -2327,7 +2327,7 @@ footer a:hover { color: #2563eb !important; }
                         <div class="button-row">
                             <button type="button" id="explainMaterialsButton" onclick="generateMaterialExplanation()" disabled>✨ Explain Materials</button>
                         </div>
-                        <p class="explain-hint">Create a lesson from extracted text. Check important facts against your textbook.</p>
+                        <p class="explain-hint">Explain study materials or upload a photo/PDF of a maths question—even a difficult one—for a step-by-step solution with formulas, working, and answer checks. Check important facts and final answers against your textbook.</p>
                         <div id="explainMaterialsStatus" class="status" hidden aria-live="polite"></div>
                     </div>
 
@@ -2887,8 +2887,8 @@ footer a:hover { color: #2563eb !important; }
 
         async function generateMaterialExplanation() {
             const text = (extractedPDFText || document.getElementById("pdfExtractedText")?.value || "").trim();
-            if (text.length < 100) {
-                setExplainStatus("Please extract at least 100 characters of readable material first.", true);
+            if (text.length < 10) {
+                setExplainStatus("Please extract readable study material or a maths question first.", true);
                 return;
             }
             const button = document.getElementById("explainMaterialsButton");
