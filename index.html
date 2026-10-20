@@ -2318,8 +2318,8 @@ footer a:hover { color: #2563eb !important; }
                             <label for="explainLanguage">Explanation language<select id="explainLanguage"><option value="Auto-detect">Auto-detect from material</option><option value="English">English</option><option value="Bengali">বাংলা (Bengali)</option><option value="Hindi">हिन्दी (Hindi)</option><option value="Arabic">العربية (Arabic)</option><option value="Spanish">Español (Spanish)</option><option value="French">Français (French)</option><option value="Chinese">中文 (Chinese)</option><option value="Portuguese">Português (Portuguese)</option><option value="Russian">Русский (Russian)</option><option value="Urdu">اردو (Urdu)</option><option value="Japanese">日本語 (Japanese)</option><option value="Korean">한국어 (Korean)</option><option value="German">Deutsch (German)</option><option value="Indonesian">Bahasa Indonesia</option><option value="Turkish">Türkçe (Turkish)</option><option value="Vietnamese">Tiếng Việt (Vietnamese)</option><option value="Nepali">नेपाली (Nepali)</option><option value="Thai">ไทย (Thai)</option><option value="Italian">Italiano (Italian)</option><option value="Persian">فارسی (Persian)</option><option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option><option value="Swahili">Kiswahili (Swahili)</option></select></label>
                             <label for="explainDetail">Lesson detail
                                 <select id="explainDetail">
+                                    <option value="simple" selected>Simple step-by-step explanation</option>
                                     <option value="balanced">Balanced lesson</option>
-                                    <option value="simple">Very simple explanation</option>
                                     <option value="detailed">Detailed explanation</option>
                                 </select>
                             </label>
@@ -2894,7 +2894,7 @@ footer a:hover { color: #2563eb !important; }
             const button = document.getElementById("explainMaterialsButton");
             const presentation = document.getElementById("explainPresentation");
             const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || "Auto-detect";
-            const detail = document.getElementById("explainDetail")?.value || "balanced";
+            const detail = document.getElementById("explainDetail")?.value || "simple";
             if (button) { button.disabled = true; button.textContent = "⏳ Building your lesson…"; }
             if (presentation) presentation.hidden = true;
             setExplainStatus("EduSow is organizing the material into a lesson. This may take a little while…");
@@ -3072,7 +3072,7 @@ function looksLikeMathPage(text) {
     const hasOperators = /[=×÷√∫∑≤≥≠≈±^]|\\frac|\\sqrt|\\times|\\div|\b\d+\s*[+\-*/]\s*\d+\b/.test(value);
     const digits = (value.match(/\d/g) || []).length;
     const letters = (value.match(/[A-Za-z\u0980-\u09FF]/g) || []).length;
-    return hasMathWords || (hasOperators && digits >= 2) || (digits >= 5 && letters >= 2);
+    return hasMathWords || (hasOperators && digits >= 1) || (digits >= 5 && letters >= 2);
 }
 
 async function extractSelectedImage() {
