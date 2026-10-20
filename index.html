@@ -3667,6 +3667,16 @@ async function generateQuizFromPDF() {
                 </div>
             `;
 
+            html += `
+                <div
+                    id="quizFinalResult"
+                    class="ai-info"
+                    style="margin-top:12px; display:none;"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+            `;
+
             html += '<div id="quizQuestionViewport" class="quiz-question-viewport" tabindex="0" aria-label="Quiz questions and answer review">';
 
             generatedQuiz.forEach(
@@ -3725,11 +3735,6 @@ async function generateQuizFromPDF() {
             );
 
             html += `
-                <div
-                    id="quizFinalResult"
-                    class="ai-info"
-                    style="margin-top:12px; display:none;"
-                ></div>
             </div>
 
             <div class="ai-info" style="text-align:center; margin-top:18px; padding:12px;">
@@ -3906,8 +3911,9 @@ async function generateQuizFromPDF() {
                 </p>
             `;
 
-            const reviewViewport = document.getElementById("quizQuestionViewport");
-            if (reviewViewport) reviewViewport.scrollTo({ top: 0, behavior: "smooth" });
+            // Put the score where students see it immediately, without scrolling
+            // through every question. Keep the answer review available below.
+            result.scrollIntoView({ behavior: "smooth", block: "start" });
         }
 
 
