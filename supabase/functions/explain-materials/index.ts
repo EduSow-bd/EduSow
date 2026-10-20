@@ -67,7 +67,7 @@ serve(async (req) => {
     const normalizedLanguage = language.toLowerCase();
     const detail = body?.detail === "simple" || body?.detail === "detailed" ? body.detail : "balanced";
 
-    if (text.length < MIN_TEXT_LENGTH) return jsonResponse({ error: "Please extract at least 100 characters of readable material." }, 400);
+    if (text.length < MIN_TEXT_LENGTH) return jsonResponse({ error: "Please provide a readable maths question or study material." }, 400);
     if (text.length > MAX_TEXT_LENGTH) return jsonResponse({ error: "This material is too long for one lesson. Extract fewer PDF pages and try again." }, 413);
 
     const languageInstruction = normalizedLanguage === "bangla" || normalizedLanguage === "bengali"
