@@ -2112,7 +2112,7 @@ footer a:hover { color: #2563eb !important; }
             </a>
             <a class="toolkit-card toolkit-cyan" href="#explainMaterialsLaunch">
                 <span class="toolkit-icon">🎓</span><span class="toolkit-card-arrow">↗</span>
-                <h3>Explain Materials</h3><p>Turn extracted study material into guided lessons with interactive slides or AI teacher mode.</p><span class="toolkit-link">Explore explanation <span>→</span></span>
+                <h3>Explain Materials</h3><p>Turn extracted study material into clear, guided interactive slide lessons.</p><span class="toolkit-link">Explore explanation <span>→</span></span>
             </a>
             <a class="toolkit-card toolkit-purple" href="#materials">
                 <span class="toolkit-icon">✦</span><span class="toolkit-card-arrow">↗</span>
@@ -2314,7 +2314,7 @@ footer a:hover { color: #2563eb !important; }
                     <!-- EXPLAIN MATERIALS -->
                     <div id="explainMaterialsLaunch" class="explain-materials-launch">
                         <h3>🎓 Explain Materials</h3>
-                        <p>Upload a PDF or image and extract its text first. Then turn your material into a guided AI lesson with interactive slides or teacher mode.</p>
+                        <p>Upload a PDF or image and extract its text first. Then turn your material into a guided interactive slide lesson.</p>
                         <div class="explain-materials-options">
                             <label for="explainLanguage">Explanation language<select id="explainLanguage"><option value="Auto-detect">Auto-detect from material</option><option value="English">English</option><option value="Bengali">বাংলা (Bengali)</option><option value="Hindi">हिन्दी (Hindi)</option><option value="Arabic">العربية (Arabic)</option><option value="Spanish">Español (Spanish)</option><option value="French">Français (French)</option><option value="Chinese">中文 (Chinese)</option><option value="Portuguese">Português (Portuguese)</option><option value="Russian">Русский (Russian)</option><option value="Urdu">اردو (Urdu)</option><option value="Japanese">日本語 (Japanese)</option><option value="Korean">한국어 (Korean)</option><option value="German">Deutsch (German)</option><option value="Indonesian">Bahasa Indonesia</option><option value="Turkish">Türkçe (Turkish)</option><option value="Vietnamese">Tiếng Việt (Vietnamese)</option><option value="Nepali">नेपाली (Nepali)</option><option value="Thai">ไทย (Thai)</option><option value="Italian">Italiano (Italian)</option><option value="Persian">فارسی (Persian)</option><option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option><option value="Swahili">Kiswahili (Swahili)</option></select></label>
                             <label for="explainDetail">Lesson detail
@@ -2336,10 +2336,6 @@ footer a:hover { color: #2563eb !important; }
                         <div class="explain-presentation-header">
                             <h3 id="explainPresentationTitle">Your AI lesson</h3>
                             <p id="explainPresentationSubtitle">Learn one concept at a time.</p>
-                        </div>
-                        <div class="explain-mode-tabs" role="group" aria-label="Presentation mode">
-                            <button type="button" id="explainSlidesMode" class="active" onclick="setExplainMode('slides')">▤ Interactive slides</button>
-                            <button type="button" id="explainTeacherMode" onclick="setExplainMode('teacher')">🧑‍🏫 AI teacher mode</button>
                         </div>
                         <div id="explainSlideContent" class="explain-slide-body"></div>
 
@@ -2856,10 +2852,9 @@ footer a:hover { color: #2563eb !important; }
 
 
 
-        // EXPLAIN MATERIALS: interactive slides and AI teacher mode.
+        // EXPLAIN MATERIALS: interactive slide lessons.
         let explainLesson = null;
         let explainSlideIndex = 0;
-        let explainMode = "slides";
 
         function setExplainMaterialsAvailable(available) {
             const launch = document.getElementById("explainMaterialsLaunch");
@@ -2915,7 +2910,7 @@ footer a:hover { color: #2563eb !important; }
                 explainMode = "slides";
                 renderExplainLesson();
                 if (presentation) presentation.hidden = false;
-                setExplainStatus("Your lesson is ready. Explore the slides or use AI teacher mode.");
+                setExplainStatus("Your interactive lesson is ready. Move through the slides one concept at a time.");
                 presentation?.scrollIntoView({ behavior: "smooth", block: "start" });
             } catch (error) {
                 console.error("Explain Materials error:", error);
@@ -2925,7 +2920,6 @@ footer a:hover { color: #2563eb !important; }
             }
         }
 
-        function setExplainMode(mode){explainMode=mode==="teacher"?"teacher":"slides";renderExplainLesson();}
         function moveExplainSlide(direction){if(!explainLesson?.slides)return;explainSlideIndex=Math.max(0,Math.min(explainLesson.slides.length-1,explainSlideIndex+direction));renderExplainLesson();}
         function addExplainText(parent, tag, value, className) {
             const node = document.createElement(tag);
@@ -2937,10 +2931,9 @@ footer a:hover { color: #2563eb !important; }
 
         function renderExplainLesson(){
             if(!explainLesson||!Array.isArray(explainLesson.slides))return;const slides=explainLesson.slides;explainSlideIndex=Math.max(0,Math.min(explainSlideIndex,slides.length-1));const slide=slides[explainSlideIndex]||{},content=document.getElementById("explainSlideContent");if(!content)return;content.replaceChildren();
-            const teacher=explainMode==="teacher";document.getElementById("explainSlidesMode")?.classList.toggle("active",!teacher);document.getElementById("explainTeacherMode")?.classList.toggle("active",teacher);
-            const nav=document.querySelector(".explain-presentation-controls");if(nav)nav.hidden=false;document.getElementById("explainPresentationTitle").textContent=explainLesson.title||"Your AI lesson";document.getElementById("explainPresentationSubtitle").textContent=teacher?"Your AI teacher explains each concept in sequence.":"Move through the lesson one concept at a time.";
-            document.getElementById("explainPrevious").textContent="← Previous";document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";addExplainText(content,"div",(teacher?"TEACHER MODE":"LESSON SLIDE")+" · "+(explainSlideIndex+1)+" OF "+slides.length,"explain-slide-count");addExplainText(content,"h4",slide.title||"Key concept");
-            if(teacher){const script=document.createElement("div");script.className="explain-teacher-script";addExplainText(script,"strong","🧑‍🏫 "+(explainLesson.teacherLabel||"Let's understand this together"));addExplainText(script,"p",slide.teacherScript||slide.explanation||"No teacher explanation was returned for this concept.");content.appendChild(script);}else{addExplainText(content,"p",slide.explanation||"");if(Array.isArray(slide.keyPoints)&&slide.keyPoints.length){const list=document.createElement("ul");list.className="explain-keypoints";slide.keyPoints.forEach(p=>addExplainText(list,"li",p));content.appendChild(list);}if(slide.example){const example=document.createElement("div");example.className="explain-example";addExplainText(example,"strong",explainLesson.exampleLabel||"Example");addExplainText(example,"p",slide.example);content.appendChild(example);}}
+            const nav=document.querySelector(".explain-presentation-controls");if(nav)nav.hidden=false;document.getElementById("explainPresentationTitle").textContent=explainLesson.title||"Your AI lesson";document.getElementById("explainPresentationSubtitle").textContent="Move through the lesson one concept at a time.";
+            document.getElementById("explainPrevious").textContent="← Previous";document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";addExplainText(content,"div","LESSON SLIDE · "+(explainSlideIndex+1)+" OF "+slides.length,"explain-slide-count");addExplainText(content,"h4",slide.title||"Key concept");
+            addExplainText(content,"p",slide.explanation||"");if(Array.isArray(slide.keyPoints)&&slide.keyPoints.length){const list=document.createElement("ul");list.className="explain-keypoints";slide.keyPoints.forEach(p=>addExplainText(list,"li",p));content.appendChild(list);}if(slide.example){const example=document.createElement("div");example.className="explain-example";addExplainText(example,"strong",explainLesson.exampleLabel||"Example");addExplainText(example,"p",slide.example);content.appendChild(example);}
             document.getElementById("explainSlideProgress").textContent="Concept "+(explainSlideIndex+1)+" of "+slides.length;document.getElementById("explainPrevious").disabled=explainSlideIndex===0;document.getElementById("explainNext").disabled=explainSlideIndex>=slides.length-1;document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";
         }
 
