@@ -1064,23 +1064,56 @@ textarea {
 .explain-teacher-script strong { color:#1d4ed8; display:block; margin-bottom:7px; }
 .explain-teacher-script p { color:#334155; }
 
-/* Contextual Explain Materials follow-up chat */
-.explain-followup { padding:22px; border-top:1px solid var(--border); background:#f8fbff; }
-.explain-followup-heading h4 { margin:0 0 6px; color:#1e3a8a; font-size:20px; }
-.explain-followup-heading p,.explain-followup-note { color:#64748b; font-size:13px; line-height:1.6; margin:0 0 14px; }
-.explain-followup-suggestions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-.explain-followup-suggestions button { font-size:13px; padding:8px 11px; border-radius:999px; }
-.explain-followup-messages { display:flex; flex-direction:column; gap:12px; max-height:390px; overflow-y:auto; margin:12px 0; }
-.explain-followup-empty { color:#64748b; font-size:13px; padding:12px 0; }
-.explain-followup-message { max-width:92%; padding:12px 14px; border-radius:14px; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.65; font-size:14px; }
-.explain-followup-message.user { align-self:flex-end; background:#dbeafe; color:#1e3a8a; border-bottom-right-radius:4px; }
-.explain-followup-message.assistant { align-self:flex-start; background:#fff; border:1px solid #dbeafe; color:#334155; border-bottom-left-radius:4px; }
-.explain-followup-message strong { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; color:#2563eb; }
-.explain-followup-form { display:flex; align-items:flex-end; gap:10px; }
-.explain-followup-form textarea { flex:1; min-width:0; resize:vertical; min-height:54px; border:1px solid #bfdbfe; border-radius:12px; padding:12px; background:#fff; color:#1e293b; font:inherit; }
-.explain-followup-form button { flex:0 0 auto; min-height:48px; }
-.explain-followup-note { margin:10px 0 0; font-size:12px; }
-@media(max-width:600px){.explain-followup{padding:16px}.explain-followup-form{flex-direction:column;align-items:stretch}.explain-followup-form button{width:100%}.explain-followup-message{max-width:100%}}
+/* Contextual Explain Materials follow-up chat — compact, natural composer */
+.explain-followup {
+    padding: clamp(16px, 3vw, 24px);
+    border-top: 1px solid #e5edf8;
+    background: linear-gradient(180deg, #fbfdff 0%, #f6f9fe 100%);
+}
+.explain-followup-heading h4 { margin:0 0 5px; color:#172554; font-size:clamp(18px,2vw,21px); letter-spacing:-.35px; }
+.explain-followup-heading p,.explain-followup-note { color:#64748b; font-size:13px; line-height:1.55; margin:0 0 15px; max-width:680px; }
+.explain-followup-suggestions { display:flex; gap:7px; flex-wrap:wrap; margin:0 0 14px; }
+.explain-followup-suggestions button { font-size:12px; font-weight:600; padding:7px 11px; border-radius:999px; min-height:34px; background:#fff; color:#31527d; border:1px solid #dce6f4; box-shadow:none; }
+.explain-followup-suggestions button:hover { background:#eff6ff; border-color:#b8d2f5; }
+.explain-followup-messages { display:flex; flex-direction:column; align-items:stretch; gap:10px; max-height:340px; overflow-y:auto; margin:0 0 13px; padding:0 3px 2px 0; }
+.explain-followup-empty { color:#7b879b; font-size:13px; margin:0 0 3px; padding:4px 0; }
+.explain-followup-message { max-width:min(88%, 650px); padding:11px 14px; border-radius:14px; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.65; font-size:14px; }
+.explain-followup-message.user { align-self:flex-end; background:#e8f1ff; color:#1e3a5f; border:1px solid #d6e5fc; border-bottom-right-radius:5px; }
+.explain-followup-message.assistant { align-self:flex-start; background:#fff; border:1px solid #e3eaf4; color:#334155; border-bottom-left-radius:5px; box-shadow:0 2px 7px rgba(30,64,175,.035); }
+.explain-followup-message strong { display:block; font-size:10px; text-transform:uppercase; letter-spacing:.65px; margin-bottom:4px; color:#4770ad; }
+.explain-followup-form {
+    display:flex; align-items:flex-end; gap:9px;
+    padding:7px; border:1px solid #d6e1f0; border-radius:17px;
+    background:#fff; box-shadow:0 3px 12px rgba(30,64,175,.055);
+    transition:border-color .15s ease, box-shadow .15s ease;
+}
+.explain-followup-form:focus-within { border-color:#8db5f0; box-shadow:0 0 0 3px rgba(59,130,246,.10); }
+.explain-followup-form textarea {
+    display:block; flex:1 1 auto; min-width:0; width:100%;
+    min-height:42px; max-height:140px; resize:vertical;
+    border:0 !important; outline:0; box-shadow:none !important;
+    border-radius:10px; padding:10px 11px; margin:0;
+    background:transparent; color:#172554; font:inherit; font-size:14px; line-height:1.5;
+}
+.explain-followup-form textarea::placeholder { color:#94a3b8; }
+.explain-followup-form button {
+    flex:0 0 auto; min-height:40px; height:40px;
+    padding:0 15px; border-radius:11px; white-space:nowrap;
+    background:#2563eb; color:#fff; border:1px solid #2563eb;
+    box-shadow:none; font-size:13px; font-weight:700;
+}
+.explain-followup-form button:hover { background:#1d4ed8; }
+.explain-followup-form button:disabled { opacity:.7; cursor:wait; }
+.explain-followup-note { margin:9px 2px 0; font-size:11px; color:#8490a3; }
+@media(max-width:600px) {
+    .explain-followup { padding:16px; }
+    .explain-followup-suggestions { gap:6px; }
+    .explain-followup-suggestions button { font-size:11px; padding:7px 9px; }
+    .explain-followup-message { max-width:94%; }
+    .explain-followup-form { gap:5px; padding:5px; border-radius:14px; }
+    .explain-followup-form textarea { min-height:40px; padding:9px; font-size:14px; }
+    .explain-followup-form button { min-height:39px; height:39px; padding:0 10px; font-size:12px; }
+}
 
 /* Silent lesson video generator */
 .explain-presentation-controls[hidden]{display:none}
