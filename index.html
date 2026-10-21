@@ -1081,24 +1081,33 @@ textarea {
 .explain-followup-message.user { align-self:flex-end; background:#e8f1ff; color:#1e3a5f; border:1px solid #d6e5fc; border-bottom-right-radius:5px; }
 .explain-followup-message.assistant { align-self:flex-start; background:#fff; border:1px solid #e3eaf4; color:#334155; border-bottom-left-radius:5px; box-shadow:0 2px 7px rgba(30,64,175,.035); }
 .explain-followup-message strong { display:block; font-size:10px; text-transform:uppercase; letter-spacing:.65px; margin-bottom:4px; color:#4770ad; }
+/* Accessible label stays available to screen readers without taking up layout space. */
+.explain-followup-form > label.sr-only {
+    position:absolute !important; width:1px !important; height:1px !important;
+    padding:0 !important; margin:-1px !important; overflow:hidden !important;
+    clip:rect(0,0,0,0) !important; white-space:nowrap !important;
+    border:0 !important;
+}
 .explain-followup-form {
-    display:flex; align-items:flex-end; gap:9px;
-    padding:7px; border:1px solid #d6e1f0; border-radius:17px;
+    display:flex; flex-flow:row nowrap; align-items:center; gap:10px;
+    width:100%; min-width:0; padding:7px 8px;
+    border:1px solid #d6e1f0; border-radius:16px;
     background:#fff; box-shadow:0 3px 12px rgba(30,64,175,.055);
     transition:border-color .15s ease, box-shadow .15s ease;
 }
 .explain-followup-form:focus-within { border-color:#8db5f0; box-shadow:0 0 0 3px rgba(59,130,246,.10); }
 .explain-followup-form textarea {
-    display:block; flex:1 1 auto; min-width:0; width:100%;
+    display:block; flex:1 1 0%; min-width:0; width:0; max-width:100%;
     min-height:42px; max-height:140px; resize:vertical;
     border:0 !important; outline:0; box-shadow:none !important;
-    border-radius:10px; padding:10px 11px; margin:0;
+    border-radius:9px; padding:9px 10px; margin:0;
     background:transparent; color:#172554; font:inherit; font-size:14px; line-height:1.5;
 }
-.explain-followup-form textarea::placeholder { color:#94a3b8; }
+.explain-followup-form textarea::placeholder { color:#94a3b8; opacity:1; }
 .explain-followup-form button {
-    flex:0 0 auto; min-height:40px; height:40px;
-    padding:0 15px; border-radius:11px; white-space:nowrap;
+    display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center;
+    min-height:40px; height:40px; padding:0 15px;
+    border-radius:11px; white-space:nowrap; line-height:1.2;
     background:#2563eb; color:#fff; border:1px solid #2563eb;
     box-shadow:none; font-size:13px; font-weight:700;
 }
@@ -1110,9 +1119,9 @@ textarea {
     .explain-followup-suggestions { gap:6px; }
     .explain-followup-suggestions button { font-size:11px; padding:7px 9px; }
     .explain-followup-message { max-width:94%; }
-    .explain-followup-form { gap:5px; padding:5px; border-radius:14px; }
-    .explain-followup-form textarea { min-height:40px; padding:9px; font-size:14px; }
-    .explain-followup-form button { min-height:39px; height:39px; padding:0 10px; font-size:12px; }
+    .explain-followup-form { gap:7px; padding:5px 6px; border-radius:14px; align-items:center; }
+    .explain-followup-form textarea { flex:1 1 0%; width:0; min-width:0; min-height:42px; padding:8px 7px; font-size:14px; }
+    .explain-followup-form button { flex:0 0 auto; min-height:40px; height:40px; padding:0 10px; font-size:12px; }
 }
 
 /* Silent lesson video generator */
