@@ -1033,31 +1033,6 @@ textarea {
 @media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box, .study-graph-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } .study-graph-controls { align-items:stretch; } .study-graph-controls label { justify-content:space-between; } }
 
 
-/* ACCOUNT & CROSS-DEVICE SYNC */
-.account-nav-button { background:var(--primary); color:#fff; border-radius:10px; padding:9px 14px; font-weight:750; white-space:nowrap; }
-.account-modal-backdrop { position:fixed; inset:0; z-index:3000; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(15,23,42,.56); }
-.account-modal-backdrop.open { display:flex; }
-.account-modal { width:min(100%,460px); max-height:90vh; overflow:auto; background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:26px; box-shadow:var(--shadow-lg); }
-.account-modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
-.account-modal-head h2 { font-size:24px; }
-.account-close { background:var(--surface-soft); color:var(--text); padding:8px 12px; }
-.account-modal p { color:var(--text-soft); font-size:14px; margin:8px 0 14px; }
-.account-modal .account-benefit { padding:13px 14px; border:1px solid #bfdbfe; border-radius:12px; background:#eff6ff; color:#334155; line-height:1.65; }
-.account-modal .account-benefit strong { color:#1d4ed8; }
-.account-modal label { display:block; font-size:13px; font-weight:700; color:var(--text-soft); margin-top:12px; }
-.account-modal input { margin:5px 0 0; }
-.account-modal #accountAuthForm { display:flex; flex-direction:column; gap:10px; margin:0; }
-.account-modal #accountAuthForm label { margin-top:8px; }
-.account-modal #accountAuthForm input { display:block; width:100%; margin:5px 0 0; }
-.account-modal .account-submit { display:block; width:100%; min-height:46px; margin:14px 0 0; padding:12px 18px; border-radius:12px; line-height:1.35; text-align:center; }
-.account-modal .account-switch { display:block; width:100%; min-height:42px; margin:10px 0 0; padding:10px 14px; border:1px solid #bfdbfe; border-radius:12px; background:#eff6ff !important; color:#2563eb !important; box-shadow:none; font-size:14px; font-weight:750; line-height:1.4; text-align:center; white-space:normal; overflow-wrap:anywhere; }
-.account-modal .account-switch:hover { background:#dbeafe !important; box-shadow:none; transform:translateY(-1px); }
-.account-modal .account-switch:focus-visible, .account-modal .account-submit:focus-visible { outline:3px solid #93c5fd; outline-offset:3px; }
-.account-modal-status { margin-top:14px; }
-.account-modal-status { display:block; min-height:20px; margin-top:12px; padding:10px 12px; border-radius:10px; background:#eff6ff; color:#1d4ed8; font-size:14px; line-height:1.5; overflow-wrap:anywhere; white-space:normal; }
-.account-modal-status:empty { display:none; } .account-modal-status.error { background:#fef2f2; color:#b91c1c; }
-.account-profile-email { font-weight:750; color:var(--text); overflow-wrap:anywhere; }
-@media (max-width:850px) { .account-nav-button { padding:8px 10px; } }
 
 /* Feature-specific upload controls */
 .feature-upload-panel {
@@ -2194,64 +2169,8 @@ footer nav.footer-links a:focus-visible {
             <li><a href="#timer">Pomodoro</a></li>
             <li><a href="learn.html">Learn</a></li>
             <li><a href="support.html">Support</a></li>
-            <li><button type="button" class="account-nav-button" id="accountOpenBtn">Sign in</button></li>
-            <li><button type="button" class="account-nav-button" id="accountLogoutBtn" hidden onclick="signOutAccount()">Log out</button></li>
         </ul>
     </nav>
-
-
-    <div class="account-modal-backdrop" id="accountModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle" onclick="if(event.target===this)closeAccountModal()">
-        <div class="account-modal">
-            <div class="account-modal-head"><h2 id="accountModalTitle">Your EduSow account</h2><button type="button" class="account-close" id="accountCloseBtn" aria-label="Close account dialog" title="Close" onclick="document.getElementById('accountModalBackdrop').classList.remove('open')">✕</button></div>
-            <div id="accountAuthPanel">
-                <p class="account-benefit"><strong>Why sign in?</strong> Create an account to back up your saved flashcards and Pomodoro study history, then access them on another device. EduSow’s study tools still work without an account.</p>
-                <form id="accountAuthForm">
-                    <label for="accountEmail">Email address</label>
-                    <input id="accountEmail" type="email" autocomplete="email" required placeholder="you@example.com">
-                    <label for="accountPassword">Password</label>
-                    <input id="accountPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
-                    <button type="submit" class="account-submit" id="accountSubmitBtn">Sign in</button>
-                </form>
-                <button type="button" class="account-switch" id="accountSwitchBtn">Create account</button>
-            </div>
-            <div id="accountSignedInPanel" hidden>
-                <p>Signed in as</p><div class="account-profile-email" id="accountSignedInEmail"></div>
-                <p>Your saved flashcards and Pomodoro session history sync to this account. Your local copy is also kept on this device.</p>
-                <button type="button" class="account-submit" onclick="syncAccountData(true)">Sync now</button>
-                <button type="button" class="account-submit secondary" onclick="signOutAccount()" style="margin-top:8px">Sign out</button>
-            </div>
-            <div class="account-modal-status" id="accountModalStatus" role="status" aria-live="polite"></div>
-        </div>
-    </div>
-
-    <!-- Independent account-modal controls: these work even if a later study-tool script fails. -->
-    <script>
-      (function () {
-        const backdrop = document.getElementById("accountModalBackdrop");
-        const openButton = document.getElementById("accountOpenBtn");
-        const closeButton = document.getElementById("accountCloseBtn");
-        if (openButton && backdrop) {
-          openButton.addEventListener("click", function () {
-            backdrop.classList.add("open");
-            const email = document.getElementById("accountEmail");
-            if (email) email.focus();
-          });
-        }
-        if (closeButton && backdrop) {
-          closeButton.addEventListener("click", function () {
-            backdrop.classList.remove("open");
-          });
-        }
-        if (backdrop) {
-          backdrop.addEventListener("click", function (event) {
-            if (event.target === backdrop) backdrop.classList.remove("open");
-          });
-        }
-        document.addEventListener("keydown", function (event) {
-          if (event.key === "Escape" && backdrop) backdrop.classList.remove("open");
-        });
-      })();
-    </script>
 
     <!-- ========================= HOME ========================= -->
 
@@ -2860,193 +2779,6 @@ footer nav.footer-links a:focus-visible {
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
-
-    
-
-
-        // =========================================================
-        // OPTIONAL ACCOUNT SYNC (local-only mode remains fully supported)
-        // =========================================================
-        let accountAuthMode = "signin";
-        let accountSyncBusy = false;
-        let accountSyncQueued = false;
-        let currentAccountUser = null;
-
-        function openAccountModal() {
-            const backdrop = document.getElementById("accountModalBackdrop");
-            backdrop.classList.add("open");
-            backdrop.querySelector("input")?.focus();
-            updateAccountModal();
-        }
-        function closeAccountModal() {
-            const backdrop = document.getElementById("accountModalBackdrop");
-            if (backdrop) backdrop.classList.remove("open");
-        }
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") closeAccountModal();
-        });
-        function setAccountStatus(message, isError = false) {
-            const el = document.getElementById("accountModalStatus");
-            if (!el) return;
-            el.textContent = message || "";
-            el.classList.toggle("error", !!isError);
-            el.style.display = message ? "block" : "none";
-        }
-        function toggleAccountAuthMode() {
-            accountAuthMode = accountAuthMode === "signin" ? "signup" : "signin";
-            document.getElementById("accountModalTitle").textContent = accountAuthMode === "signup" ? "Create your EduSow account" : "Sign in to EduSow";
-            document.getElementById("accountSubmitBtn").textContent = accountAuthMode === "signup" ? "Create account" : "Sign in";
-            document.getElementById("accountSwitchBtn").textContent = accountAuthMode === "signup" ? "Already have an account? Sign in" : "Create account";
-            document.getElementById("accountPassword").setAttribute("autocomplete", accountAuthMode === "signup" ? "new-password" : "current-password");
-            setAccountStatus("");
-        }
-        function updateAccountModal() {
-            const signedIn = !!currentAccountUser;
-            document.getElementById("accountAuthPanel").hidden = signedIn;
-            document.getElementById("accountSignedInPanel").hidden = !signedIn;
-            document.getElementById("accountSignedInEmail").textContent = currentAccountUser?.email || "";
-            const button = document.getElementById("accountOpenBtn");
-            const logoutButton = document.getElementById("accountLogoutBtn");
-            if (button) button.textContent = signedIn ? "My account" : "Sign in";
-            if (logoutButton) logoutButton.hidden = !signedIn;
-        }
-        async function submitAccountAuth(event) {
-            event.preventDefault();
-            const email = document.getElementById("accountEmail").value.trim();
-            const password = document.getElementById("accountPassword").value;
-            const submit = document.getElementById("accountSubmitBtn");
-            submit.disabled = true;
-            setAccountStatus(accountAuthMode === "signup" ? "Creating your account…" : "Signing in…");
-            try {
-                if (accountAuthMode === "signup") {
-                    const { data, error } = await supabaseClient.auth.signUp({
-                        email, password,
-                        options: { emailRedirectTo: window.location.origin + window.location.pathname }
-                    });
-                    if (error) throw error;
-                    if (data.session && data.user) {
-                        currentAccountUser = data.user;
-                        updateAccountModal();
-                        await syncAccountData(false);
-                        setAccountStatus("Account created successfully! You are signed in and your study data is being saved.");
-                    } else if (data.user && !data.session) {
-                        setAccountStatus("Almost done! Check your email and tap the confirmation link. Then return here and sign in.");
-                    } else {
-                        setAccountStatus("If this email is new, check your inbox for a confirmation link. If you already have an account, choose Sign in.", true);
-                    }
-                } else {
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
-                    currentAccountUser = data.user;
-                    updateAccountModal();
-                    setAccountStatus("Successfully signed in! Loading your saved study data…");
-                    await syncAccountData(true);
-                    if (currentAccountUser) setAccountStatus("Successfully signed in as " + (currentAccountUser.email || email) + ". Your saved flashcards and Pomodoro history are synced.");
-                }
-            } catch (error) {
-                setAccountStatus(error.message || "Could not complete account action. Please try again.", true);
-            } finally {
-                submit.disabled = false;
-            }
-        }
-        async function syncAccountData(showStatus = false) {
-            if (!currentAccountUser) return;
-            if (accountSyncBusy) { accountSyncQueued = true; return; }
-            accountSyncBusy = true;
-            try {
-                const { data: remote, error: readError } = await supabaseClient
-                    .from("user_study_data")
-                    .select("saved_flashcards, study_tracker")
-                    .eq("user_id", currentAccountUser.id)
-                    .maybeSingle();
-                if (readError) throw readError;
-
-                if (showStatus && remote) {
-                    const remoteCards = Array.isArray(remote.saved_flashcards) ? remote.saved_flashcards : [];
-                    const localCards = loadSavedFlashcards();
-                    const cardMap = new Map();
-                    [...remoteCards, ...localCards].forEach(card => {
-                        if (card && typeof card.front === "string" && typeof card.back === "string") {
-                            cardMap.set(card.front.trim() + "\u0000" + card.back.trim(), card);
-                        }
-                    });
-                    savedFlashcards = Array.from(cardMap.values());
-                    localStorage.setItem(SAVED_FLASHCARDS_KEY, JSON.stringify(savedFlashcards));
-
-                    const remoteTracker = remote.study_tracker && Array.isArray(remote.study_tracker.sessions) ? remote.study_tracker : null;
-                    const localTracker = loadStudyState();
-                    if (remoteTracker) {
-                        const sessions = new Map();
-                        [...remoteTracker.sessions, ...localTracker.sessions].forEach(session => {
-                            if (session && Number.isFinite(Number(session.durationMs)) && Number(session.durationMs) > 0) {
-                                const key = [session.endedAt, session.durationMs, session.label || ""].join("|");
-                                sessions.set(key, session);
-                            }
-                        });
-                        studyState.sessions = Array.from(sessions.values()).sort((a,b) => Number(a.endedAt)-Number(b.endedAt)).slice(-2000);
-                        if (!studyState.active) studyState.active = localTracker.active || remoteTracker.active || null;
-                        studyState.mode = localTracker.mode || remoteTracker.mode || "stopwatch";
-                    }
-                    renderSavedFlashcards();
-                    renderStudyTimer();
-                }
-
-                const payload = {
-                    user_id: currentAccountUser.id,
-                    saved_flashcards: savedFlashcards,
-                    study_tracker: studyState,
-                    updated_at: new Date().toISOString()
-                };
-                const { error: writeError } = await supabaseClient.from("user_study_data").upsert(payload, { onConflict: "user_id" });
-                if (writeError) throw writeError;
-                if (showStatus) setAccountStatus("Synced successfully. Your saved flashcards and study history are available on this device.");
-            } catch (error) {
-                console.error("Account sync failed:", error);
-                if (showStatus) setAccountStatus("Sync failed: " + (error.message || "Please try again."), true);
-            } finally {
-                accountSyncBusy = false;
-                if (accountSyncQueued) {
-                    accountSyncQueued = false;
-                    syncAccountData(false);
-                }
-            }
-        }
-        async function signOutAccount() {
-            const logoutButton = document.getElementById("accountLogoutBtn");
-            if (logoutButton) logoutButton.disabled = true;
-            setAccountStatus("Signing out…");
-            try {
-                const { error } = await supabaseClient.auth.signOut({ scope: "local" });
-                if (error) throw error;
-                currentAccountUser = null;
-                updateAccountModal();
-                const backdrop = document.getElementById("accountModalBackdrop");
-                if (backdrop) backdrop.classList.add("open");
-                setAccountStatus("You have successfully signed out. Your study data remains saved on this device.");
-            } catch (error) {
-                setAccountStatus("Could not sign out: " + (error.message || "Please try again."), true);
-            } finally {
-                if (logoutButton) logoutButton.disabled = false;
-            }
-        }
-        // Bind account controls explicitly so navigation works consistently on desktop and mobile.
-        document.getElementById("accountOpenBtn")?.addEventListener("click", openAccountModal);
-        document.getElementById("accountLogoutBtn")?.addEventListener("click", signOutAccount);
-        document.getElementById("accountAuthForm")?.addEventListener("submit", submitAccountAuth);
-        document.getElementById("accountSwitchBtn")?.addEventListener("click", toggleAccountAuthMode);
-        // Keep inline-compatible global entry points for any existing account controls.
-        window.openAccountModal = openAccountModal;
-        window.closeAccountModal = closeAccountModal;
-        window.signOutAccount = signOutAccount;
-
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            currentAccountUser = session?.user || null;
-            updateAccountModal();
-            // Keep auth refreshes silent so they don't overwrite the form's status message.
-            if (currentAccountUser && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
-                setTimeout(() => syncAccountData(false), 0);
-            }
-        });
 
         // =========================================================
         // PDF.JS
@@ -4469,7 +4201,6 @@ async function generateQuizFromPDF() {
         function persistSavedFlashcards() {
             try {
                 localStorage.setItem(SAVED_FLASHCARDS_KEY, JSON.stringify(savedFlashcards));
-                syncAccountData(false);
                 return true;
             } catch (error) {
                 console.error("Could not save flashcards:", error);
@@ -4782,7 +4513,6 @@ async function generateFlashcardsFromPDF() {
             try {
                 studyState.mode = studyMode;
                 localStorage.setItem(STUDY_STORAGE_KEY, JSON.stringify(studyState));
-                syncAccountData(false);
             } catch (error) {
                 console.warn("Could not save study tracker data:", error);
                 const status = document.getElementById("studyStatus");
@@ -5231,12 +4961,7 @@ async function generateFlashcardsFromPDF() {
 
 
         // =========================================================
-        // SUPABASE AUTH LISTENER
-        // =========================================================
 
-       
-
-        // =========================================================
         // INITIALIZE
         // =========================================================
 
