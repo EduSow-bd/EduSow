@@ -2194,7 +2194,7 @@ footer nav.footer-links a:focus-visible {
             <li><a href="#timer">Pomodoro</a></li>
             <li><a href="learn.html">Learn</a></li>
             <li><a href="support.html">Support</a></li>
-            <li><button type="button" class="account-nav-button" id="accountOpenBtn" onclick="openAccountModal()">Sign in</button></li>
+            <li><button type="button" class="account-nav-button" id="accountOpenBtn">Sign in</button></li>
             <li><button type="button" class="account-nav-button" id="accountLogoutBtn" hidden onclick="signOutAccount()">Log out</button></li>
         </ul>
     </nav>
@@ -3000,9 +3000,15 @@ footer nav.footer-links a:focus-visible {
                 if (logoutButton) logoutButton.disabled = false;
             }
         }
-        // Bind controls explicitly rather than relying on inline event handlers.
+        // Bind account controls explicitly so navigation works consistently on desktop and mobile.
+        document.getElementById("accountOpenBtn")?.addEventListener("click", openAccountModal);
+        document.getElementById("accountLogoutBtn")?.addEventListener("click", signOutAccount);
         document.getElementById("accountAuthForm")?.addEventListener("submit", submitAccountAuth);
         document.getElementById("accountSwitchBtn")?.addEventListener("click", toggleAccountAuthMode);
+        // Keep inline-compatible global entry points for any existing account controls.
+        window.openAccountModal = openAccountModal;
+        window.closeAccountModal = closeAccountModal;
+        window.signOutAccount = signOutAccount;
 
         supabaseClient.auth.onAuthStateChange((event, session) => {
             currentAccountUser = session?.user || null;
