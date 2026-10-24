@@ -1054,8 +1054,8 @@ textarea {
 .account-modal .account-switch:hover { background:#dbeafe !important; box-shadow:none; transform:translateY(-1px); }
 .account-modal .account-switch:focus-visible, .account-modal .account-submit:focus-visible { outline:3px solid #93c5fd; outline-offset:3px; }
 .account-modal-status { margin-top:14px; }
-.account-modal-status { margin-top:12px; font-size:13px; color:var(--text-soft); overflow-wrap:anywhere; }
-.account-modal-status.error { color:var(--danger); }
+.account-modal-status { display:block; min-height:20px; margin-top:12px; padding:10px 12px; border-radius:10px; background:#eff6ff; color:#1d4ed8; font-size:14px; line-height:1.5; overflow-wrap:anywhere; white-space:normal; }
+.account-modal-status:empty { display:none; } .account-modal-status.error { background:#fef2f2; color:#b91c1c; }
 .account-profile-email { font-weight:750; color:var(--text); overflow-wrap:anywhere; }
 @media (max-width:850px) { .account-nav-button { padding:8px 10px; } }
 
@@ -2204,14 +2204,14 @@ footer nav.footer-links a:focus-visible {
             <div class="account-modal-head"><h2 id="accountModalTitle">Your EduSow account</h2><button type="button" class="account-close" id="accountCloseBtn" aria-label="Close account dialog" title="Close" onclick="document.getElementById('accountModalBackdrop').classList.remove('open')">✕</button></div>
             <div id="accountAuthPanel">
                 <p class="account-benefit"><strong>Why sign in?</strong> Create an account to back up your saved flashcards and Pomodoro study history, then access them on another device. EduSow’s study tools still work without an account.</p>
-                <form id="accountAuthForm" onsubmit="submitAccountAuth(event)">
+                <form id="accountAuthForm">
                     <label for="accountEmail">Email address</label>
                     <input id="accountEmail" type="email" autocomplete="email" required placeholder="you@example.com">
                     <label for="accountPassword">Password</label>
                     <input id="accountPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
                     <button type="submit" class="account-submit" id="accountSubmitBtn">Sign in</button>
                 </form>
-                <button type="button" class="account-switch" id="accountSwitchBtn" onclick="toggleAccountAuthMode()">Create account</button>
+                <button type="button" class="account-switch" id="accountSwitchBtn">Create account</button>
             </div>
             <div id="accountSignedInPanel" hidden>
                 <p>Signed in as</p><div class="account-profile-email" id="accountSignedInEmail"></div>
@@ -2860,6 +2860,7 @@ footer nav.footer-links a:focus-visible {
             if (!el) return;
             el.textContent = message || "";
             el.classList.toggle("error", !!isError);
+            el.style.display = message ? "block" : "none";
         }
         function toggleAccountAuthMode() {
             accountAuthMode = accountAuthMode === "signin" ? "signup" : "signin";
@@ -2989,11 +2990,16 @@ footer nav.footer-links a:focus-visible {
                 setAccountStatus(error.message || "Could not sign out.", true);
             }
         }
+        // Bind controls explicitly rather than relying on inline event handlers.
+        document.getElementById("accountAuthForm")?.addEventListener("submit", submitAccountAuth);
+        document.getElementById("accountSwitchBtn")?.addEventListener("click", toggleAccountAuthMode);
+
         supabaseClient.auth.onAuthStateChange((event, session) => {
             currentAccountUser = session?.user || null;
             updateAccountModal();
+            // Keep auth refreshes silent so they don't overwrite the form's status message.
             if (currentAccountUser && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
-                setTimeout(() => syncAccountData(true), 0);
+                setTimeout(() => syncAccountData(false), 0);
             }
         });
 
