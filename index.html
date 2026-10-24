@@ -1042,6 +1042,8 @@ textarea {
 .account-modal-head h2 { font-size:24px; }
 .account-close { background:var(--surface-soft); color:var(--text); padding:8px 12px; }
 .account-modal p { color:var(--text-soft); font-size:14px; margin:8px 0 14px; }
+.account-modal .account-benefit { padding:13px 14px; border:1px solid #bfdbfe; border-radius:12px; background:#eff6ff; color:#334155; line-height:1.65; }
+.account-modal .account-benefit strong { color:#1d4ed8; }
 .account-modal label { display:block; font-size:13px; font-weight:700; color:var(--text-soft); margin-top:12px; }
 .account-modal input { margin:5px 0 0; }
 .account-modal #accountAuthForm { display:flex; flex-direction:column; gap:10px; margin:0; }
@@ -2201,7 +2203,7 @@ footer nav.footer-links a:focus-visible {
         <div class="account-modal">
             <div class="account-modal-head"><h2 id="accountModalTitle">Your EduSow account</h2><button type="button" class="account-close" id="accountCloseBtn" aria-label="Close account dialog" title="Close" onclick="document.getElementById('accountModalBackdrop').classList.remove('open')">✕</button></div>
             <div id="accountAuthPanel">
-                <p>Create an account to securely sync your saved flashcards and Pomodoro study history across devices. You can keep using EduSow without signing in.</p>
+                <p class="account-benefit"><strong>Why sign in?</strong> Create an account to back up your saved flashcards and Pomodoro study history, then access them on another device. EduSow’s study tools still work without an account.</p>
                 <form id="accountAuthForm" onsubmit="submitAccountAuth(event)">
                     <label for="accountEmail">Email address</label>
                     <input id="accountEmail" type="email" autocomplete="email" required placeholder="you@example.com">
@@ -2209,7 +2211,7 @@ footer nav.footer-links a:focus-visible {
                     <input id="accountPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
                     <button type="submit" class="account-submit" id="accountSubmitBtn">Sign in</button>
                 </form>
-                <button type="button" class="account-switch" id="accountSwitchBtn" onclick="toggleAccountAuthMode()">Create account at EduSow</button>
+                <button type="button" class="account-switch" id="accountSwitchBtn" onclick="toggleAccountAuthMode()">Create account</button>
             </div>
             <div id="accountSignedInPanel" hidden>
                 <p>Signed in as</p><div class="account-profile-email" id="accountSignedInEmail"></div>
@@ -2863,7 +2865,7 @@ footer nav.footer-links a:focus-visible {
             accountAuthMode = accountAuthMode === "signin" ? "signup" : "signin";
             document.getElementById("accountModalTitle").textContent = accountAuthMode === "signup" ? "Create your EduSow account" : "Sign in to EduSow";
             document.getElementById("accountSubmitBtn").textContent = accountAuthMode === "signup" ? "Create account" : "Sign in";
-            document.getElementById("accountSwitchBtn").textContent = accountAuthMode === "signup" ? "Sign in" : "Create account at EduSow";
+            document.getElementById("accountSwitchBtn").textContent = accountAuthMode === "signup" ? "Already have an account? Sign in" : "Create account";
             document.getElementById("accountPassword").setAttribute("autocomplete", accountAuthMode === "signup" ? "new-password" : "current-password");
             setAccountStatus("");
         }
@@ -2889,21 +2891,24 @@ footer nav.footer-links a:focus-visible {
                         options: { emailRedirectTo: window.location.origin + window.location.pathname }
                     });
                     if (error) throw error;
-                    if (data.session) {
+                    if (data.session && data.user) {
                         currentAccountUser = data.user;
                         updateAccountModal();
-                        await syncAccountData(true);
-                        setAccountStatus("Account created. Your study data is syncing.");
+                        await syncAccountData(false);
+                        setAccountStatus("Account created successfully! You are signed in and your study data is being saved.");
+                    } else if (data.user && !data.session) {
+                        setAccountStatus("Almost done! Check your email and tap the confirmation link. Then return here and sign in.");
                     } else {
-                        setAccountStatus("Check your email for a confirmation link. After confirming, sign in to sync your data.");
+                        setAccountStatus("If this email is new, check your inbox for a confirmation link. If you already have an account, choose Sign in.", true);
                     }
                 } else {
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     currentAccountUser = data.user;
                     updateAccountModal();
+                    setAccountStatus("Successfully signed in! Loading your saved study data…");
                     await syncAccountData(true);
-                    setAccountStatus("Signed in. Your study data is synced.");
+                    if (currentAccountUser) setAccountStatus("Successfully signed in as " + (currentAccountUser.email || email) + ". Your saved flashcards and Pomodoro history are synced.");
                 }
             } catch (error) {
                 setAccountStatus(error.message || "Could not complete account action. Please try again.", true);
