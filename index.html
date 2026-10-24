@@ -4597,8 +4597,15 @@ async function generateFlashcardsFromPDF() {
             const allSessions = studyState.sessions.filter(session =>
                 Number.isFinite(session.endedAt) && Number.isFinite(session.durationMs) && session.durationMs > 0
             );
+            const oldestSessionDay = allSessions.length
+                ? Math.min(...allSessions.map(session => {
+                    const sessionDate = new Date(Number(session.endedAt));
+                    sessionDate.setHours(0, 0, 0, 0);
+                    return sessionDate.getTime();
+                }))
+                : today.getTime();
             const days = rangeValue === "all"
-                ? Math.max(7, Math.ceil((today.getTime() - Math.min(today.getTime(), ...allSessions.map(session => new Date(session.endedAt.getFullYear ? session.endedAt : Number(session.endedAt)).setHours(0,0,0,0))) / 86400000) + 1)
+                ? Math.max(7, Math.ceil((today.getTime() - oldestSessionDay) / 86400000) + 1)
                 : Number(rangeValue);
             const safeDays = Math.min(3650, Math.max(7, days));
             const start = new Date(today);
