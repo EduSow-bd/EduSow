@@ -2224,6 +2224,35 @@ footer nav.footer-links a:focus-visible {
         </div>
     </div>
 
+    <!-- Independent account-modal controls: these work even if a later study-tool script fails. -->
+    <script>
+      (function () {
+        const backdrop = document.getElementById("accountModalBackdrop");
+        const openButton = document.getElementById("accountOpenBtn");
+        const closeButton = document.getElementById("accountCloseBtn");
+        if (openButton && backdrop) {
+          openButton.addEventListener("click", function () {
+            backdrop.classList.add("open");
+            const email = document.getElementById("accountEmail");
+            if (email) email.focus();
+          });
+        }
+        if (closeButton && backdrop) {
+          closeButton.addEventListener("click", function () {
+            backdrop.classList.remove("open");
+          });
+        }
+        if (backdrop) {
+          backdrop.addEventListener("click", function (event) {
+            if (event.target === backdrop) backdrop.classList.remove("open");
+          });
+        }
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape" && backdrop) backdrop.classList.remove("open");
+        });
+      })();
+    </script>
+
     <!-- ========================= HOME ========================= -->
 
     <section id="home" class="hero">
