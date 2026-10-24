@@ -2199,7 +2199,7 @@ footer nav.footer-links a:focus-visible {
 
     <div class="account-modal-backdrop" id="accountModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle" onclick="if(event.target===this)closeAccountModal()">
         <div class="account-modal">
-            <div class="account-modal-head"><h2 id="accountModalTitle">Your EduSow account</h2><button type="button" class="account-close" onclick="closeAccountModal()" aria-label="Close account dialog">✕</button></div>
+            <div class="account-modal-head"><h2 id="accountModalTitle">Your EduSow account</h2><button type="button" class="account-close" id="accountCloseBtn" aria-label="Close account dialog" title="Close" onclick="document.getElementById('accountModalBackdrop').classList.remove('open')">✕</button></div>
             <div id="accountAuthPanel">
                 <p>Create an account to securely sync your saved flashcards and Pomodoro study history across devices. You can keep using EduSow without signing in.</p>
                 <form id="accountAuthForm" onsubmit="submitAccountAuth(event)">
@@ -2847,8 +2847,12 @@ footer nav.footer-links a:focus-visible {
             updateAccountModal();
         }
         function closeAccountModal() {
-            document.getElementById("accountModalBackdrop").classList.remove("open");
+            const backdrop = document.getElementById("accountModalBackdrop");
+            if (backdrop) backdrop.classList.remove("open");
         }
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeAccountModal();
+        });
         function setAccountStatus(message, isError = false) {
             const el = document.getElementById("accountModalStatus");
             if (!el) return;
