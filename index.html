@@ -1021,8 +1021,16 @@ textarea {
 .study-history-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--border); padding: 12px 0; font-size: 13px; }
 .study-history-list li span:last-child { color: var(--text-soft); white-space: nowrap; }
 .study-history-empty { color: var(--text-light); }
+.study-graph-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-top: 18px; box-shadow: var(--shadow-sm); }
+.study-graph-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:14px 0; }
+.study-graph-controls label { display:flex; align-items:center; gap:8px; color:var(--text-soft); font-size:13px; font-weight:650; }
+.study-graph-controls select { width:auto; min-width:110px; margin:0; padding:8px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; color:var(--text); }
+.study-graph-summary { color:var(--text-soft); font-size:13px; margin-top:8px; }
+.study-graph { width:100%; overflow-x:auto; }
+.study-graph svg { display:block; width:100%; min-width:320px; height:auto; }
+.study-graph-empty { padding:35px 12px; text-align:center; color:var(--text-soft); background:var(--surface-soft); border-radius:12px; }
 @media (max-width: 850px) { .study-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } }
+@media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box, .study-graph-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } .study-graph-controls { align-items:stretch; } .study-graph-controls label { justify-content:space-between; } }
 
 /* Feature-specific upload controls */
 .feature-upload-panel {
@@ -2685,6 +2693,25 @@ footer nav.footer-links a:focus-visible {
             <div class="study-stat-card"><span class="study-stat-icon">📅</span><p>Today</p><strong id="todayStudyTime">0 min</strong><small>Study time today</small></div>
             <div class="study-stat-card"><span class="study-stat-icon">📈</span><p>Average session</p><strong id="averageStudyTime">0 min</strong><small>Per recorded session</small></div>
             <div class="study-stat-card"><span class="study-stat-icon">✅</span><p>Sessions</p><strong id="completedStudySessions">0</strong><small>Recorded study blocks</small></div>
+        </div>
+        <div class="study-graph-box">
+            <div class="study-history-heading"><div><h3>Study progress graph</h3><p class="study-graph-summary" id="studyGraphSummary">Your recorded study time will appear here.</p></div></div>
+            <div class="study-graph-controls">
+                <label for="studyGraphRange">Time range
+                    <select id="studyGraphRange" onchange="renderStudyGraph()">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="all">All history</option>
+                    </select>
+                </label>
+                <label for="studyGraphType">Graph style
+                    <select id="studyGraphType" onchange="renderStudyGraph()">
+                        <option value="bar">Bar graph</option>
+                        <option value="line">Line graph</option>
+                    </select>
+                </label>
+            </div>
+            <div id="studyGraph" class="study-graph" role="img" aria-label="Graph of daily study time"><div class="study-graph-empty">Complete a study session to start building your graph.</div></div>
         </div>
         <div class="study-history-box">
             <div class="study-history-heading"><h3>Recent study sessions</h3><button type="button" class="secondary study-clear-btn" onclick="clearStudyHistory()">Clear history</button></div>
@@ -4540,6 +4567,7 @@ async function generateFlashcardsFromPDF() {
             document.getElementById("averageStudyTime").textContent = formatDuration(avgMs);
             document.getElementById("completedStudySessions").textContent = String(sessions.length);
 
+            renderStudyGraph();
             const list = document.getElementById("studyHistoryList");
             const recent = sessions.slice(-6).reverse();
             if (!recent.length) {
@@ -4557,6 +4585,112 @@ async function generateFlashcardsFromPDF() {
                     list.appendChild(li);
                 });
             }
+        }
+
+        function renderStudyGraph() {
+            const graph = document.getElementById("studyGraph");
+            const summary = document.getElementById("studyGraphSummary");
+            if (!graph || !summary) return;
+
+            const rangeValue = document.getElementById("studyGraphRange")?.value || "30";
+            const graphType = document.getElementById("studyGraphType")?.value || "bar";
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const allSessions = studyState.sessions.filter(session =>
+                Number.isFinite(session.endedAt) && Number.isFinite(session.durationMs) && session.durationMs > 0
+            );
+            const days = rangeValue === "all"
+                ? Math.max(7, Math.ceil((today.getTime() - Math.min(today.getTime(), ...allSessions.map(session => new Date(session.endedAt.getFullYear ? session.endedAt : Number(session.endedAt)).setHours(0,0,0,0))) / 86400000) + 1)
+                : Number(rangeValue);
+            const safeDays = Math.min(3650, Math.max(7, days));
+            const start = new Date(today);
+            start.setDate(start.getDate() - safeDays + 1);
+
+            const buckets = new Map();
+            for (let i = 0; i < safeDays; i++) {
+                const d = new Date(start);
+                d.setDate(start.getDate() + i);
+                const key = localDateKey(d.getTime());
+                buckets.set(key, { date: d, ms: 0, count: 0 });
+            }
+            allSessions.forEach(session => {
+                const key = localDateKey(Number(session.endedAt));
+                const bucket = buckets.get(key);
+                if (bucket) { bucket.ms += session.durationMs; bucket.count += 1; }
+            });
+
+            let points = Array.from(buckets.values());
+            let groupedWeekly = false;
+            if (rangeValue === "all" && points.length > 90) {
+                const weeks = new Map();
+                points.forEach(point => {
+                    const weekStart = new Date(point.date);
+                    const day = (weekStart.getDay() + 6) % 7;
+                    weekStart.setDate(weekStart.getDate() - day);
+                    const key = localDateKey(weekStart.getTime());
+                    if (!weeks.has(key)) weeks.set(key, { date: weekStart, ms: 0, count: 0 });
+                    weeks.get(key).ms += point.ms;
+                    weeks.get(key).count += point.count;
+                });
+                points = Array.from(weeks.values());
+                groupedWeekly = true;
+            }
+
+            const totalMs = points.reduce((sum, point) => sum + point.ms, 0);
+            const activeDays = points.filter(point => point.ms > 0).length;
+            summary.textContent = totalMs > 0
+                ? `${formatDuration(totalMs)} studied · ${activeDays} active ${groupedWeekly ? "weeks" : "days"}${groupedWeekly ? " · grouped by week" : ""}`
+                : "No recorded study time in this range yet.";
+
+            if (!allSessions.length || !points.some(point => point.ms > 0)) {
+                graph.innerHTML = '<div class="study-graph-empty">No study sessions in this range yet. Start studying and your progress will appear here.</div>';
+                return;
+            }
+
+            const width = Math.max(320, points.length * (points.length > 30 ? 18 : 42));
+            const height = 240;
+            const pad = { top: 18, right: 14, bottom: 42, left: 48 };
+            const plotW = width - pad.left - pad.right;
+            const plotH = height - pad.top - pad.bottom;
+            const maxMs = Math.max(3600000, ...points.map(point => point.ms));
+            const niceMax = Math.ceil(maxMs / 3600000) * 3600000;
+            const y = ms => pad.top + plotH - (ms / niceMax) * plotH;
+            const x = i => pad.left + (points.length === 1 ? plotW / 2 : i * plotW / (points.length - 1));
+            const labels = points.map(point => groupedWeekly
+                ? point.date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                : point.date.toLocaleDateString(undefined, { month: "short", day: "numeric" }));
+            let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Study time graph">`;
+            for (let tick = 0; tick <= 4; tick++) {
+                const value = niceMax * tick / 4;
+                const yy = y(value);
+                const label = value >= 3600000 ? `${(value / 3600000).toFixed(value % 3600000 ? 1 : 0)}h` : `${Math.round(value / 60000)}m`;
+                svg += `<line x1="${pad.left}" y1="${yy}" x2="${width-pad.right}" y2="${yy}" stroke="#e2e8f0" stroke-dasharray="3 4"/><text x="${pad.left-8}" y="${yy+4}" text-anchor="end" fill="#64748b" font-size="10">${label}</text>`;
+            }
+            if (graphType === "bar") {
+                const step = plotW / Math.max(1, points.length);
+                const barW = Math.max(3, Math.min(22, step * 0.62));
+                points.forEach((point, i) => {
+                    const xx = pad.left + i * step + (step - barW) / 2;
+                    const yy = y(point.ms);
+                    const hh = pad.top + plotH - yy;
+                    const title = `${labels[i]}: ${formatDuration(point.ms)} · ${point.count} session(s)`;
+                    svg += `<g><title>${title}</title><rect x="${xx}" y="${yy}" width="${barW}" height="${Math.max(0,hh)}" rx="3" fill="#2563eb" opacity="${point.ms ? "0.88" : "0.12"}"/></g>`;
+                });
+            } else {
+                const coords = points.map((point, i) => `${x(i)},${y(point.ms)}`).join(" ");
+                svg += `<polyline points="${coords}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+                points.forEach((point, i) => {
+                    svg += `<circle cx="${x(i)}" cy="${y(point.ms)}" r="3.5" fill="#0891b2"><title>${labels[i]}: ${formatDuration(point.ms)} · ${point.count} session(s)</title></circle>`;
+                });
+            }
+            const labelEvery = Math.max(1, Math.ceil(points.length / 8));
+            points.forEach((point, i) => {
+                if (i % labelEvery !== 0 && i !== points.length - 1) return;
+                const xx = graphType === "bar" ? pad.left + i * (plotW / Math.max(1, points.length)) + (plotW / Math.max(1, points.length))/2 : x(i);
+                svg += `<text x="${xx}" y="${height-15}" text-anchor="middle" fill="#64748b" font-size="10">${labels[i]}</text>`;
+            });
+            svg += "</svg>";
+            graph.innerHTML = svg;
         }
 
         function renderStudyTimer() {
