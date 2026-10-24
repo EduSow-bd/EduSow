@@ -2209,7 +2209,7 @@ footer nav.footer-links a:focus-visible {
                     <input id="accountPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
                     <button type="submit" class="account-submit" id="accountSubmitBtn">Sign in</button>
                 </form>
-                <button type="button" class="account-switch" id="accountSwitchBtn" onclick="toggleAccountAuthMode()">Create acc at EduSow</button>
+                <button type="button" class="account-switch" id="accountSwitchBtn" onclick="toggleAccountAuthMode()">Create account at EduSow</button>
             </div>
             <div id="accountSignedInPanel" hidden>
                 <p>Signed in as</p><div class="account-profile-email" id="accountSignedInEmail"></div>
@@ -2863,7 +2863,7 @@ footer nav.footer-links a:focus-visible {
             accountAuthMode = accountAuthMode === "signin" ? "signup" : "signin";
             document.getElementById("accountModalTitle").textContent = accountAuthMode === "signup" ? "Create your EduSow account" : "Sign in to EduSow";
             document.getElementById("accountSubmitBtn").textContent = accountAuthMode === "signup" ? "Create account" : "Sign in";
-            document.getElementById("accountSwitchBtn").textContent = accountAuthMode === "signup" ? "Sign in" : "Create acc at EduSow";
+            document.getElementById("accountSwitchBtn").textContent = accountAuthMode === "signup" ? "Sign in" : "Create account at EduSow";
             document.getElementById("accountPassword").setAttribute("autocomplete", accountAuthMode === "signup" ? "new-password" : "current-password");
             setAccountStatus("");
         }
