@@ -1027,7 +1027,8 @@ textarea {
 .study-graph-controls select { width:auto; min-width:110px; margin:0; padding:8px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; color:var(--text); }
 .study-graph-summary { color:var(--text-soft); font-size:13px; margin-top:8px; }
 .study-graph { width:100%; overflow-x:auto; }
-.study-graph svg { display:block; width:100%; min-width:320px; height:auto; }
+.study-graph svg { display:block; width:100%; min-width:320px; height:auto; max-height:360px; }
+@media (min-width: 851px) { .study-graph-box { padding:24px 26px; } .study-graph svg { min-height:260px; } }
 .study-graph-empty { padding:35px 12px; text-align:center; color:var(--text-soft); background:var(--surface-soft); border-radius:12px; }
 @media (max-width: 850px) { .study-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .study-stats-grid { gap: 10px; } .study-stat-card { padding: 15px; } .study-history-box, .study-graph-box { padding: 16px; } .study-controls { flex-direction: column; } .study-controls button { width: 100%; } .study-tracker-box .timer-display { font-size: clamp(36px, 11vw, 52px); } .study-graph-controls { align-items:stretch; } .study-graph-controls label { justify-content:space-between; } }
@@ -4652,9 +4653,9 @@ async function generateFlashcardsFromPDF() {
                 return;
             }
 
-            const width = Math.max(320, points.length * (points.length > 30 ? 18 : 42));
-            const height = 240;
-            const pad = { top: 18, right: 14, bottom: 42, left: 48 };
+            const width = points.length <= 7 ? 720 : points.length <= 30 ? 900 : Math.max(900, points.length * 18);
+            const height = 280;
+            const pad = { top: 20, right: 22, bottom: 46, left: 54 };
             const plotW = width - pad.left - pad.right;
             const plotH = height - pad.top - pad.bottom;
             const maxMs = Math.max(3600000, ...points.map(point => point.ms));
