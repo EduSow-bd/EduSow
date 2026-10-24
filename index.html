@@ -2194,7 +2194,8 @@ footer nav.footer-links a:focus-visible {
             <li><a href="#timer">Pomodoro</a></li>
             <li><a href="learn.html">Learn</a></li>
             <li><a href="support.html">Support</a></li>
-            <li><button type="button" class="account-nav-button" id="accountOpenBtn" onclick="document.getElementById('accountModalBackdrop').classList.add('open'); if (typeof updateAccountModal === 'function') updateAccountModal(); document.getElementById('accountEmail')?.focus();">Sign in</button></li>
+            <li><button type="button" class="account-nav-button" id="accountOpenBtn" onclick="openAccountModal()">Sign in</button></li>
+            <li><button type="button" class="account-nav-button" id="accountLogoutBtn" hidden onclick="signOutAccount()">Log out</button></li>
         </ul>
     </nav>
 
@@ -2876,7 +2877,9 @@ footer nav.footer-links a:focus-visible {
             document.getElementById("accountSignedInPanel").hidden = !signedIn;
             document.getElementById("accountSignedInEmail").textContent = currentAccountUser?.email || "";
             const button = document.getElementById("accountOpenBtn");
+            const logoutButton = document.getElementById("accountLogoutBtn");
             if (button) button.textContent = signedIn ? "My account" : "Sign in";
+            if (logoutButton) logoutButton.hidden = !signedIn;
         }
         async function submitAccountAuth(event) {
             event.preventDefault();
@@ -2980,14 +2983,21 @@ footer nav.footer-links a:focus-visible {
             }
         }
         async function signOutAccount() {
+            const logoutButton = document.getElementById("accountLogoutBtn");
+            if (logoutButton) logoutButton.disabled = true;
+            setAccountStatus("Signing out…");
             try {
-                const { error } = await supabaseClient.auth.signOut();
+                const { error } = await supabaseClient.auth.signOut({ scope: "local" });
                 if (error) throw error;
                 currentAccountUser = null;
                 updateAccountModal();
-                setAccountStatus("Signed out. EduSow continues to work with data saved on this device.");
+                const backdrop = document.getElementById("accountModalBackdrop");
+                if (backdrop) backdrop.classList.add("open");
+                setAccountStatus("You have successfully signed out. Your study data remains saved on this device.");
             } catch (error) {
-                setAccountStatus(error.message || "Could not sign out.", true);
+                setAccountStatus("Could not sign out: " + (error.message || "Please try again."), true);
+            } finally {
+                if (logoutButton) logoutButton.disabled = false;
             }
         }
         // Bind controls explicitly rather than relying on inline event handlers.
