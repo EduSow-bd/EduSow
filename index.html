@@ -3448,18 +3448,15 @@ async function extractSelectedPDF() {
             selectedPageNumbers = [...pageSet].sort((a, b) => a - b);
         }
 
-        // Read the native PDF text layer first. This is fast and preserves selectable text.
-        // Only send pages with no meaningful text to the slower OCR fallback; do not make
-        // a network OCR request for every readable page just because it contains maths.
-        const pages = [];
-        for (let index = 0; index < selectedPageNumbers.length; index++) {
-            const pageNumber = selectedPageNumbers[index];
-            showStatus(
-                "pdfExtractionStatus",
-                `Reading selected page ${index + 1}/${selectedPageNumbers.length} (PDF page ${pageNumber})…`,
-                false
-            );
-
+        // Extract native PDF text concurrently. This avoids waiting for each page's
+        // text layer one-by-one, while keeping the original page order and exact text.
+        // Native text is preferred for accuracy; OCR is reserved for image-only pages.
+        showStatus(
+            "pdfExtractionStatus",
+            `Reading text from ${selectedPageNumbers.length} selected page(s)…`,
+            false
+        );
+        const pages = await Promise.all(selectedPageNumbers.map(async pageNumber => {
             const page = await pdf.getPage(pageNumber);
             const content = await page.getTextContent();
             const pageText = content.items
@@ -3468,12 +3465,12 @@ async function extractSelectedPDF() {
                 .replace(/\s+/g, " ")
                 .trim();
 
-            pages.push({
+            return {
                 pageNumber,
                 pageText,
                 needsOCR: pageText.replace(/\s/g, "").length < 30
-            });
-        }
+            };
+        }));
 
         // Auto-detect language from any native text we successfully extracted.
         // This avoids loading multiple language models for ordinary text-based PDFs.
