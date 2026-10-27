@@ -103,6 +103,77 @@ footer a:hover, footer a:focus-visible { color:#1e40af !important; text-decorati
 <main><article><div class="eyebrow">EDUSOW LEARN · STUDY PLANNING</div><h1>How to Make a Study Timetable You Can Actually Follow</h1>
 <p class="intro">A timetable should help you study—not make you feel guilty. The best plan is realistic, includes breaks, gives difficult subjects enough attention, and can adapt when life does not go exactly as expected.</p><p class="meta">EduSow Learn · Study planning · English with Bangla explanations</p>
 <div class="callout"><strong>Remember:</strong> A simple timetable you follow most days is more useful than a perfect timetable you abandon after two days.</div>
+
+<section id="timetable-builder" class="planner" aria-labelledby="planner-title">
+  <div class="planner-head"><span class="eyebrow">FREE INTERACTIVE TOOL</span><h2 id="planner-title">Create your own study timetable</h2>
+  <p>Enter your available study time and subjects. EduSow will build a flexible plan with focused sessions and breaks that you can print or save as a PDF.</p></div>
+  <form id="planner-form" class="planner-form">
+    <label>Study starts at <input id="planner-start" type="time" value="17:00" required></label>
+    <label>Total study time
+      <select id="planner-total"><option value="60">1 hour</option><option value="90" selected>1 hour 30 minutes</option><option value="120">2 hours</option><option value="150">2 hours 30 minutes</option><option value="180">3 hours</option><option value="240">4 hours</option></select>
+    </label>
+    <label>Focus session
+      <select id="planner-focus"><option value="20">20 minutes</option><option value="25" selected>25 minutes</option><option value="30">30 minutes</option><option value="40">40 minutes</option><option value="45">45 minutes</option><option value="50">50 minutes</option></select>
+    </label>
+    <label>Break between sessions
+      <select id="planner-break"><option value="5" selected>5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option></select>
+    </label>
+    <label class="planner-subjects">Subjects or tasks <span>(one per line, in priority order)</span>
+      <textarea id="planner-subject-list" rows="4" placeholder="Maths — practise 5 problems&#10;English — revise vocabulary&#10;Science — review today's lesson" required>Maths — practise 5 problems
+English — revise vocabulary
+Science — review today's lesson</textarea>
+    </label>
+    <div class="planner-actions"><button type="submit">Generate my timetable</button><button type="button" id="planner-print" class="planner-secondary">Print / Save PDF</button></div>
+  </form>
+  <div id="planner-result" class="planner-result" aria-live="polite"><p>Your personalized timetable will appear here.</p></div>
+  <p class="planner-note">Tip: This is a plan, not a rule. If your day changes, adjust the times and try again. Keep enough time for meals, rest, and sleep.</p>
+</section>
+<style>
+.planner{margin:30px 0;padding:clamp(18px,3vw,28px);border:1px solid #bfdbfe;border-radius:18px;background:#f8fbff}
+.planner h2{margin:8px 0 10px}.planner-head p,.planner-note{color:#52617a}.planner-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.planner-form label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700;color:#172554}
+.planner-form input,.planner-form select,.planner-form textarea{width:100%;min-width:0;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#172554;font:inherit}
+.planner-form textarea{resize:vertical}.planner-subjects,.planner-actions{grid-column:1/-1}.planner-subjects span{font-weight:400;color:#64748b}
+.planner-actions{display:flex;gap:10px;flex-wrap:wrap}.planner-actions button{padding:11px 15px;border:1px solid #2563eb;border-radius:10px;font-weight:750;cursor:pointer}
+.planner-actions .planner-secondary{background:#fff!important;color:#1d4ed8!important}
+.planner-result{margin-top:20px}.planner-result h3{margin-top:0}.planner-table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}.planner-table th,.planner-table td{padding:10px;border:1px solid #dbeafe;text-align:left;vertical-align:top}.planner-table th{background:#eff6ff}.planner-table td:first-child{white-space:nowrap;font-variant-numeric:tabular-nums}.planner-break-row td{background:#f8fafc;color:#64748b}.planner-note{font-size:13px;margin-bottom:0}
+@media(max-width:560px){.planner-form{grid-template-columns:1fr}.planner-subjects,.planner-actions{grid-column:auto}.planner-table{font-size:12px}.planner-table th,.planner-table td{padding:7px}}
+@media print{header,footer,.toc,.cta,.planner-form,.planner-head p,.planner-note,.eyebrow{display:none!important}body{background:#fff!important}main{width:100%;margin:0;padding:0;border:0;box-shadow:none}.planner{border:0;padding:0;background:#fff}.planner h2{font-size:22px}.planner-result{display:block!important}.planner-table{font-size:12px}}
+</style>
+<script>
+(function(){
+  const form=document.getElementById('planner-form');
+  if(!form)return;
+  const result=document.getElementById('planner-result');
+  const timeInput=document.getElementById('planner-start');
+  const totalInput=document.getElementById('planner-total');
+  const focusInput=document.getElementById('planner-focus');
+  const breakInput=document.getElementById('planner-break');
+  const subjectsInput=document.getElementById('planner-subject-list');
+  const printButton=document.getElementById('planner-print');
+  function clock(mins){mins=((mins%1440)+1440)%1440;const h=Math.floor(mins/60),m=mins%60;const suffix=h>=12?'PM':'AM';return ((h%12)||12)+':'+String(m).padStart(2,'0')+' '+suffix;}
+  function esc(s){return s.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+  form.addEventListener('submit',function(event){
+    event.preventDefault();
+    const startParts=timeInput.value.split(':').map(Number);
+    if(startParts.length!==2||startParts.some(Number.isNaN)){result.innerHTML='<p>Please choose a valid start time.</p>';return;}
+    const start=startParts[0]*60+startParts[1], total=Number(totalInput.value), focus=Number(focusInput.value), pause=Number(breakInput.value);
+    const subjects=subjectsInput.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!subjects.length){result.innerHTML='<p>Add at least one subject or task to create your timetable.</p>';return;}
+    let elapsed=0,studyCount=0,rows=[];
+    while(elapsed<total){
+      const duration=Math.min(focus,total-elapsed);
+      const label=subjects[studyCount%subjects.length];
+      rows.push('<tr><td>'+clock(start+elapsed)+' – '+clock(start+elapsed+duration)+'</td><td>'+esc(label)+'</td><td>Focused study</td></tr>');
+      elapsed+=duration;studyCount++;
+      if(elapsed<total){const breakEnd=Math.min(elapsed+pause,total);rows.push('<tr class="planner-break-row"><td>'+clock(start+elapsed)+' – '+clock(start+breakEnd)+'</td><td>Stand up, stretch, or drink water</td><td>Break</td></tr>');elapsed=breakEnd;}
+    }
+    result.innerHTML='<h3>Your study plan</h3><p>Study time: <strong>'+total+' minutes</strong> · '+studyCount+' focus session(s) · Ends at approximately <strong>'+clock(start+elapsed)+'</strong>.</p><div class="table-wrap"><table class="planner-table"><thead><tr><th>Time</th><th>Task</th><th>Block</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+  });
+  printButton.addEventListener('click',function(){if(!result.querySelector('table'))form.requestSubmit();window.print();});
+  form.requestSubmit();
+})();
+</script>
 <div class="toc"><h2>In this guide</h2><ol><li><a href="#commitments">Start with real commitments</a></li><li><a href="#priorities">Choose clear priorities</a></li><li><a href="#blocks">Plan study blocks and breaks</a></li><li><a href="#revision">Make room for revision</a></li><li><a href="#sample">Use a sample timetable</a></li><li><a href="#adjust">Review and adjust</a></li></ol></div>
 <h2 id="commitments">1. Start with your real commitments</h2><p>Write down the things that already take up time: school or classes, travel, meals, sleep, family responsibilities, exercise, and other important activities. Put these into your weekly calendar first. Then plan study sessions around them.</p><p>Do not plan every free minute. Leave some unscheduled time for unexpected homework, difficult questions, or rest. If your plan only works on a perfect day, it is probably too strict.</p><div class="bangla"><strong>বাংলায় সহজ ব্যাখ্যা</strong><p>প্রথমে স্কুল, যাতায়াত, খাওয়া, ঘুম ও পরিবারের কাজের সময় লিখে নাও। তারপর অবশিষ্ট সময় থেকে পড়ার সময় ঠিক করো। প্রতিটি মিনিট ভরে ফেলবে না—হঠাৎ কাজের জন্য কিছু সময় খালি রাখবে।</p></div>
 <h2 id="priorities">2. Choose clear priorities, not just subjects</h2><p>A list such as “English, maths, science” is not specific enough. Give each session a clear task: “solve five ratio problems,” “write a paragraph from memory,” or “review ten vocabulary cards.” A clear task makes it easier to begin and to tell whether you finished.</p><p>Prioritise by asking: What is due soon? What do I find difficult? What needs more practice? You do not need to give every subject equal time every day. Give urgent or challenging work enough attention while keeping other subjects in rotation.</p><div class="example"><strong>Instead of:</strong> “Study science for one hour.”<br><strong>Try:</strong> “Review the water cycle, draw it from memory, and answer five questions.”</div><div class="bangla"><strong>বাংলায় সহজ ব্যাখ্যা</strong><p>শুধু বিষয়ের নাম না লিখে নির্দিষ্ট কাজ লিখবে। যেমন, “গণিত পড়ব” না লিখে “অনুপাতের পাঁচটি অঙ্ক সমাধান করব” লেখো। এতে কাজ শুরু করা ও শেষ হয়েছে কি না বোঝা সহজ হয়।</p></div>
