@@ -2262,6 +2262,7 @@ footer nav.footer-links a:focus-visible {
                         type="file"
                         id="fileInput"
                         accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                        multiple
                     >
 
                     <label for="fileInput" class="choose-file-btn">
@@ -2795,6 +2796,7 @@ footer nav.footer-links a:focus-visible {
 
        
         let selectedPDFFile = null;
+        let selectedImageFiles = [];
         let extractedPDFText = "";
 
         let generatedQuiz = [];
@@ -2828,48 +2830,54 @@ footer nav.footer-links a:focus-visible {
         // =========================================================
 
         fileInput.addEventListener("change", function () {
+            const files = Array.from(this.files || []);
+            const pagePanel = document.getElementById("pdfPageSelectionBox");
+            if (pagePanel) pagePanel.style.display = "none";
 
-            console.log("File input changed");
+            selectedPDFFile = null;
+            selectedImageFiles = [];
+            extractedPDFText = "";
+            setExplainMaterialsAvailable(false);
 
-            if (!this.files || this.files.length === 0) {
-
-                selectedPDFFile = null;
-                document.getElementById("pdfPageSelectionBox").style.display = "none";
+            if (!files.length) {
                 selectedFileName.textContent = "No file selected";
                 return;
             }
 
-            const file = this.files[0];
-            setExplainMaterialsAvailable(false);
-
-            selectedPDFFile = file;
-
-            // Hide PDF page controls whenever a new file is selected.
-            const pagePanel = document.getElementById("pdfPageSelectionBox");
-            if (pagePanel) pagePanel.style.display = "none";
-
-            const lowerName = file.name.toLowerCase();
-            const isPDF = file.type === "application/pdf" || lowerName.endsWith(".pdf");
-            const isImage = /^image\/(jpeg|png)$/.test(file.type) ||
-                /\.(jpe?g|png)$/.test(lowerName);
-
-            selectedFileName.textContent = "Selected: " + file.name;
-
-            if (!isPDF && !isImage) {
-                selectedPDFFile = null;
-                showStatus("uploadStatus", "Unsupported file. Please choose a PDF, JPG, JPEG, or PNG image.", true);
+            const isPDFFile = file => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+            const isImageFile = file => /^image\/(jpeg|png)$/.test(file.type) || /\.(jpe?g|png)$/i.test(file.name);
+            if (files.some(file => !isPDFFile(file) && !isImageFile(file))) {
+                this.value = "";
+                selectedFileName.textContent = "No file selected";
+                showStatus("uploadStatus", "Unsupported file. Please choose PDF, JPG, JPEG, or PNG files.", true);
                 return;
             }
 
-            showStatus(
-                "uploadStatus",
-                isPDF ? "PDF selected successfully." : "Image selected successfully. OCR can extract its text.",
-                false
-            );
+            const hasPDF = files.some(isPDFFile);
+            const hasImages = files.some(isImageFile);
+            if (hasPDF && files.length > 1) {
+                this.value = "";
+                selectedFileName.textContent = "No file selected";
+                showStatus("uploadStatus", "Choose one PDF at a time, or select multiple JPG/PNG images together.", true);
+                return;
+            }
 
-            console.log("Selected study material:", file);
-
-         });
+            if (hasPDF) {
+                selectedPDFFile = files[0];
+                selectedFileName.textContent = "Selected: " + files[0].name;
+                showStatus("uploadStatus", "PDF selected successfully.", false);
+            } else if (hasImages) {
+                selectedImageFiles = files;
+                selectedPDFFile = files[0];
+                selectedFileName.textContent = files.length === 1
+                    ? "Selected: " + files[0].name
+                    : files.length + " images selected: " + files.map(file => file.name).join(", ");
+                showStatus("uploadStatus", files.length === 1
+                    ? "Image selected successfully. OCR can extract its text."
+                    : files.length + " images selected. They will be extracted one by one in selection order.", false);
+            }
+            console.log("Selected study materials:", files);
+        });
 
 
         // =========================================================
@@ -3323,46 +3331,57 @@ function looksLikeMathPage(text) {
 }
 
 async function extractSelectedImage() {
-    if (!selectedPDFFile) {
-        showStatus("pdfExtractionStatus", "Please select a JPG, JPEG, or PNG image first.", true);
-        return;
-    }
-
-    const fileName = selectedPDFFile.name.toLowerCase();
-    const isImage = /^image\/(jpeg|png)$/.test(selectedPDFFile.type) ||
-        /\.(jpe?g|png)$/.test(fileName);
-
-    if (!isImage) {
-        showStatus("pdfExtractionStatus", "Please select a PDF, JPG, JPEG, or PNG file.", true);
+    const images = selectedImageFiles.length
+        ? [...selectedImageFiles]
+        : (selectedPDFFile ? [selectedPDFFile] : []);
+    if (!images.length || images.some(file => {
+        const name = file.name.toLowerCase();
+        return !(/^image\/(jpeg|png)$/.test(file.type) || /\.(jpe?g|png)$/.test(name));
+    })) {
+        showStatus("pdfExtractionStatus", "Please select one or more JPG, JPEG, or PNG images first.", true);
         return;
     }
 
     try {
-        showStatus("pdfExtractionStatus", "Reading text and mathematical notation with AI OCR…", false);
-        const payload = await imageFileToOCRPayload(selectedPDFFile);
-        extractedPDFText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
+        const extractedParts = [];
+        for (let index = 0; index < images.length; index++) {
+            const file = images[index];
+            showStatus(
+                "pdfExtractionStatus",
+                images.length > 1
+                    ? `Extracting image ${index + 1} of ${images.length}: ${file.name}…`
+                    : "Reading text and mathematical notation with AI OCR…",
+                false
+            );
 
-        const textArea = document.getElementById("pdfExtractedText");
-        if (textArea) textArea.value = extractedPDFText;
+            const payload = await imageFileToOCRPayload(file);
+            const imageText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
+            extractedParts.push(`[Image ${index + 1}: ${file.name}]\n${imageText.trim()}`);
+            extractedPDFText = extractedParts.join("\n\n");
+
+            const textArea = document.getElementById("pdfExtractedText");
+            if (textArea) textArea.value = extractedPDFText;
+            const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
+            const charCount = extractedPDFText.length;
+            const wordCountElement = document.getElementById("pdfWordCount");
+            if (wordCountElement) wordCountElement.textContent = wordCount;
+            const charCountElement = document.getElementById("pdfCharCount");
+            if (charCountElement) charCountElement.textContent = charCount;
+        }
+
         setExplainMaterialsAvailable(true);
-
         const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
         const charCount = extractedPDFText.length;
-        const wordCountElement = document.getElementById("pdfWordCount");
-        if (wordCountElement) wordCountElement.textContent = wordCount;
-        const charCountElement = document.getElementById("pdfCharCount");
-        if (charCountElement) charCountElement.textContent = charCount;
-
         showStatus(
             "pdfExtractionStatus",
-            `Math-aware extraction complete! ${wordCount} words and ${charCount} characters extracted. Review the text below for any unclear symbols.`,
+            `Extraction complete for ${images.length} image(s), in selection order: ${wordCount} words and ${charCount} characters. Review the text below for any unclear symbols.`,
             false
         );
     } catch (error) {
         console.error("Math-aware image OCR error:", error);
         showStatus(
             "pdfExtractionStatus",
-            `AI math OCR could not read this image: ${error.message || "Unknown error"}. Please try a sharper, well-lit image.`,
+            `Image extraction stopped: ${error.message || "Unknown error"}. Any earlier image results are preserved; please try a sharper, well-lit image.`,
             true
         );
     }
