@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en"><head>\n    <!-- Google AdSense -->\n    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7120557879667576" crossorigin="anonymous"></script>\n
+<html lang="en"><head>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7120557879667576" crossorigin="anonymous"></script>
+
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How to Make a Study Timetable: Daily Study Schedule | EduSow</title>
 <meta name="description" content="Learn how to make a realistic daily study timetable and weekly study schedule with focused study blocks, breaks, revision time, and a sample plan.">
@@ -157,7 +160,8 @@ Science — review today's lesson</textarea>
     const startParts=timeInput.value.split(':').map(Number);
     if(startParts.length!==2||startParts.some(Number.isNaN)){result.innerHTML='<p>Please choose a valid start time.</p>';return;}
     const start=startParts[0]*60+startParts[1], total=Number(totalInput.value), focus=Number(focusInput.value), pause=Number(breakInput.value);
-    const subjects=subjectsInput.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    const subjects=subjectsInput.value.split('
+').map(s=>s.trim()).filter(Boolean);
     if(!subjects.length){result.innerHTML='<p>Add at least one subject or task to create your timetable.</p>';return;}
     let elapsed=0,studyCount=0,rows=[];
     while(elapsed<total){
