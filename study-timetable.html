@@ -128,6 +128,7 @@ Science — review today's lesson</textarea>
     </label>
     <div class="planner-actions"><button type="submit">Generate my timetable</button><button type="button" id="planner-print" class="planner-secondary">Print / Save PDF</button></div>
   </form>
+  <div id="planner-result" class="planner-result" aria-live="polite" aria-atomic="true"></div>
   <p class="planner-note">Tip: This is a plan, not a rule. If your day changes, adjust the times and try again. Keep enough time for meals, rest, and sleep.</p>
 </section>
 <style>
@@ -140,7 +141,7 @@ Science — review today's lesson</textarea>
 .planner-actions .planner-secondary{background:#fff!important;color:#1d4ed8!important}
 .planner-result{margin-top:20px}.planner-result h3{margin-top:0}.planner-table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}.planner-table th,.planner-table td{padding:10px;border:1px solid #dbeafe;text-align:left;vertical-align:top}.planner-table th{background:#eff6ff}.planner-table td:first-child{white-space:nowrap;font-variant-numeric:tabular-nums}.planner-break-row td{background:#f8fafc;color:#64748b}.planner-note{font-size:13px;margin-bottom:0}
 @media(max-width:560px){.planner-form{grid-template-columns:1fr}.planner-subjects,.planner-actions{grid-column:auto}.planner-table{font-size:12px}.planner-table th,.planner-table td{padding:7px}}
-@media print{header,footer,.toc,.cta,.planner-form,.planner-head p,.planner-note,.eyebrow{display:none!important}body{background:#fff!important}main{width:100%;margin:0;padding:0;border:0;box-shadow:none}.planner{border:0;padding:0;background:#fff}.planner h2{font-size:22px}.planner-result{display:block!important}.planner-table{font-size:12px}}
+@media print{body *{visibility:hidden!important}#timetable-builder,#timetable-builder *{visibility:visible!important}header,footer,.toc,.cta,.planner-form,.planner-head p,.planner-note,.eyebrow{display:none!important}body{background:#fff!important}main{width:100%;margin:0;padding:0;border:0;box-shadow:none}#timetable-builder{position:absolute;left:0;top:0;width:100%;margin:0;padding:0;border:0;background:#fff}#timetable-builder .planner-result{display:block!important;margin-top:12px}#timetable-builder h2{font-size:22px}#timetable-builder .planner-table{font-size:12px}#timetable-builder .planner-table tr{break-inside:avoid;page-break-inside:avoid}}
 </style>
 <script>
 (function(){
