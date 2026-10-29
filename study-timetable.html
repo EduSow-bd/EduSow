@@ -126,7 +126,7 @@ footer a:hover, footer a:focus-visible { color:#1e40af !important; text-decorati
 English — revise vocabulary
 Science — review today's lesson</textarea>
     </label>
-    <div class="planner-actions"><button type="submit">Generate my timetable</button><button type="button" id="planner-print" class="planner-secondary">Print / Save PDF</button></div>
+    <div class="planner-actions"><button type="button" id="planner-generate">Generate my timetable</button><button type="button" id="planner-print" class="planner-secondary">Print / Save PDF</button></div>
   </form>
   <div id="planner-result" class="planner-result" aria-live="polite" aria-atomic="true"></div>
   <p class="planner-note">Tip: This is a plan, not a rule. If your day changes, adjust the times and try again. Keep enough time for meals, rest, and sleep.</p>
@@ -145,37 +145,101 @@ Science — review today's lesson</textarea>
 </style>
 <script>
 (function(){
-  const form=document.getElementById('planner-form');
-  if(!form)return;
-  const result=document.getElementById('planner-result');
-  const timeInput=document.getElementById('planner-start');
-  const totalInput=document.getElementById('planner-total');
-  const focusInput=document.getElementById('planner-focus');
-  const breakInput=document.getElementById('planner-break');
-  const subjectsInput=document.getElementById('planner-subject-list');
-  const printButton=document.getElementById('planner-print');
-  function clock(mins){mins=((mins%1440)+1440)%1440;const h=Math.floor(mins/60),m=mins%60;const suffix=h>=12?'PM':'AM';return ((h%12)||12)+':'+String(m).padStart(2,'0')+' '+suffix;}
-  function esc(s){return s.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-  form.addEventListener('submit',function(event){
-    event.preventDefault();
-    const startParts=timeInput.value.split(':').map(Number);
-    if(startParts.length!==2||startParts.some(Number.isNaN)){result.innerHTML='<p>Please choose a valid start time.</p>';return;}
-    const start=startParts[0]*60+startParts[1], total=Number(totalInput.value), focus=Number(focusInput.value), pause=Number(breakInput.value);
-    const subjects=subjectsInput.value.split('
-').map(s=>s.trim()).filter(Boolean);
-    if(!subjects.length){result.innerHTML='<p>Add at least one subject or task to create your timetable.</p>';return;}
-    let elapsed=0,studyCount=0,rows=[];
-    while(elapsed<total){
-      const duration=Math.min(focus,total-elapsed);
-      const label=subjects[studyCount%subjects.length];
-      rows.push('<tr><td>'+clock(start+elapsed)+' – '+clock(start+elapsed+duration)+'</td><td>'+esc(label)+'</td><td>Focused study</td></tr>');
-      elapsed+=duration;studyCount++;
-      if(elapsed<total){const breakEnd=Math.min(elapsed+pause,total);rows.push('<tr class="planner-break-row"><td>'+clock(start+elapsed)+' – '+clock(start+breakEnd)+'</td><td>Stand up, stretch, or drink water</td><td>Break</td></tr>');elapsed=breakEnd;}
+  'use strict';
+  const form = document.getElementById('planner-form');
+  if (!form) return;
+
+  const timeInput = document.getElementById('planner-start');
+  const totalInput = document.getElementById('planner-total');
+  const focusInput = document.getElementById('planner-focus');
+  const breakInput = document.getElementById('planner-break');
+  const subjectsInput = document.getElementById('planner-subject-list');
+  const generateButton = document.getElementById('planner-generate');
+  const printButton = document.getElementById('planner-print');
+
+  // Create the results area if a cached or older page version does not contain it.
+  let result = document.getElementById('planner-result');
+  if (!result) {
+    result = document.createElement('div');
+    result.id = 'planner-result';
+    result.className = 'planner-result';
+    result.setAttribute('aria-live', 'polite');
+    form.insertAdjacentElement('afterend', result);
+  }
+
+  function clock(mins) {
+    mins = ((mins % 1440) + 1440) % 1440;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + (h >= 12 ? ' PM' : ' AM');
+  }
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function(ch) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+  function generateTimetable() {
+    try {
+      const rawTime = timeInput.value || '17:00';
+      const parts = rawTime.split(':').map(Number);
+      if (parts.length !== 2 || parts.some(function(n){ return !Number.isFinite(n); })) {
+        result.innerHTML = '<p>Please choose a valid start time.</p>';
+        return false;
+      }
+      const start = parts[0] * 60 + parts[1];
+      const total = Number(totalInput.value);
+      const focus = Number(focusInput.value);
+      const pause = Number(breakInput.value);
+      const subjects = subjectsInput.value.split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+      if (!subjects.length) {
+        result.innerHTML = '<p>Add at least one subject or task to create your timetable.</p>';
+        subjectsInput.focus();
+        return false;
+      }
+      if (![total, focus, pause].every(function(n){ return Number.isFinite(n) && n > 0; })) {
+        result.innerHTML = '<p>Please check your study duration, focus session, and break settings.</p>';
+        return false;
+      }
+
+      let elapsed = 0, studyCount = 0;
+      const rows = [];
+      while (elapsed < total) {
+        const duration = Math.min(focus, total - elapsed);
+        const label = subjects[studyCount % subjects.length];
+        rows.push('<tr><td>' + clock(start + elapsed) + ' – ' + clock(start + elapsed + duration) +
+          '</td><td>' + esc(label) + '</td><td>Focused study</td></tr>');
+        elapsed += duration;
+        studyCount++;
+        if (elapsed < total) {
+          const breakEnd = Math.min(elapsed + pause, total);
+          rows.push('<tr class="planner-break-row"><td>' + clock(start + elapsed) + ' – ' + clock(start + breakEnd) +
+            '</td><td>Stand up, stretch, or drink water</td><td>Break</td></tr>');
+          elapsed = breakEnd;
+        }
+      }
+      result.innerHTML = '<h3>Your study timetable</h3><p>Study time: <strong>' + total +
+        ' minutes</strong> · ' + studyCount + ' focus session(s) · Ends at approximately <strong>' +
+        clock(start + elapsed) + '</strong>.</p><div class="table-wrap"><table class="planner-table"><thead><tr><th>Time</th><th>Task</th><th>Block</th></tr></thead><tbody>' +
+        rows.join('') + '</tbody></table></div>';
+      return true;
+    } catch (error) {
+      result.innerHTML = '<p>Sorry, the timetable could not be generated. Please refresh the page and try again.</p>';
+      return false;
     }
-    result.innerHTML='<h3>Your study plan</h3><p>Study time: <strong>'+total+' minutes</strong> · '+studyCount+' focus session(s) · Ends at approximately <strong>'+clock(start+elapsed)+'</strong>.</p><div class="table-wrap"><table class="planner-table"><thead><tr><th>Time</th><th>Task</th><th>Block</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+  }
+
+  generateButton.addEventListener('click', generateTimetable);
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    generateTimetable();
   });
-  printButton.addEventListener('click',function(){if(!result.querySelector('table'))form.requestSubmit();window.print();});
-  form.requestSubmit();
+  printButton.addEventListener('click', function() {
+    if (!result.querySelector('.planner-table') && !generateTimetable()) return;
+    // Give the browser a moment to lay out the generated table before opening print.
+    window.setTimeout(function(){ window.print(); }, 150);
+  });
+
+  // Build the default timetable when the page opens.
+  generateTimetable();
 })();
 </script>
 <div class="toc"><h2>In this guide</h2><ol><li><a href="#commitments">Start with real commitments</a></li><li><a href="#priorities">Choose clear priorities</a></li><li><a href="#blocks">Plan study blocks and breaks</a></li><li><a href="#revision">Make room for revision</a></li><li><a href="#sample">Use a sample timetable</a></li><li><a href="#adjust">Review and adjust</a></li></ol></div>
