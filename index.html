@@ -662,17 +662,16 @@ textarea {
 
 #fileInput {
     position: absolute;
-
     width: 1px;
     height: 1px;
-
-    opacity: 0;
-
+    padding: 0;
+    margin: -1px;
     overflow: hidden;
-
-    pointer-events: none;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }
-
 .choose-file-btn {
     display: inline-flex;
 
@@ -3128,14 +3127,10 @@ footer nav.footer-links a:focus-visible {
             }
             const slide = explainLesson.slides?.[explainSlideIndex] || {};
             const context = "Lesson: " + (explainLesson.title || "") +
-                "
-Current slide (" + (explainSlideIndex + 1) + "): " + (slide.title || "") +
-                "
-Slide explanation: " + (slide.explanation || "") +
-                "
-Slide key points: " + (Array.isArray(slide.keyPoints) ? slide.keyPoints.join("; ") : "") +
-                "
-Slide example: " + (slide.example || "");
+                "\nCurrent slide (" + (explainSlideIndex + 1) + "): " + (slide.title || "") +
+                "\nSlide explanation: " + (slide.explanation || "") +
+                "\nSlide key points: " + (Array.isArray(slide.keyPoints) ? slide.keyPoints.join("; ") : "") +
+                "\nSlide example: " + (slide.example || "");
             const language = getSelectedOutputLanguage("explainLanguage", "explainCustomLanguage") || explainLesson.language || "Auto-detect";
             explainFollowupBusy = true;
             if (send) { send.disabled = true; send.textContent = "Thinking…"; }
@@ -3362,9 +3357,7 @@ async function extractSelectedImage() {
             const imageText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
             extractedParts.push(`[Image ${index + 1}: ${file.name}]
 ${imageText.trim()}`);
-            extractedPDFText = extractedParts.join("
-
-");
+            extractedPDFText = extractedParts.join("\n\n");
 
             const textArea = document.getElementById("pdfExtractedText");
             if (textArea) textArea.value = extractedPDFText;
@@ -3500,8 +3493,7 @@ async function extractSelectedPDF() {
 
         // Auto-detect language from any native text we successfully extracted.
         // This avoids loading multiple language models for ordinary text-based PDFs.
-        const nativeText = pages.map(page => page.pageText).filter(Boolean).join("
-");
+        const nativeText = pages.map(page => page.pageText).filter(Boolean).join("\n");
         const hasNativeText = nativeText.replace(/\s/g, "").length >= 30;
         detectedOCRLanguageCode = hasNativeText
             ? (detectMaterialLanguage(nativeText) === "Bengali" ? "ben" : "eng")
@@ -3544,9 +3536,7 @@ async function extractSelectedPDF() {
             .map(item => `--- Page ${item.pageNumber} ---
 
 ${item.pageText}`)
-            .join("
-
-");
+            .join("\n\n");
 
         if (!extractedPDFText.trim()) {
             showStatus(
