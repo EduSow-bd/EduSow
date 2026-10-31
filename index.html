@@ -2812,6 +2812,7 @@ footer nav.footer-links a:focus-visible {
         let extractedPDFText = "";
 
         let generatedQuiz = [];
+        let completedQuizScore = null;
 
         // Study tracker state is timestamp-based, so it remains accurate
         // when the tab is backgrounded or the browser is reopened.
@@ -3810,6 +3811,7 @@ async function generateQuizFromPDF() {
 
         generatedQuiz =
             data.questions;
+        completedQuizScore = null;
 
 
         // =============================================
@@ -4183,6 +4185,8 @@ async function generateQuizFromPDF() {
                 );
 
             result.style.display = "block";
+            completedQuizScore = { score, percentage };
+
             result.innerHTML = `
                 <h3>🏆 Quiz Result</h3>
 
@@ -4199,11 +4203,122 @@ async function generateQuizFromPDF() {
                         ${percentage}%
                     </strong>
                 </p>
+
+                <div style="margin-top:16px;">
+                    <button type="button" onclick="downloadCompletedQuizPDF()">
+                        📄 Save Quiz as PDF
+                    </button>
+                </div>
+                <p style="margin-top:8px; font-size:13px; color:#64748b;">
+                    Save a copy of all questions, options, correct answers and explanations.
+                </p>
             `;
 
             // Put the score where students see it immediately, without scrolling
             // through every question. Keep the answer review available below.
             result.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        // Export the exact quiz the student has just completed.
+        // The PDF is prepared locally in a print window; no quiz content is uploaded.
+        function downloadCompletedQuizPDF() {
+            if (!Array.isArray(generatedQuiz) || !generatedQuiz.length || !completedQuizScore) {
+                alert("Finish a quiz before saving it as a PDF.");
+                return;
+            }
+
+            const printWindow = window.open("", "_blank");
+            if (!printWindow) {
+                alert("Your browser blocked the PDF window. Allow pop-ups for edusow.com and try again.");
+                return;
+            }
+
+            const questionCards = generatedQuiz.map((question, index) => {
+                const options = Array.isArray(question.options) ? question.options : [];
+                const correctIndex = Number(question.answer);
+                const correctAnswer = Number.isInteger(correctIndex) && options[correctIndex] !== undefined
+                    ? options[correctIndex]
+                    : "Answer not available";
+                const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+                const selectedIndex = selected ? Number(selected.value) : -1;
+                const selectedAnswer = selectedIndex >= 0 && options[selectedIndex] !== undefined
+                    ? options[selectedIndex]
+                    : "Not answered";
+
+                const optionMarkup = options.map((option, optionIndex) => {
+                    const isCorrect = optionIndex === correctIndex;
+                    const isSelected = optionIndex === selectedIndex;
+                    return `
+                        <li class="${isCorrect ? "correct" : ""} ${isSelected ? "selected" : ""}">
+                            ${escapeHTML(option)}
+                            ${isCorrect ? '<strong class="tag">Correct answer</strong>' : ""}
+                            ${isSelected ? '<span class="tag selected-tag">Your choice</span>' : ""}
+                        </li>
+                    `;
+                }).join("");
+
+                return `
+                    <article class="question-card">
+                        <h2>Question ${index + 1}</h2>
+                        <p class="question-text">${escapeHTML(question.question || `Question ${index + 1}`)}</p>
+                        <ol class="options">${optionMarkup}</ol>
+                        <p class="answer-line"><strong>Correct answer:</strong> ${escapeHTML(correctAnswer)}</p>
+                        <p class="answer-line"><strong>Your answer:</strong> ${escapeHTML(selectedAnswer)}</p>
+                        ${question.explanation ? `<div class="explanation"><strong>Explanation:</strong> ${escapeHTML(question.explanation)}</div>` : ""}
+                    </article>
+                `;
+            }).join("");
+
+            const generatedDate = new Date().toLocaleString();
+            printWindow.document.open();
+            printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSow Quiz Review</title>
+<style>
+    @page { size: A4; margin: 16mm; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #172033; font-family: Arial, Helvetica, sans-serif; line-height: 1.55; }
+    .header { border-bottom: 3px solid #2563eb; padding-bottom: 14px; margin-bottom: 22px; }
+    .brand { color: #2563eb; font-size: 25px; font-weight: 800; letter-spacing: -.5px; }
+    .subtitle { color: #64748b; margin-top: 2px; font-size: 13px; }
+    .summary { margin-top: 15px; padding: 12px 15px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9px; }
+    .summary strong { color: #1d4ed8; }
+    .question-card { border: 1px solid #dbe3ee; border-radius: 10px; padding: 15px 17px; margin: 0 0 15px; break-inside: avoid; page-break-inside: avoid; }
+    .question-card h2 { color: #1d4ed8; font-size: 14px; margin: 0 0 7px; }
+    .question-text { font-size: 15px; font-weight: 700; margin: 0 0 10px; white-space: pre-wrap; }
+    .options { margin: 0 0 10px; padding-left: 25px; }
+    .options li { padding: 5px 7px; margin: 3px 0; border-radius: 5px; }
+    .options li.correct { background: #ecfdf5; color: #166534; }
+    .options li.selected { outline: 1px solid #93c5fd; }
+    .tag { display: inline-block; margin-left: 7px; font-size: 10px; color: #166534; }
+    .selected-tag { color: #1d4ed8; }
+    .answer-line { margin: 5px 0; font-size: 13px; }
+    .explanation { margin-top: 9px; padding: 9px 11px; background: #f8fafc; border-left: 3px solid #0891b2; font-size: 13px; }
+    .footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 11px; text-align: center; }
+    @media print { .question-card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+    <header class="header">
+        <div class="brand">EduSow</div>
+        <div class="subtitle">Quiz Review · Your completed quiz</div>
+        <div class="summary">
+            <strong>Result:</strong> ${completedQuizScore.score}/${generatedQuiz.length}
+            &nbsp; · &nbsp; <strong>Score:</strong> ${completedQuizScore.percentage}%
+            &nbsp; · &nbsp; <strong>Questions:</strong> ${generatedQuiz.length}
+            <div style="font-size:11px;color:#64748b;margin-top:4px;">Saved on ${escapeHTML(generatedDate)}</div>
+        </div>
+    </header>
+    ${questionCards}
+    <footer class="footer">Created with EduSow · edusow.com</footer>
+</body>
+</html>`);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 300);
         }
 
 
