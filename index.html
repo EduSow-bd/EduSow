@@ -2638,6 +2638,17 @@ footer nav.footer-links a:focus-visible {
                 <span id="savedFlashcardCount">0 saved</span>
             </div>
             <p class="saved-flashcards-help">Save cards you want to revise later. Your saved cards stay in this browser on this device.</p>
+            <div class="saved-flashcards-export" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:16px 0;padding:14px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                <label for="selectAllSavedFlashcards" style="display:flex;align-items:center;gap:9px;font-weight:650;color:var(--text);">
+                    <input type="checkbox" id="selectAllSavedFlashcards" onchange="toggleAllSavedFlashcards(this.checked)">
+                    Select all
+                </label>
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <span id="selectedSavedFlashcardCount" style="font-size:13px;color:var(--text-soft);" aria-live="polite">0 selected</span>
+                    <button type="button" id="exportSavedFlashcardsPdfButton" onclick="downloadSavedFlashcardsPDF()" disabled>📄 Save selected as PDF</button>
+                </div>
+            </div>
+            <p id="savedFlashcardsPdfStatus" role="status" aria-live="polite" style="font-size:13px;color:var(--text-soft);margin:8px 0;"></p>
             <div id="savedFlashcardsList">
                 <p class="saved-flashcards-empty">No saved flashcards yet. Generate cards, then select “Save this flashcard”.</p>
             </div>
@@ -4265,6 +4276,7 @@ async function generateQuizFromPDF() {
         function removeSavedFlashcard(index) {
             if (!Number.isInteger(index) || index < 0 || index >= savedFlashcards.length) return;
             const removed = savedFlashcards.splice(index, 1)[0];
+            selectedSavedFlashcardKeys.delete(getSavedFlashcardKey(removed));
             if (!persistSavedFlashcards()) {
                 savedFlashcards.splice(index, 0, removed);
                 return;
@@ -4294,6 +4306,22 @@ async function generateQuizFromPDF() {
                 const item = document.createElement("article");
                 item.className = "saved-flashcard-item";
 
+                const selectionLabel = document.createElement("label");
+                selectionLabel.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--text-soft);";
+                const selectionCheckbox = document.createElement("input");
+                selectionCheckbox.type = "checkbox";
+                selectionCheckbox.checked = selectedSavedFlashcardKeys.has(getSavedFlashcardKey(card));
+                selectionCheckbox.setAttribute("aria-label", `Select saved flashcard ${index + 1} for PDF`);
+                selectionCheckbox.addEventListener("change", () => {
+                    const key = getSavedFlashcardKey(card);
+                    if (selectionCheckbox.checked) selectedSavedFlashcardKeys.add(key);
+                    else selectedSavedFlashcardKeys.delete(key);
+                    updateSavedFlashcardExportControls();
+                });
+                selectionLabel.appendChild(selectionCheckbox);
+                selectionLabel.appendChild(document.createTextNode("Include in PDF"));
+                item.appendChild(selectionLabel);
+
                 const questionLabel = document.createElement("strong");
                 questionLabel.textContent = `Q${index + 1}. ${card.front}`;
                 item.appendChild(questionLabel);
@@ -4318,6 +4346,97 @@ async function generateQuizFromPDF() {
 
                 list.appendChild(item);
             });
+            updateSavedFlashcardExportControls();
+        }
+
+        function getSavedFlashcardKey(card) {
+            return JSON.stringify([card.front, card.back]);
+        }
+
+        function updateSavedFlashcardExportControls() {
+            const selectedCount = savedFlashcards.filter(card =>
+                selectedSavedFlashcardKeys.has(getSavedFlashcardKey(card))
+            ).length;
+            const count = document.getElementById("selectedSavedFlashcardCount");
+            const selectAll = document.getElementById("selectAllSavedFlashcards");
+            const exportButton = document.getElementById("exportSavedFlashcardsPdfButton");
+            if (count) count.textContent = `${selectedCount} selected`;
+            if (exportButton) exportButton.disabled = selectedCount === 0;
+            if (selectAll) {
+                selectAll.checked = savedFlashcards.length > 0 && selectedCount === savedFlashcards.length;
+                selectAll.indeterminate = selectedCount > 0 && selectedCount < savedFlashcards.length;
+                selectAll.disabled = savedFlashcards.length === 0;
+            }
+        }
+
+        function toggleAllSavedFlashcards(checked) {
+            selectedSavedFlashcardKeys = new Set();
+            if (checked) {
+                savedFlashcards.forEach(card => selectedSavedFlashcardKeys.add(getSavedFlashcardKey(card)));
+            }
+            renderSavedFlashcards();
+        }
+
+        function downloadSavedFlashcardsPDF() {
+            const selectedCards = savedFlashcards.filter(card =>
+                selectedSavedFlashcardKeys.has(getSavedFlashcardKey(card))
+            );
+            const status = document.getElementById("savedFlashcardsPdfStatus");
+            if (!selectedCards.length) {
+                if (status) status.textContent = "Select at least one flashcard first.";
+                return;
+            }
+
+            const printWindow = window.open("", "_blank");
+            if (!printWindow) {
+                if (status) status.textContent = "Your browser blocked the PDF window. Allow pop-ups for edusow.com and try again.";
+                return;
+            }
+
+            const cardsHTML = selectedCards.map((card, index) => `
+                <article class="pdf-card">
+                    <p class="card-number">FLASHCARD ${index + 1} OF ${selectedCards.length}</p>
+                    <h2>Q: ${escapeHTML(card.front)}</h2>
+                    <div class="answer"><strong>Answer</strong><p>${escapeHTML(card.back)}</p></div>
+                </article>
+            `).join("");
+
+            printWindow.document.open();
+            printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSow Flashcards</title>
+<style>
+    @page { size: A4; margin: 18mm; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #172033; font-family: Arial, "Noto Sans Bengali", sans-serif; line-height: 1.65; }
+    header { margin-bottom: 26px; padding-bottom: 16px; border-bottom: 2px solid #2563eb; }
+    header h1 { margin: 0; color: #1d4ed8; font-size: 25px; }
+    header p { margin: 5px 0 0; color: #64748b; font-size: 12px; }
+    .pdf-card { margin: 0 0 22px; padding: 18px; border: 1px solid #cbd5e1; border-radius: 10px; break-inside: avoid; page-break-inside: avoid; }
+    .card-number { margin: 0 0 10px; color: #2563eb; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+    .pdf-card h2 { margin: 0 0 16px; font-size: 17px; line-height: 1.5; }
+    .answer { padding: 12px 14px; border-radius: 7px; background: #eff6ff; }
+    .answer strong { color: #1d4ed8; font-size: 12px; }
+    .answer p { margin: 5px 0 0; white-space: pre-wrap; }
+    footer { margin-top: 28px; padding-top: 10px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 10px; text-align: center; }
+    @media screen { body { max-width: 800px; margin: 30px auto; padding: 0 24px; } }
+</style>
+</head>
+<body>
+<header><h1>EduSow – Flashcards</h1><p>${selectedCards.length} selected flashcards · ${new Date().toLocaleDateString()}</p></header>
+<main>${cardsHTML}</main>
+<footer>Created with EduSow · edusow.com</footer>
+</body>
+</html>`);
+            printWindow.document.close();
+            if (status) status.textContent = "Your flashcards are ready. In the print window, choose “Save as PDF” as the destination.";
+            printWindow.onload = () => {
+                printWindow.focus();
+                printWindow.print();
+            };
         }
 
         function updateFlashcard() {
