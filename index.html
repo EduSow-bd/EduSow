@@ -2958,9 +2958,9 @@ footer nav.footer-links a:focus-visible {
                     false
                 );
 
-                // Only one worker is used by the current fallback path. Creating a second
-                // worker doubled startup/download work without processing any extra pages.
-                sharedOCRWorkersPromise = Tesseract.createWorker(
+                // Create two reusable workers so separate scanned PDF pages can be
+                // be recognized concurrently. Both use the same language and OCR settings.
+                const createReusableWorker = () => Tesseract.createWorker(
                     requestedLanguageCode,
                     1,
                     {
@@ -2975,8 +2975,25 @@ footer nav.footer-links a:focus-visible {
                             }
                         }
                     }
-                ).then(worker => {
-                    sharedOCRWorkers = [worker];
+                );
+
+                sharedOCRWorkersPromise = Promise.allSettled([
+                    createReusableWorker(),
+                    createReusableWorker()
+                ]).then(async results => {
+                    const readyWorkers = results
+                        .filter(result => result.status === "fulfilled")
+                        .map(result => result.value);
+                    const failedWorker = results.find(result => result.status === "rejected");
+
+                    if (failedWorker) {
+                        await Promise.all(
+                            readyWorkers.map(worker => worker.terminate().catch(() => {}))
+                        );
+                        throw failedWorker.reason;
+                    }
+
+                    sharedOCRWorkers = readyWorkers;
                     return sharedOCRWorkers;
                 }).catch(error => {
                     sharedOCRWorkersPromise = null;
@@ -3534,23 +3551,34 @@ async function extractSelectedPDF() {
         const ocrPages = pages.filter(page => page.needsOCR);
         let completed = 0;
 
-        // Keep local OCR in sequence because a Tesseract worker handles one page at
-        // a time. This avoids worker contention and preserves the existing accuracy.
-        for (const item of ocrPages) {
+        // Each Tesseract worker handles one page at a time. Use both workers
+        // concurrently, while keeping each page's result attached to its original position.
+        const workers = ocrPages.length ? await getSharedOCRWorkers() : [];
+        const localOCRBatchSize = 2;
+        for (let start = 0; start < ocrPages.length; start += localOCRBatchSize) {
+            const batch = ocrPages.slice(start, start + localOCRBatchSize);
             showStatus(
                 "pdfExtractionStatus",
-                `Reading scanned page ${completed + 1}/${ocrPages.length} (PDF page ${item.pageNumber})…`,
+                `Reading scanned pages ${completed + 1}-${Math.min(completed + batch.length, ocrPages.length)} of ${ocrPages.length}…`,
                 false
             );
-            try {
-                const workers = await getSharedOCRWorkers();
-                const page = await pdf.getPage(item.pageNumber);
-                const localText = await recognizePDFPage(page, item.pageNumber, pdf.numPages, workers[0]);
-                if (localText.trim()) item.pageText = localText.replace(/\s+/g, " ").trim();
-            } catch (localError) {
-                console.warn("Local OCR failed for scanned PDF page", item.pageNumber, localError);
-            }
-            completed++;
+
+            await Promise.all(batch.map(async (item, index) => {
+                try {
+                    const page = await pdf.getPage(item.pageNumber);
+                    const localText = await recognizePDFPage(
+                        page,
+                        item.pageNumber,
+                        pdf.numPages,
+                        workers[index]
+                    );
+                    if (localText.trim()) item.pageText = localText.replace(/\s+/g, " ").trim();
+                } catch (localError) {
+                    console.warn("Local OCR failed for scanned PDF page", item.pageNumber, localError);
+                }
+            }));
+
+            completed += batch.length;
         }
 
         // Only pages that local OCR could not read need the AI vision fallback.
