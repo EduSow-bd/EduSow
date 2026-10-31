@@ -4229,6 +4229,7 @@ async function generateQuizFromPDF() {
         }
 
         let savedFlashcards = loadSavedFlashcards();
+        let selectedSavedFlashcardKeys = new Set();
 
         function persistSavedFlashcards() {
             try {
@@ -4279,6 +4280,7 @@ async function generateQuizFromPDF() {
             selectedSavedFlashcardKeys.delete(getSavedFlashcardKey(removed));
             if (!persistSavedFlashcards()) {
                 savedFlashcards.splice(index, 0, removed);
+                selectedSavedFlashcardKeys.add(getSavedFlashcardKey(removed));
                 return;
             }
             renderSavedFlashcards();
@@ -4433,10 +4435,12 @@ async function generateQuizFromPDF() {
 </html>`);
             printWindow.document.close();
             if (status) status.textContent = "Your flashcards are ready. In the print window, choose “Save as PDF” as the destination.";
-            printWindow.onload = () => {
-                printWindow.focus();
-                printWindow.print();
-            };
+            setTimeout(() => {
+                if (!printWindow.closed) {
+                    printWindow.focus();
+                    printWindow.print();
+                }
+            }, 350);
         }
 
         function updateFlashcard() {
