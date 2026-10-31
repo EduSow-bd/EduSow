@@ -2933,10 +2933,15 @@ footer nav.footer-links a:focus-visible {
             return selected;
         }
 
-        async function getSharedOCRWorkers() {
+        async function getSharedOCRWorkers(requestedCount = 1) {
             const requestedLanguageCode = getSelectedOCRLanguageCode();
+            const safeCount = Math.max(1, Math.min(2, Number(requestedCount) || 1));
 
-            if (sharedOCRLanguageCode && sharedOCRLanguageCode !== requestedLanguageCode) {
+            if (
+                sharedOCRLanguageCode &&
+                (sharedOCRLanguageCode !== requestedLanguageCode ||
+                 sharedOCRWorkers?.length !== safeCount)
+            ) {
                 const oldWorkers = sharedOCRWorkers;
                 sharedOCRWorkers = null;
                 sharedOCRWorkersPromise = null;
@@ -2946,39 +2951,33 @@ footer nav.footer-links a:focus-visible {
                 }
             }
 
-            if (sharedOCRWorkers) {
-                return sharedOCRWorkers;
-            }
+            if (sharedOCRWorkers) return sharedOCRWorkers;
 
             if (!sharedOCRWorkersPromise) {
                 sharedOCRLanguageCode = requestedLanguageCode;
                 showStatus(
                     "pdfExtractionStatus",
-                    `Loading OCR language data (${requestedLanguageCode.replace(/\+/g, ", ")})...`,
+                    `Loading OCR language data (${requestedLanguageCode.replace(/\\+/g, ", ")})…`,
                     false
                 );
 
-                // Only one worker is used by the current fallback path. Creating a second
-                // worker doubled startup/download work without processing any extra pages.
-                sharedOCRWorkersPromise = Tesseract.createWorker(
-                    requestedLanguageCode,
-                    1,
-                    {
-                        logger: message => {
-                            if (message.status === "recognizing text") {
-                                const percent = Math.round((message.progress || 0) * 100);
-                                showStatus(
-                                    "pdfExtractionStatus",
-                                    `OCR progress: ${percent}%`,
-                                    false
-                                );
+                // Use a second worker only for multi-page OCR on devices with enough
+                // reported CPU capacity. This balances throughput against laptop memory.
+                sharedOCRWorkersPromise = Promise.all(
+                    Array.from({ length: safeCount }, () =>
+                        Tesseract.createWorker(requestedLanguageCode, 1, {
+                            logger: message => {
+                                if (message.status === "recognizing text") {
+                                    const percent = Math.round((message.progress || 0) * 100);
+                                    showStatus("pdfExtractionStatus", `OCR in progress: ${percent}%`, false);
+                                }
                             }
-                        }
-                    }
-                ).then(worker => {
-                    sharedOCRWorkers = [worker];
-                    return sharedOCRWorkers;
-                }).catch(error => {
+                        })
+                    )
+                ).then(workers => {
+                    sharedOCRWorkers = workers;
+                    return workers;
+                }).catch(async error => {
                     sharedOCRWorkersPromise = null;
                     sharedOCRLanguageCode = null;
                     throw error;
@@ -2987,7 +2986,6 @@ footer nav.footer-links a:focus-visible {
 
             return sharedOCRWorkersPromise;
         }
-
         async function recognizePDFPage(
             page,
             pageNumber,
@@ -3545,37 +3543,58 @@ async function extractSelectedPDF() {
             ? (detectMaterialLanguage(nativeText) === "Bengali" ? "ben" : "eng")
             : null;
 
-        // OCR only scanned/image-only pages. Keep AI maths OCR as a fallback for pages
-        // that local OCR cannot read, rather than blocking every maths-heavy text page.
+        // OCR only scanned/image-only pages. Use up to two reusable workers on
+        // capable devices, while retaining page order in the final assembled text.
         const ocrPages = pages.filter(page => page.needsOCR);
-        let completed = 0;
-        for (const item of ocrPages) {
-            showStatus(
-                "pdfExtractionStatus",
-                `Reading scanned page ${completed + 1}/${ocrPages.length} (PDF page ${item.pageNumber})…`,
-                false
-            );
-            try {
-                const workers = await getSharedOCRWorkers();
-                const page = await pdf.getPage(item.pageNumber);
-                const localText = await recognizePDFPage(page, item.pageNumber, pdf.numPages, workers[0]);
-                if (localText.trim()) item.pageText = localText.replace(/\s+/g, " ").trim();
-            } catch (localError) {
-                console.warn("Local OCR failed for scanned PDF page", item.pageNumber, localError);
-            }
+        const hardwareThreads = Number(navigator.hardwareConcurrency || 2);
+        const workerCount = ocrPages.length > 1 && hardwareThreads > 2 ? 2 : 1;
+        const workers = ocrPages.length ? await getSharedOCRWorkers(workerCount) : [];
+        let nextOCRIndex = 0;
+        let completedOCR = 0;
 
-            // If local OCR cannot recover a scanned page, use the existing math-aware
-            // OCR service as a last resort. This preserves a path for difficult scans.
-            if (item.pageText.replace(/\s/g, "").length < 30) {
+        async function processNextScannedPage(worker) {
+            while (true) {
+                const index = nextOCRIndex++;
+                if (index >= ocrPages.length) return;
+                const item = ocrPages[index];
+
+                showStatus(
+                    "pdfExtractionStatus",
+                    `Reading scanned page ${completedOCR + 1}/${ocrPages.length} (PDF page ${item.pageNumber})…`,
+                    false
+                );
+
                 try {
                     const page = await pdf.getPage(item.pageNumber);
-                    const visionText = await recognizePDFPageWithMathOCR(page);
-                    if (visionText.trim()) item.pageText = visionText.replace(/\r/g, "").trim();
-                } catch (visionError) {
-                    console.warn("Math-aware OCR fallback failed for PDF page", item.pageNumber, visionError);
+                    const localText = await recognizePDFPage(page, item.pageNumber, pdf.numPages, worker);
+                    if (localText.trim()) item.pageText = localText.replace(/\\s+/g, " ").trim();
+                } catch (localError) {
+                    console.warn("Local OCR failed for scanned PDF page", item.pageNumber, localError);
                 }
+
+                // Keep the existing higher-capability OCR fallback for pages that
+                // local OCR could not recover; do not silently discard difficult pages.
+                if (item.pageText.replace(/\\s/g, "").length < 30) {
+                    try {
+                        const page = await pdf.getPage(item.pageNumber);
+                        const visionText = await recognizePDFPageWithMathOCR(page);
+                        if (visionText.trim()) item.pageText = visionText.replace(/\\r/g, "").trim();
+                    } catch (visionError) {
+                        console.warn("Math-aware OCR fallback failed for PDF page", item.pageNumber, visionError);
+                    }
+                }
+
+                completedOCR++;
+                showStatus(
+                    "pdfExtractionStatus",
+                    `Scanned pages processed: ${completedOCR}/${ocrPages.length}…`,
+                    false
+                );
             }
-            completed++;
+        }
+
+        if (ocrPages.length) {
+            await Promise.all(workers.map(worker => processNextScannedPage(worker)));
         }
 
         extractedPDFText = pages
