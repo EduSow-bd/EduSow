@@ -3356,23 +3356,36 @@ async function extractSelectedImage() {
     }
 
     try {
-        const extractedParts = [];
-        for (let index = 0; index < images.length; index++) {
-            const file = images[index];
+        // Process two images at a time. This reduces waiting on network round trips
+        // while keeping the final text in the user's original selection order.
+        const extractedParts = new Array(images.length);
+        const batchSize = 2;
+
+        for (let start = 0; start < images.length; start += batchSize) {
+            const batch = images.slice(start, start + batchSize);
             showStatus(
                 "pdfExtractionStatus",
                 images.length > 1
-                    ? `Extracting image ${index + 1} of ${images.length}: ${file.name}…`
+                    ? `Reading images ${start + 1}-${Math.min(start + batch.length, images.length)} of ${images.length} in parallel…`
                     : "Reading text and mathematical notation with AI OCR…",
                 false
             );
 
-            const payload = await imageFileToOCRPayload(file);
-            const imageText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
-            extractedParts.push(`[Image ${index + 1}: ${file.name}]
-${imageText.trim()}`);
-            extractedPDFText = extractedParts.join("\n\n");
+            const results = await Promise.allSettled(batch.map(async (file, offset) => {
+                const index = start + offset;
+                const payload = await imageFileToOCRPayload(file);
+                const imageText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
+                return `[Image ${index + 1}: ${file.name}]\n${imageText.trim()}`;
+            }));
 
+            results.forEach((result, offset) => {
+                if (result.status === "fulfilled") {
+                    extractedParts[start + offset] = result.value;
+                }
+            });
+
+            // Preserve any successful results even if another image in this batch fails.
+            extractedPDFText = extractedParts.filter(Boolean).join("\n\n");
             const textArea = document.getElementById("pdfExtractedText");
             if (textArea) textArea.value = extractedPDFText;
             const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
@@ -3381,6 +3394,9 @@ ${imageText.trim()}`);
             if (wordCountElement) wordCountElement.textContent = wordCount;
             const charCountElement = document.getElementById("pdfCharCount");
             if (charCountElement) charCountElement.textContent = charCount;
+
+            const failed = results.find(result => result.status === "rejected");
+            if (failed) throw failed.reason;
         }
 
         setExplainMaterialsAvailable(true);
@@ -3517,6 +3533,9 @@ async function extractSelectedPDF() {
         // that local OCR cannot read, rather than blocking every maths-heavy text page.
         const ocrPages = pages.filter(page => page.needsOCR);
         let completed = 0;
+
+        // Keep local OCR in sequence because a Tesseract worker handles one page at
+        // a time. This avoids worker contention and preserves the existing accuracy.
         for (const item of ocrPages) {
             showStatus(
                 "pdfExtractionStatus",
@@ -3531,10 +3550,24 @@ async function extractSelectedPDF() {
             } catch (localError) {
                 console.warn("Local OCR failed for scanned PDF page", item.pageNumber, localError);
             }
+            completed++;
+        }
 
-            // If local OCR cannot recover a scanned page, use the existing math-aware
-            // OCR service as a last resort. This preserves a path for difficult scans.
-            if (item.pageText.replace(/\s/g, "").length < 30) {
+        // Only pages that local OCR could not read need the AI vision fallback.
+        // Run at most two fallback requests together to reduce total waiting time
+        // without overwhelming the browser or the AI endpoint.
+        const fallbackPages = ocrPages.filter(
+            item => item.pageText.replace(/\s/g, "").length < 30
+        );
+        const fallbackBatchSize = 2;
+        for (let start = 0; start < fallbackPages.length; start += fallbackBatchSize) {
+            const batch = fallbackPages.slice(start, start + fallbackBatchSize);
+            showStatus(
+                "pdfExtractionStatus",
+                `Improving recognition on scanned page(s) ${start + 1}-${Math.min(start + batch.length, fallbackPages.length)} of ${fallbackPages.length}…`,
+                false
+            );
+            await Promise.all(batch.map(async item => {
                 try {
                     const page = await pdf.getPage(item.pageNumber);
                     const visionText = await recognizePDFPageWithMathOCR(page);
@@ -3542,8 +3575,7 @@ async function extractSelectedPDF() {
                 } catch (visionError) {
                     console.warn("Math-aware OCR fallback failed for PDF page", item.pageNumber, visionError);
                 }
-            }
-            completed++;
+            }));
         }
 
         extractedPDFText = pages
