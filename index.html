@@ -3349,58 +3349,90 @@ async function extractSelectedImage() {
         : (selectedPDFFile ? [selectedPDFFile] : []);
     if (!images.length || images.some(file => {
         const name = file.name.toLowerCase();
-        return !(/^image\/(jpeg|png)$/.test(file.type) || /\.(jpe?g|png)$/.test(name));
+        return !(/^image\\/(jpeg|png)$/.test(file.type) || /\\.(jpe?g|png)$/.test(name));
     })) {
         showStatus("pdfExtractionStatus", "Please select one or more JPG, JPEG, or PNG images first.", true);
         return;
     }
 
     try {
-        const extractedParts = [];
-        for (let index = 0; index < images.length; index++) {
-            const file = images[index];
-            showStatus(
-                "pdfExtractionStatus",
-                images.length > 1
-                    ? `Extracting image ${index + 1} of ${images.length}: ${file.name}…`
-                    : "Reading text and mathematical notation with AI OCR…",
-                false
-            );
+        // Process at most two images at once. This overlaps image decoding and the
+        // OCR network request while avoiding an excessive burst of requests.
+        // Results are stored by original index, so displayed text stays in selection order.
+        const results = new Array(images.length);
+        let nextIndex = 0;
+        let completed = 0;
+        let failed = 0;
 
-            const payload = await imageFileToOCRPayload(file);
-            const imageText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
-            extractedParts.push(`[Image ${index + 1}: ${file.name}]
-${imageText.trim()}`);
-            extractedPDFText = extractedParts.join("\n\n");
+        async function processNextImage() {
+            while (true) {
+                const index = nextIndex++;
+                if (index >= images.length) return;
+                const file = images[index];
 
-            const textArea = document.getElementById("pdfExtractedText");
-            if (textArea) textArea.value = extractedPDFText;
-            const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
-            const charCount = extractedPDFText.length;
-            const wordCountElement = document.getElementById("pdfWordCount");
-            if (wordCountElement) wordCountElement.textContent = wordCount;
-            const charCountElement = document.getElementById("pdfCharCount");
-            if (charCountElement) charCountElement.textContent = charCount;
+                showStatus(
+                    "pdfExtractionStatus",
+                    images.length > 1
+                        ? `Extracting image ${index + 1} of ${images.length}: ${file.name}… (${completed} completed)`
+                        : "Reading text and mathematical notation…",
+                    false
+                );
+
+                try {
+                    const payload = await imageFileToOCRPayload(file);
+                    const imageText = await runMathAwareOCR(payload.imageBase64, payload.mimeType);
+                    results[index] = `[Image ${index + 1}: ${file.name}]\\n${imageText.trim()}`;
+                } catch (imageError) {
+                    failed++;
+                    results[index] = "";
+                    console.warn("Image OCR failed:", file.name, imageError);
+                } finally {
+                    completed++;
+                    showStatus(
+                        "pdfExtractionStatus",
+                        `Processed ${completed} of ${images.length} image(s)…`,
+                        false
+                    );
+                }
+            }
+        }
+
+        const workerCount = Math.min(2, images.length);
+        await Promise.all(Array.from({ length: workerCount }, () => processNextImage()));
+
+        const extractedParts = results.filter(Boolean);
+        extractedPDFText = extractedParts.join("\\n\\n");
+
+        const textArea = document.getElementById("pdfExtractedText");
+        if (textArea) textArea.value = extractedPDFText;
+        const wordCount = extractedPDFText.split(/\\s+/).filter(Boolean).length;
+        const charCount = extractedPDFText.length;
+        const wordCountElement = document.getElementById("pdfWordCount");
+        if (wordCountElement) wordCountElement.textContent = wordCount;
+        const charCountElement = document.getElementById("pdfCharCount");
+        if (charCountElement) charCountElement.textContent = charCount;
+
+        if (!extractedPDFText.trim()) {
+            throw new Error("No readable text could be extracted from the selected image(s). Try a clearer, upright image.");
         }
 
         setExplainMaterialsAvailable(true);
-        const wordCount = extractedPDFText.split(/\s+/).filter(Boolean).length;
-        const charCount = extractedPDFText.length;
         showStatus(
             "pdfExtractionStatus",
-            `Extraction complete for ${images.length} image(s), in selection order: ${wordCount} words and ${charCount} characters. Review the text below for any unclear symbols.`,
+            failed
+                ? `Extracted ${wordCount} words from ${images.length - failed} of ${images.length} image(s), in selection order. ${failed} image(s) could not be read; try those separately.`
+                : `Extraction complete for ${images.length} image(s), in selection order: ${wordCount} words and ${charCount} characters. Review unclear symbols before using the text.`,
             false
         );
     } catch (error) {
         console.error("Math-aware image OCR error:", error);
         showStatus(
             "pdfExtractionStatus",
-            `Image extraction stopped: ${error.message || "Unknown error"}. Any earlier image results are preserved; please try a sharper, well-lit image.`,
+            `Image extraction stopped: ${error.message || "Unknown error"}. Please try a sharper, well-lit image.`,
             true
         );
     }
 }
-
 async function extractSelectedPDF() {
     if (!selectedPDFFile) {
         showStatus("pdfExtractionStatus", "Please select a PDF, JPG, or PNG file first.", true);
