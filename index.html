@@ -1074,6 +1074,23 @@ textarea {
 .explain-example p { color:#134e4a; }
 .explain-presentation-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:15px 20px; border-top:1px solid var(--border); background:#f8fafc; }
 .explain-presentation-controls span { color:#64748b; font-size:13px; font-weight:650; }
+#saveExplainLessonPdf { background:#2563eb; color:#fff; border-color:#2563eb; }
+#saveExplainLessonPdf:hover { background:#1d4ed8; }
+#saveExplainLessonPdf[hidden] { display:none !important; }
+@media print {
+  body.explain-pdf-print { background:#fff !important; color:#172554 !important; }
+  .explain-pdf-page { max-width:800px; margin:0 auto; padding:28px 34px; color:#172554; font-family:Arial,sans-serif; line-height:1.65; }
+  .explain-pdf-page h1 { font-size:25px; margin:0 0 8px; color:#1e40af; }
+  .explain-pdf-page .pdf-brand { color:#2563eb; font-size:12px; font-weight:700; letter-spacing:1px; margin-bottom:18px; }
+  .explain-pdf-slide { break-inside:avoid; page-break-inside:avoid; padding:18px 0; border-bottom:1px solid #dbeafe; }
+  .explain-pdf-slide h2 { font-size:18px; color:#1e40af; margin:0 0 9px; }
+  .explain-pdf-slide h3 { font-size:15px; margin:14px 0 5px; }
+  .explain-pdf-slide p { margin:6px 0 10px; white-space:pre-wrap; }
+  .explain-pdf-slide ul { padding-left:22px; margin:8px 0; }
+  .explain-pdf-slide li { margin:4px 0; }
+  .explain-pdf-example { background:#f0fdfa; border-left:3px solid #0d9488; padding:10px 13px; margin-top:12px; }
+  .explain-pdf-footer { color:#64748b; font-size:10px; text-align:center; margin-top:24px; }
+}
 .explain-teacher-script { padding:18px; border-radius:15px; background:#f0f9ff; border:1px solid #bae6fd; margin-top:15px; }
 .explain-teacher-script strong { color:#1d4ed8; display:block; margin-bottom:7px; }
 .explain-teacher-script p { color:#334155; }
@@ -2454,6 +2471,7 @@ footer nav.footer-links a:focus-visible {
                             <button type="button" class="secondary" id="explainPrevious" onclick="moveExplainSlide(-1)">← Previous</button>
                             <span id="explainSlideProgress">Concept 1</span>
                             <button type="button" id="explainNext" onclick="moveExplainSlide(1)">Next →</button>
+                            <button type="button" class="secondary" id="saveExplainLessonPdf" onclick="saveExplainLessonAsPDF()" hidden>↓ Save Lesson as PDF</button>
                         </div>
 
                         <section class="explain-followup" aria-labelledby="explainFollowupTitle">
@@ -3057,6 +3075,8 @@ footer nav.footer-links a:focus-visible {
                 if (presentation) presentation.hidden = true;
                 explainLesson = null;
                 explainSlideIndex = 0;
+                const savePdfButton = document.getElementById("saveExplainLessonPdf");
+                if (savePdfButton) savePdfButton.hidden = true;
                 explainSourceText = "";
                 explainFollowupHistory = [];
                 const followupMessages = document.getElementById("explainFollowupMessages");
@@ -3209,6 +3229,41 @@ footer nav.footer-links a:focus-visible {
             }
         }
 
+        function saveExplainLessonAsPDF() {
+            if (!explainLesson || !Array.isArray(explainLesson.slides) || !explainLesson.slides.length) {
+                setExplainStatus("Create a lesson before saving it as a PDF.", true);
+                return;
+            }
+            if (explainSlideIndex !== explainLesson.slides.length - 1) {
+                setExplainStatus("Finish the lesson before saving it as a PDF.", true);
+                return;
+            }
+
+            const escapePdfText = (value) => String(value ?? "").replace(/[&<>"']/g, char => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            })[char]);
+            const slidesHtml = explainLesson.slides.map((slide, index) => {
+                const keyPoints = Array.isArray(slide.keyPoints) && slide.keyPoints.length
+                    ? '<h3>Key points</h3><ul>' + slide.keyPoints.map(point => '<li>' + escapePdfText(point) + '</li>').join('') + '</ul>'
+                    : "";
+                const example = slide.example
+                    ? '<div class="explain-pdf-example"><strong>' + escapePdfText(explainLesson.exampleLabel || "Example") + '</strong><p>' + escapePdfText(slide.example) + '</p></div>'
+                    : "";
+                return '<section class="explain-pdf-slide"><h2>' + (index + 1) + '. ' + escapePdfText(slide.title || "Key concept") + '</h2><p>' + escapePdfText(slide.explanation || "") + '</p>' + keyPoints + example + '</section>';
+            }).join("");
+
+            const title = escapePdfText(explainLesson.title || "Your AI lesson");
+            const printWindow = window.open("", "_blank");
+            if (!printWindow) {
+                setExplainStatus("Your browser blocked the PDF window. Allow pop-ups for EduSow and try again.", true);
+                return;
+            }
+            printWindow.document.open();
+            printWindow.document.write('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + title + ' - EduSow</title><style>@page{size:A4;margin:18mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#172554;font-family:Arial,sans-serif;line-height:1.65}.explain-pdf-page{max-width:800px;margin:0 auto;padding:20px 26px}.explain-pdf-page h1{font-size:25px;margin:0 0 8px;color:#1e40af}.pdf-brand{color:#2563eb;font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:18px}.explain-pdf-slide{break-inside:avoid;page-break-inside:avoid;padding:18px 0;border-bottom:1px solid #dbeafe}.explain-pdf-slide h2{font-size:18px;color:#1e40af;margin:0 0 9px}.explain-pdf-slide h3{font-size:15px;margin:14px 0 5px}.explain-pdf-slide p{margin:6px 0 10px;white-space:pre-wrap}.explain-pdf-slide ul{padding-left:22px;margin:8px 0}.explain-pdf-slide li{margin:4px 0}.explain-pdf-example{background:#f0fdfa;border-left:3px solid #0d9488;padding:10px 13px;margin-top:12px}.explain-pdf-footer{color:#64748b;font-size:10px;text-align:center;margin-top:24px}@media print{.explain-pdf-page{padding:0}}</style></head><body><main class="explain-pdf-page"><div class="pdf-brand">EDUSOW · EXPLAIN MATERIALS</div><h1>' + title + '</h1>' + slidesHtml + '<div class="explain-pdf-footer">Created with EduSow · Your learning notes</div></main><script>window.onload=function(){setTimeout(function(){window.focus();window.print();},250);};<\/script></body></html>');
+            printWindow.document.close();
+            setExplainStatus("Your complete lesson is ready. Choose “Save as PDF” in the print options to save it to your device.");
+        }
+
         function moveExplainSlide(direction){if(!explainLesson?.slides)return;explainSlideIndex=Math.max(0,Math.min(explainLesson.slides.length-1,explainSlideIndex+direction));renderExplainLesson();}
         function addExplainText(parent, tag, value, className) {
             const node = document.createElement(tag);
@@ -3221,7 +3276,7 @@ footer nav.footer-links a:focus-visible {
         function renderExplainLesson(){
             if(!explainLesson||!Array.isArray(explainLesson.slides))return;const slides=explainLesson.slides;explainSlideIndex=Math.max(0,Math.min(explainSlideIndex,slides.length-1));const slide=slides[explainSlideIndex]||{},content=document.getElementById("explainSlideContent");if(!content)return;content.replaceChildren();
             const nav=document.querySelector(".explain-presentation-controls");if(nav)nav.hidden=false;document.getElementById("explainPresentationTitle").textContent=explainLesson.title||"Your AI lesson";document.getElementById("explainPresentationSubtitle").textContent="Move through the lesson one concept at a time.";
-            document.getElementById("explainPrevious").textContent="← Previous";document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";addExplainText(content,"div","LESSON SLIDE · "+(explainSlideIndex+1)+" OF "+slides.length,"explain-slide-count");addExplainText(content,"h4",slide.title||"Key concept");
+            document.getElementById("explainPrevious").textContent="← Previous";document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";const savePdfButton=document.getElementById("saveExplainLessonPdf");if(savePdfButton)savePdfButton.hidden=explainSlideIndex<slides.length-1;addExplainText(content,"div","LESSON SLIDE · "+(explainSlideIndex+1)+" OF "+slides.length,"explain-slide-count");addExplainText(content,"h4",slide.title||"Key concept");
             addExplainText(content,"p",slide.explanation||"");if(Array.isArray(slide.keyPoints)&&slide.keyPoints.length){const list=document.createElement("ul");list.className="explain-keypoints";slide.keyPoints.forEach(p=>addExplainText(list,"li",p));content.appendChild(list);}if(slide.example){const example=document.createElement("div");example.className="explain-example";addExplainText(example,"strong",explainLesson.exampleLabel||"Example");addExplainText(example,"p",slide.example);content.appendChild(example);}
             document.getElementById("explainSlideProgress").textContent="Concept "+(explainSlideIndex+1)+" of "+slides.length;document.getElementById("explainPrevious").disabled=explainSlideIndex===0;document.getElementById("explainNext").disabled=explainSlideIndex>=slides.length-1;document.getElementById("explainNext").textContent=explainSlideIndex>=slides.length-1?"Lesson complete ✓":"Next →";
         }
