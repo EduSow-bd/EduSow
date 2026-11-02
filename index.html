@@ -2859,52 +2859,53 @@ footer nav.footer-links a:focus-visible {
 
         fileInput.addEventListener("change", function () {
             const files = Array.from(this.files || []);
+            // Keep previously selected images when the user opens the picker again
+            // to add more. Clearing the native input lets the same file be added later.
+            this.value = "";
+            if (!files.length) return;
+
             const pagePanel = document.getElementById("pdfPageSelectionBox");
             if (pagePanel) pagePanel.style.display = "none";
-
-            selectedPDFFile = null;
-            selectedImageFiles = [];
-            extractedPDFText = "";
-            setExplainMaterialsAvailable(false);
-
-            if (!files.length) {
-                selectedFileName.textContent = "No file selected";
-                return;
-            }
 
             const isPDFFile = file => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
             const isImageFile = file => /^image\/(jpeg|png)$/.test(file.type) || /\.(jpe?g|png)$/i.test(file.name);
             if (files.some(file => !isPDFFile(file) && !isImageFile(file))) {
-                this.value = "";
-                selectedFileName.textContent = "No file selected";
                 showStatus("uploadStatus", "Unsupported file. Please choose PDF, JPG, JPEG, or PNG files.", true);
                 return;
             }
 
             const hasPDF = files.some(isPDFFile);
             const hasImages = files.some(isImageFile);
-            if (hasPDF && files.length > 1) {
-                this.value = "";
-                selectedFileName.textContent = "No file selected";
-                showStatus("uploadStatus", "Choose one PDF at a time, or select multiple JPG/PNG images together.", true);
+            if ((hasPDF && (files.length > 1 || selectedImageFiles.length > 0)) || (hasImages && selectedPDFFile && !selectedImageFiles.length && isPDFFile(selectedPDFFile))) {
+                showStatus("uploadStatus", "Choose one PDF by itself, or add JPG/PNG images together. PDFs and images cannot be mixed.", true);
                 return;
             }
 
+            extractedPDFText = "";
+            setExplainMaterialsAvailable(false);
+
             if (hasPDF) {
                 selectedPDFFile = files[0];
-                selectedFileName.textContent = "Selected: " + files[0].name;
+                selectedImageFiles = [];
+                selectedFileName.textContent = "Selected PDF: " + files[0].name;
                 showStatus("uploadStatus", "PDF selected successfully.", false);
             } else if (hasImages) {
-                selectedImageFiles = files;
-                selectedPDFFile = files[0];
-                selectedFileName.textContent = files.length === 1
-                    ? "Selected: " + files[0].name
-                    : files.length + " images selected: " + files.map(file => file.name).join(", ");
-                showStatus("uploadStatus", files.length === 1
-                    ? "Image selected successfully. OCR can extract its text."
-                    : files.length + " images selected. They will be extracted one by one in selection order.", false);
+                const existingKeys = new Set(selectedImageFiles.map(file => file.name + "|" + file.size + "|" + file.lastModified));
+                const newImages = files.filter(file => {
+                    const key = file.name + "|" + file.size + "|" + file.lastModified;
+                    if (existingKeys.has(key)) return false;
+                    existingKeys.add(key);
+                    return true;
+                });
+                selectedImageFiles = [...selectedImageFiles, ...newImages];
+                selectedPDFFile = selectedImageFiles[0] || null;
+                selectedFileName.textContent = selectedImageFiles.length + " images selected: " +
+                    selectedImageFiles.map(file => file.name).join(", ");
+                showStatus("uploadStatus", newImages.length
+                    ? selectedImageFiles.length + " image(s) ready. You can choose files again to add more; all selected images will be extracted in order."
+                    : "Those images are already selected. Choose different images or continue with extraction.", false);
             }
-            console.log("Selected study materials:", files);
+            console.log("Selected study materials:", files, "Current image selection:", selectedImageFiles);
         });
 
 
