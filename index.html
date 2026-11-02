@@ -3094,6 +3094,121 @@ footer nav.footer-links a:focus-visible {
             status.style.borderColor = isError ? "#fecaca" : "#bfdbfe";
         }
 
+
+        // Prepare a small set of original page images for Gemini Vision.
+        // This is separate from OCR: native PDF text extraction and both OCR workers stay unchanged.
+        const MAX_EXPLAIN_VISUAL_PAGES = 5;
+        const MAX_EXPLAIN_VISUAL_BYTES = 1700000;
+
+        async function fileToExplainVisionImage(file) {
+            const objectUrl = URL.createObjectURL(file);
+            try {
+                const image = new Image();
+                image.decoding = "async";
+                image.src = objectUrl;
+                await new Promise((resolve, reject) => {
+                    image.onload = resolve;
+                    image.onerror = () => reject(new Error("The selected image could not be opened."));
+                });
+                const maxDimension = 1280;
+                const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+                const context = canvas.getContext("2d");
+                if (!context) throw new Error("Visual page processing is unavailable in this browser.");
+                context.fillStyle = "#ffffff";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL("image/jpeg", 0.68);
+                return { mimeType: "image/jpeg", imageBase64: dataUrl.split(",")[1] };
+            } finally {
+                URL.revokeObjectURL(objectUrl);
+            }
+        }
+
+        async function collectExplainVisualPages() {
+            const images = [];
+            let omittedCount = 0;
+            let totalChars = 0;
+            const isPDF = selectedPDFFile && (
+                selectedPDFFile.type === "application/pdf" ||
+                selectedPDFFile.name.toLowerCase().endsWith(".pdf")
+            );
+
+            if (isPDF) {
+                const pdf = await pdfjsLib.getDocument({ data: await selectedPDFFile.arrayBuffer() }).promise;
+                const selectedMode = document.querySelector(
+                    '#pdfPageSelectionBox input[name="pdfPageMode"]:checked'
+                )?.value || "all";
+                let pageNumbers;
+                if (selectedMode === "all") {
+                    pageNumbers = Array.from({ length: pdf.numPages }, (_, index) => index + 1);
+                } else {
+                    const rangeText = document.getElementById("pdfPageRange")?.value.trim() || "";
+                    if (!rangeText) throw new Error("The selected PDF page range is empty.");
+                    const pageSet = new Set();
+                    for (const part of rangeText.split(",")) {
+                        const match = part.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+                        if (!match) throw new Error("The selected PDF page range is invalid.");
+                        const first = Number(match[1]);
+                        const last = match[2] ? Number(match[2]) : first;
+                        if (first < 1 || last < first || last > pdf.numPages) {
+                            throw new Error("The selected PDF page range is outside the document.");
+                        }
+                        for (let page = first; page <= last; page++) pageSet.add(page);
+                    }
+                    pageNumbers = [...pageSet].sort((a, b) => a - b);
+                }
+
+                omittedCount = Math.max(0, pageNumbers.length - MAX_EXPLAIN_VISUAL_PAGES);
+                pageNumbers = pageNumbers.slice(0, MAX_EXPLAIN_VISUAL_PAGES);
+                for (const pageNumber of pageNumbers) {
+                    const page = await pdf.getPage(pageNumber);
+                    const baseViewport = page.getViewport({ scale: 1 });
+                    const scale = Math.min(1.5, 1280 / Math.max(baseViewport.width, baseViewport.height));
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement("canvas");
+                    canvas.width = Math.ceil(viewport.width);
+                    canvas.height = Math.ceil(viewport.height);
+                    const context = canvas.getContext("2d");
+                    if (!context) throw new Error("PDF page rendering is unavailable.");
+                    try {
+                        await page.render({ canvasContext: context, viewport }).promise;
+                        const imageBase64 = canvas.toDataURL("image/jpeg", 0.68).split(",")[1];
+                        if (totalChars + imageBase64.length > MAX_EXPLAIN_VISUAL_BYTES) {
+                            omittedCount += pageNumbers.length - images.length;
+                            break;
+                        }
+                        images.push({ pageNumber, label: "PDF page " + pageNumber, mimeType: "image/jpeg", imageBase64 });
+                        totalChars += imageBase64.length;
+                    } finally {
+                        canvas.width = 0;
+                        canvas.height = 0;
+                    }
+                }
+            } else {
+                const files = selectedImageFiles.length ? [...selectedImageFiles] : (selectedPDFFile ? [selectedPDFFile] : []);
+                omittedCount = Math.max(0, files.length - MAX_EXPLAIN_VISUAL_PAGES);
+                for (let index = 0; index < Math.min(files.length, MAX_EXPLAIN_VISUAL_PAGES); index++) {
+                    const file = files[index];
+                    const payload = await fileToExplainVisionImage(file);
+                    if (totalChars + payload.imageBase64.length > MAX_EXPLAIN_VISUAL_BYTES) {
+                        omittedCount += files.length - index;
+                        break;
+                    }
+                    images.push({
+                        pageNumber: index + 1,
+                        label: "Image " + (index + 1) + ": " + file.name,
+                        mimeType: payload.mimeType,
+                        imageBase64: payload.imageBase64
+                    });
+                    totalChars += payload.imageBase64.length;
+                }
+            }
+            return { images, omittedCount };
+        }
+
         async function generateMaterialExplanation() {
             const text = (extractedPDFText || document.getElementById("pdfExtractedText")?.value || "").trim();
             if (text.length < 10) {
@@ -3112,8 +3227,23 @@ footer nav.footer-links a:focus-visible {
             if (presentation) presentation.hidden = true;
             setExplainStatus("EduSow is organizing the material into a lesson. This may take a little while…");
             try {
+                let visualPages = [];
+                let omittedVisualPages = 0;
+                try {
+                    const visualResult = await collectExplainVisualPages();
+                    visualPages = visualResult.images;
+                    omittedVisualPages = visualResult.omittedCount;
+                } catch (visualError) {
+                    // Preserve the original text-only lesson path if page rendering fails.
+                    console.warn("Explain Materials visual-page preparation failed; continuing with extracted text.", visualError);
+                }
+
+                setExplainStatus(visualPages.length
+                    ? `EduSow is analysing the text and ${visualPages.length} original page visual(s)…`
+                    : "EduSow is organizing the extracted text into a lesson…");
+
                 const { data, error } = await supabaseClient.functions.invoke("explain-materials", {
-                    body: { text, language, detail }
+                    body: { text, language, detail, images: visualPages }
                 });
                 if (error) throw error;
                 if (!data || !Array.isArray(data.slides) || !data.slides.length) {
@@ -3125,7 +3255,13 @@ footer nav.footer-links a:focus-visible {
                 explainMode = "slides";
                 renderExplainLesson();
                 if (presentation) presentation.hidden = false;
-                setExplainStatus("Your interactive lesson is ready. Move through the slides one concept at a time.");
+                setExplainStatus(
+                    omittedVisualPages
+                        ? `Your interactive lesson is ready. EduSow analysed ${visualPages.length} page visual(s); ${omittedVisualPages} additional page(s) were not included in visual analysis. Move through the slides one concept at a time.`
+                        : visualPages.length
+                            ? "Your interactive lesson is ready, with visual page analysis. Move through the slides one concept at a time."
+                            : "Your interactive lesson is ready. Move through the slides one concept at a time."
+                );
                 presentation?.scrollIntoView({ behavior: "smooth", block: "start" });
             } catch (error) {
                 console.error("Explain Materials error:", error);
