@@ -179,7 +179,7 @@ Answer the actual question directly. Explain one step at a time. For maths, pres
       const mimeType = typeof image.mimeType === "string" ? image.mimeType : "";
       const imageBase64 = typeof image.imageBase64 === "string" ? image.imageBase64 : "";
       if (!["image/jpeg", "image/png", "image/webp"].includes(mimeType)) continue;
-      if (!imageBase64 || imageBase64.length > 500_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(imageBase64)) continue;
+      if (!imageBase64 || imageBase64.length > 1_700_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(imageBase64)) continue;
       if (visualChars + imageBase64.length > 1_700_000) break;
       visualChars += imageBase64.length;
       visualImages.push({
