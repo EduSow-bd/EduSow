@@ -797,8 +797,7 @@ textarea {
 
 
 /* =========================================================
-   AI INFO
-   ========================================================= */
+   AI INFO   ========================================================= */
 
 .ai-info {
     background:
@@ -1597,8 +1596,7 @@ section:not(.hero):not(.toolkit-section) > h2 {
     margin-bottom: 30px;
     color: #172554;
     font-size: clamp(29px, 3.5vw, 38px);
-    letter-spacing: -1.1px;
-}
+    letter-spacing: -1.1px;}
 section:not(.hero):not(.toolkit-section) > h2::after {
     width: 54px;
     height: 4px;
@@ -2397,8 +2395,7 @@ footer nav.footer-links a:focus-visible {
             <option value="nor">Norwegian</option>
             <option value="cat">Catalan</option>
             <option value="srp">Serbian</option>
-            <option value="bul">Bulgarian</option>
-        </select>
+            <option value="bul">Bulgarian</option>        </select>
         <small id="ocrLanguageHelp">Auto-detect uses the PDF's readable text when available. For scanned pages, EduSow selects a suitable OCR language automatically. You can choose any language manually.</small>
     </div>
 
@@ -3197,8 +3194,7 @@ footer nav.footer-links a:focus-visible {
                         sourceText: explainSourceText.slice(0, 50000),
                         lessonContext: context.slice(0, 9000),
                         lessonTitle: explainLesson.title || "",
-                        language,
-                        detail: document.getElementById("explainDetail")?.value || "simple",
+                        language,                        detail: document.getElementById("explainDetail")?.value || "simple",
                         history: explainFollowupHistory.slice(-8)
                     }
                 });
@@ -3997,8 +3993,7 @@ async function generateQuizFromPDF() {
 
             currentQuizQuestionIndex = Math.max(
                 0,
-                Math.min(index, generatedQuiz.length - 1)
-            );
+                Math.min(index, generatedQuiz.length - 1)            );
 
             const questionViewport = document.getElementById("quizQuestionViewport");
             if (questionViewport) questionViewport.scrollTop = 0;
@@ -4304,41 +4299,69 @@ async function generateQuizFromPDF() {
 
             result.innerHTML = `
                 <h3>🏆 Quiz Result</h3>
-
-                <p>
-                    You scored
-                    <strong>
-                        ${score}/${generatedQuiz.length}
-                    </strong>
-                </p>
-
-                <p>
-                    Percentage:
-                    <strong>
-                        ${percentage}%
-                    </strong>
-                </p>
-
-                <div style="margin-top:16px;">
-                    <button type="button" onclick="downloadCompletedQuizPDF()">
-                        📄 Save Quiz as PDF
-                    </button>
+                <p>You scored <strong>${score}/${generatedQuiz.length}</strong></p>
+                <p>Percentage: <strong>${percentage}%</strong></p>
+                <div id="quizPdfSelection" style="margin-top:18px; padding:16px; border:1px solid #bfdbfe; border-radius:14px; background:#fff;">
+                    <h4 style="margin-bottom:6px;">Choose questions to save</h4>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:10px;">Tick only the questions you want included in your PDF.</p>
+                    <div class="button-row" style="margin:0 0 10px;">
+                        <button type="button" class="secondary" onclick="setQuizPDFSelection(true)">Select all</button>
+                        <button type="button" class="secondary" onclick="setQuizPDFSelection(false)">Clear selection</button>
+                    </div>
+                    <div id="quizPdfQuestionChoices" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:8px;"></div>
+                    <button type="button" style="margin-top:14px;" onclick="downloadCompletedQuizPDF()">📄 Save selected questions as PDF</button>
+                    <p id="quizPdfSelectionStatus" style="margin-top:8px; font-size:13px; color:#64748b;" aria-live="polite">No questions selected yet.</p>
                 </div>
-                <p style="margin-top:8px; font-size:13px; color:#64748b;">
-                    Save a copy of all questions, options, correct answers and explanations.
-                </p>
             `;
+            const choices = document.getElementById("quizPdfQuestionChoices");
+            if (choices) {
+                choices.innerHTML = generatedQuiz.map((question, index) => `
+                    <label style="display:flex; align-items:flex-start; gap:8px; padding:9px 10px; margin:0; border:1px solid #dbeafe; border-radius:9px; background:#f8fbff; font-size:13px;">
+                        <input type="checkbox" class="quiz-pdf-question-checkbox" value="${index}" onchange="updateQuizPDFSelectionStatus()">
+                        <span>Question ${index + 1}</span>
+                    </label>
+                `).join("");
+            }
+            updateQuizPDFSelectionStatus();
 
             // Put the score where students see it immediately, without scrolling
             // through every question. Keep the answer review available below.
             result.scrollIntoView({ behavior: "smooth", block: "start" });
         }
 
-        // Export the exact quiz the student has just completed.
-        // The PDF is prepared locally in a print window; no quiz content is uploaded.
+        function getSelectedQuizPDFIndices() {
+            return Array.from(document.querySelectorAll(".quiz-pdf-question-checkbox:checked"))
+                .map(input => Number(input.value))
+                .filter(index => Number.isInteger(index) && index >= 0 && index < generatedQuiz.length);
+        }
+
+        function updateQuizPDFSelectionStatus() {
+            const selectedCount = getSelectedQuizPDFIndices().length;
+            const status = document.getElementById("quizPdfSelectionStatus");
+            if (status) {
+                status.textContent = selectedCount
+                    ? selectedCount + " question(s) selected for the PDF."
+                    : "No questions selected yet. Select at least one question.";
+            }
+        }
+
+        function setQuizPDFSelection(checked) {
+            document.querySelectorAll(".quiz-pdf-question-checkbox").forEach(input => {
+                input.checked = !!checked;
+            });
+            updateQuizPDFSelectionStatus();
+        }
+
+        // Export only the questions selected by the student. PDF preparation stays local.
         function downloadCompletedQuizPDF() {
             if (!Array.isArray(generatedQuiz) || !generatedQuiz.length || !completedQuizScore) {
                 alert("Finish a quiz before saving it as a PDF.");
+                return;
+            }
+
+            const selectedIndices = getSelectedQuizPDFIndices();
+            if (!selectedIndices.length) {
+                alert("Select at least one question to save as a PDF.");
                 return;
             }
 
@@ -4348,7 +4371,8 @@ async function generateQuizFromPDF() {
                 return;
             }
 
-            const questionCards = generatedQuiz.map((question, index) => {
+            const questionCards = selectedIndices.map((index, pdfIndex) => {
+                const question = generatedQuiz[index];
                 const options = Array.isArray(question.options) ? question.options : [];
                 const correctIndex = Number(question.answer);
                 const correctAnswer = Number.isInteger(correctIndex) && options[correctIndex] !== undefined
@@ -4374,7 +4398,7 @@ async function generateQuizFromPDF() {
 
                 return `
                     <article class="question-card">
-                        <h2>Question ${index + 1}</h2>
+                        <h2>Question ${pdfIndex + 1} <span style="color:#64748b;font-size:11px;font-weight:400;">(original question ${index + 1})</span></h2>
                         <p class="question-text">${escapeHTML(question.question || `Question ${index + 1}`)}</p>
                         <ol class="options">${optionMarkup}</ol>
                         <p class="answer-line"><strong>Correct answer:</strong> ${escapeHTML(correctAnswer)}</p>
@@ -4423,7 +4447,7 @@ async function generateQuizFromPDF() {
         <div class="summary">
             <strong>Result:</strong> ${completedQuizScore.score}/${generatedQuiz.length}
             &nbsp; · &nbsp; <strong>Score:</strong> ${completedQuizScore.percentage}%
-            &nbsp; · &nbsp; <strong>Questions:</strong> ${generatedQuiz.length}
+            &nbsp; · &nbsp; <strong>Questions in this PDF:</strong> ${selectedIndices.length}
             <div style="font-size:11px;color:#64748b;margin-top:4px;">Saved on ${escapeHTML(generatedDate)}</div>
         </div>
     </header>
@@ -4797,8 +4821,7 @@ async function generateFlashcardsFromPDF() {
             data.flashcards.length === 0
         ) {
             throw new Error(
-                data?.error || "The AI returned no flashcards."
-            );
+                data?.error || "The AI returned no flashcards."            );
         }
 
         // Convert the backend's question/answer format
