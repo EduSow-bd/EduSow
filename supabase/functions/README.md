@@ -17,7 +17,7 @@ GitHub Pages only deploys website files; it does not deploy Supabase Edge Functi
 
 ### Request/response
 
-The frontend sends { text, language, detail }, where language is english or bangla and detail is simple, balanced, or detailed. The function returns { success, title, teacherLabel, exampleLabel, slides, language }.
+The frontend sends { text, language, detail, images }, where language is english or bangla, detail is simple, balanced, or detailed, and images is an optional list of up to five resized original PDF/image pages. The function sends both extracted text and image parts to Gemini Vision so it can explain diagrams, charts, maps, tables, labels, arrows, and other visual relationships. If visual input is rejected by the provider, the function retries using the original text-only request. The function returns the existing schema { success, title, teacherLabel, exampleLabel, slides, language }; interactive slides and follow-up chat remain unchanged.
 
 ### Important operational note
 
