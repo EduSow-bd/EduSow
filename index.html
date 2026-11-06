@@ -837,25 +837,22 @@ textarea {
    ========================================================= */
 
 .quiz-question-viewport {
-    height: min(62vh, 560px);
-    min-height: 300px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    /* Let the document itself scroll; avoid a nested, fixed-height quiz panel on phones. */
+    height: auto;
+    min-height: 0;
+    overflow: visible;
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 12px;
     background: var(--surface-soft, #f8fafc);
-    scroll-behavior: smooth;
-}
-
-.quiz-question-viewport:focus {
-    outline: 2px solid #93c5fd;
-    outline-offset: 2px;
 }
 
 .quiz-question-viewport .quiz-question {
     margin-bottom: 12px;
+}
+
+.quiz-question-viewport .quiz-question:last-child {
+    margin-bottom: 0;
 }
 
 .quiz-question {
@@ -4123,63 +4120,8 @@ async function generateQuizFromPDF() {
 
 
         // =========================================================
-        // DISPLAY AI QUIZ AS ONE QUESTION PER SLIDE
+        // DISPLAY AI QUIZ AS A CONTINUOUS SCROLLING QUESTION LIST
         // =========================================================
-
-        let currentQuizQuestionIndex = 0;
-
-        function showQuizQuestion(index) {
-            if (!generatedQuiz.length) return;
-
-            currentQuizQuestionIndex = Math.max(
-                0,
-                Math.min(index, generatedQuiz.length - 1)            );
-
-            const questionViewport = document.getElementById("quizQuestionViewport");
-            if (questionViewport) questionViewport.scrollTop = 0;
-
-            generatedQuiz.forEach((_, questionIndex) => {
-                const questionElement = document.getElementById(
-                    `question-${questionIndex}`
-                );
-                if (questionElement) {
-                    questionElement.style.display =
-                        questionIndex === currentQuizQuestionIndex ? "block" : "none";
-                }
-            });
-
-            const progress = document.getElementById("quizSlideProgress");
-            if (progress) {
-                progress.textContent =
-                    `Question ${currentQuizQuestionIndex + 1} of ${generatedQuiz.length}`;
-            }
-
-            const progressBar = document.getElementById("quizSlideProgressBar");
-            if (progressBar) {
-                progressBar.style.width =
-                    `${((currentQuizQuestionIndex + 1) / generatedQuiz.length) * 100}%`;
-            }
-
-            const previousButton = document.getElementById("quizPreviousButton");
-            const nextButton = document.getElementById("quizNextButton");
-            const submitButton = document.getElementById("quizSlideSubmitButton");
-
-            if (previousButton) {
-                previousButton.disabled = currentQuizQuestionIndex === 0;
-                previousButton.style.opacity = previousButton.disabled ? "0.5" : "1";
-                previousButton.style.cursor = previousButton.disabled ? "not-allowed" : "pointer";
-            }
-
-            if (nextButton) {
-                nextButton.style.display =
-                    currentQuizQuestionIndex === generatedQuiz.length - 1 ? "none" : "inline-flex";
-            }
-
-            if (submitButton) {
-                submitButton.style.display =
-                    currentQuizQuestionIndex === generatedQuiz.length - 1 ? "inline-flex" : "none";
-            }
-        }
 
         function displayGeneratedQuiz() {
 
@@ -4189,10 +4131,7 @@ async function generateQuizFromPDF() {
                 );
 
             if (!generatedQuiz.length) {
-
-                container.innerHTML =
-                    "<p>No questions available.</p>";
-
+                container.innerHTML = "<p>No questions available.</p>";
                 return;
             }
 
@@ -4201,15 +4140,12 @@ async function generateQuizFromPDF() {
                     <strong>
                         🧠 Your AI-generated ${generatedQuiz.length}-question quiz
                     </strong>
-
                     <p>
-                        Answer one question at a time. Use Previous and Next to move between questions.
-                        Your answers will be reviewed after you submit.
+                        All questions are shown below in order. Scroll down to answer each question,
+                        then submit your quiz at the bottom.
                     </p>
                 </div>
-            `;
 
-            html += `
                 <div
                     id="quizFinalResult"
                     class="ai-info"
@@ -4217,109 +4153,76 @@ async function generateQuizFromPDF() {
                     role="status"
                     aria-live="polite"
                 ></div>
+
+                <div
+                    id="quizQuestionViewport"
+                    class="quiz-question-viewport"
+                    aria-label="All quiz questions"
+                >
             `;
 
-            html += '<div id="quizQuestionViewport" class="quiz-question-viewport" tabindex="0" aria-label="Quiz questions and answer review">';
+            generatedQuiz.forEach((question, index) => {
+                const questionText =
+                    question.question ||
+                    `Question ${index + 1}`;
 
-            generatedQuiz.forEach(
-                (question, index) => {
+                const options =
+                    Array.isArray(question.options)
+                        ? question.options
+                        : [];
 
-                    const questionText =
-                        question.question ||
-                        `Question ${index + 1}`;
+                html += `
+                    <div
+                        class="quiz-question"
+                        id="question-${index}"
+                    >
+                        <h3>
+                            ${index + 1}. ${escapeHTML(questionText)}
+                        </h3>
+                `;
 
-                    const options =
-                        Array.isArray(question.options)
-                            ? question.options
-                            : [];
-
+                options.forEach((option, optionIndex) => {
                     html += `
+                        <label class="quiz-option">
+                            <input
+                                type="radio"
+                                name="question-${index}"
+                                value="${optionIndex}"
+                            >
+                            ${escapeHTML(option)}
+                        </label>
+                    `;
+                });
+
+                html += `
                         <div
-                            class="quiz-question"
-                            id="question-${index}"
-                            style="display:none;"
-                        >
-
-                            <h3>
-                                ${index + 1}.
-                                ${escapeHTML(questionText)}
-                            </h3>
-                    `;
-
-                    options.forEach(
-                        (option, optionIndex) => {
-
-                            html += `
-                                <label class="quiz-option">
-
-                                    <input
-                                        type="radio"
-                                        name="question-${index}"
-                                        value="${optionIndex}"
-                                    >
-
-                                    ${escapeHTML(option)}
-
-                                </label>
-                            `;
-                        }
-                    );
-
-                    html += `
-                            <div
-                                id="explanation-${index}"
-                                style="margin-top:12px;"
-                            ></div>
-
-                        </div>
-                    `;
-                }
-            );
+                            id="explanation-${index}"
+                            style="margin-top:12px;"
+                        ></div>
+                    </div>
+                `;
+            });
 
             html += `
-            </div>
-
-            <div class="ai-info" style="text-align:center; margin-top:18px; padding:12px;">
-                    <strong id="quizSlideProgress">Question 1 of ${generatedQuiz.length}</strong>
-                    <div style="height:6px; background:#dbeafe; border-radius:999px; overflow:hidden; margin-top:10px;">
-                        <div id="quizSlideProgressBar" style="height:100%; width:${100 / generatedQuiz.length}%; background:linear-gradient(90deg,#2563eb,#60a5fa); border-radius:999px; transition:width .2s ease;"></div>
-                    </div>
                 </div>
 
-                <div class="button-row" style="justify-content:center; gap:10px; margin-top:14px;">
+                <div class="button-row" style="justify-content:center; gap:10px; margin-top:18px;">
                     <button
-                        id="quizPreviousButton"
-                        type="button"
-                        onclick="showQuizQuestion(currentQuizQuestionIndex - 1)"
-                        class="secondary"
-                    >← Previous</button>
-
-                    <button
-                        id="quizNextButton"
-                        type="button"
-                        onclick="showQuizQuestion(currentQuizQuestionIndex + 1)"
-                        class="primary"
-                    >Next →</button>
-
-                    <button
-                        id="quizSlideSubmitButton"
+                        id="quizSubmitButton"
                         type="button"
                         onclick="submitGeneratedQuiz()"
                         class="success"
-                        style="display:none;"
                     >✅ Submit Quiz</button>
 
                     <button
+                        type="button"
                         onclick="generateQuizFromPDF()"
                         class="secondary"
                     >🔄 Generate Again</button>
                 </div>
-
             `;
 
             container.innerHTML = html;
-            currentQuizQuestionIndex = 0;
-            showQuizQuestion(0);
         }
 
 
@@ -4336,22 +4239,9 @@ async function generateQuizFromPDF() {
                 return;
             }
 
-            // Keep the quiz in a fixed inner viewport. After submission, all
-            // questions and explanations scroll inside this panel, not the homepage.
-            generatedQuiz.forEach((_, index) => {
-                const questionElement = document.getElementById(`question-${index}`);
-                if (questionElement) questionElement.style.display = "block";
-            });
-
-            const slideNavigation = document.getElementById("quizSlideProgress");
-            if (slideNavigation) {
-                slideNavigation.parentElement.style.display = "none";
-            }
-
-            ["quizPreviousButton", "quizNextButton", "quizSlideSubmitButton"].forEach(id => {
-                const navButton = document.getElementById(id);
-                if (navButton) navButton.style.display = "none";
-            });
+            // Questions are already visible in the continuous scrolling layout.
+            const submitButton = document.getElementById("quizSubmitButton");
+            if (submitButton) submitButton.style.display = "none";
 
             let score = 0;
             const wrongAnswerNumbers = [];
