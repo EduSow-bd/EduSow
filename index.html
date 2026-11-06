@@ -4240,8 +4240,12 @@ async function generateQuizFromPDF() {
             }
 
             // Questions are already visible in the continuous scrolling layout.
+            // Hide submit and lock every answer so the submitted attempt cannot change.
             const submitButton = document.getElementById("quizSubmitButton");
             if (submitButton) submitButton.style.display = "none";
+            document.querySelectorAll('#quizQuestionViewport input[type="radio"]').forEach(input => {
+                input.disabled = true;
+            });
 
             let score = 0;
             const wrongAnswerNumbers = [];
