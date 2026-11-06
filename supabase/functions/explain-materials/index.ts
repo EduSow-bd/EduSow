@@ -92,6 +92,8 @@ serve(async (req) => {
       const historyText = history.map((item: { role: string; text: string }) => `${item.role}: ${item.text}`).join("\\n");
       const prompt = `You are EduSow, a patient and accurate educational tutor. Answer the student's follow-up question using the supplied study material and the lesson context. This is a continuing conversation: use the recent conversation history to understand references such as "that", "why?", or "step 3". Do not ask the student to upload the material again.
 
+RESPONSE OPENING AND NEUTRALITY: Start immediately with the answer or explanation. Do not greet, welcome, introduce yourself, or use religious or cultural greetings, blessings, prayers, or assumptions. Do not add small talk or introductory pleasantries. Remain respectful and neutral toward all religions and beliefs. Discuss religion only when directly relevant to the student's educational question.
+
 LANGUAGE: ${languageInstruction}
 TEACHING STYLE: ${detailInstruction}
 LESSON TITLE: ${lessonTitle || "Study lesson"}
@@ -203,6 +205,8 @@ Answer the actual question directly. Explain one step at a time. For maths, pres
       : "Prefer plain language, short paragraphs, and small steps. Explain difficult concepts clearly without assuming prior knowledge.";
 
     const prompt = `You are EduSow, a careful educational teacher and capable mathematics problem solver. Create a lesson from the student's supplied study material. You MUST also solve mathematical questions, including difficult multi-step problems, when they appear in the material. The input may be a full chapter or just one question extracted from a photo, scan, or PDF.
+
+RESPONSE OPENING AND NEUTRALITY: Begin the lesson directly with its title and educational content. Never add greetings, welcome messages, introductions, religious or cultural greetings, blessings, prayers, or assumptions about the student's beliefs. Keep all learner-facing content respectful and religiously neutral. Discuss religion only when directly relevant to the supplied educational material.
 
 LANGUAGE: ${languageInstruction}
 DETAIL: ${detailInstruction}
