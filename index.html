@@ -4354,6 +4354,7 @@ async function generateQuizFromPDF() {
             });
 
             let score = 0;
+            const wrongAnswerNumbers = [];
 
             generatedQuiz.forEach(
                 (question, index) => {
@@ -4386,6 +4387,8 @@ async function generateQuizFromPDF() {
                         `;
 
                     } else {
+
+                        wrongAnswerNumbers.push(index + 1);
 
                         const correctText =
                             question.options &&
@@ -4435,12 +4438,13 @@ async function generateQuizFromPDF() {
                 );
 
             result.style.display = "block";
-            completedQuizScore = { score, percentage };
+            completedQuizScore = { score, percentage, wrongAnswerNumbers };
 
             result.innerHTML = `
                 <h3>🏆 Quiz Result</h3>
                 <p>You scored <strong>${score}/${generatedQuiz.length}</strong></p>
                 <p>Percentage: <strong>${percentage}%</strong></p>
+                <p>Wrong answers: <strong>${wrongAnswerNumbers.length ? wrongAnswerNumbers.join(", ") : "None"}</strong></p>
                 <div id="quizPdfSelection" style="margin-top:18px; padding:16px; border:1px solid #bfdbfe; border-radius:14px; background:#fff;">
                     <h4 style="margin-bottom:6px;">Choose questions to save</h4>
                     <p style="font-size:13px; color:#64748b; margin-bottom:10px;">Tick only the questions you want included in your PDF.</p>
