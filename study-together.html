@@ -101,7 +101,7 @@ let currentUser=null,currentProfile=null,groups=[],activeGroup=null,pendingShare
 const PENDING_KEY="edusowStudyTogetherPendingShareV1";
 function escapeHTML(value){return String(value==null?"":value).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];});}
 function setStatus(message,type){const el=$("globalStatus");el.textContent=message;el.className="status"+(type?" "+type:"");}
-function groupStatus(message,type){const el=$("groupActionStatus");if(el){el.textContent=message;el.className="status"+(type?" "+type:"");}}
+function groupStatus(message,type){const el=$("groupActionStatus");if(el){el.classList.remove("hidden");el.textContent=message;el.className="status"+(type?" "+type:"");}}
 function displayDate(value){try{return new Date(value).toLocaleString();}catch(e){return "";}}
 function iconFor(type){return type==="lesson"?"📘":type==="quiz"?"🧠":type==="flashcards"?"🃏":"📄";}
 async function ensureProfile(){
