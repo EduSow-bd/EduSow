@@ -172,7 +172,7 @@ async function loadGroups(){
  if(error)throw error;
  groups=data||[];
  const list=$("groupList");
- if(!groups.length){list.innerHTML='<div class="card"><h3>No groups yet</h3><p>Create a private group or join one using a friend's invitation code.</p></div>';}
+ if(!groups.length){list.innerHTML='<div class="card"><h3>No groups yet</h3><p>Create a private group or join one using a friend’s invitation code.</p></div>';}
  else{
   const counts=await Promise.all(groups.map(async g=>{
    const {count}=await supabase.from("study_group_members").select("*",{count:"exact",head:true}).eq("group_id",g.id);
