@@ -216,11 +216,34 @@ async function removeMember(groupId,userId){
  if(error){groupStatus(error.message,"error");return;}
  await openGroup(groupId);
 }
+async function collectGroupStorageFiles(prefix){
+ const paths=[];let offset=0;
+ while(true){
+  const {data,error}=await supabase.storage.from("study-group-files").list(prefix,{limit:100,offset:offset});
+  if(error)throw error;
+  const entries=data||[];
+  for(const entry of entries){
+   const child=prefix+"/"+entry.name;
+   if(entry.id===null&&!entry.metadata){paths.push(...await collectGroupStorageFiles(child));}
+   else paths.push(child);
+  }
+  if(entries.length<100)break;
+  offset+=entries.length;
+ }
+ return paths;
+}
 async function deleteGroup(groupId){
- if(!confirm("Delete this group and all its shared items? This cannot be undone."))return;
- const {error}=await supabase.from("study_groups").delete().eq("id",groupId);
- if(error){groupStatus(error.message,"error");return;}
- activeGroup=null;$("groupDetail").classList.add("hidden");await loadGroups();setStatus("The group was deleted.","success");
+ if(!confirm("Delete this group and all its shared items and uploaded files? This cannot be undone."))return;
+ try{
+  const files=await collectGroupStorageFiles(groupId);
+  for(let i=0;i<files.length;i+=100){
+   const {error:storageError}=await supabase.storage.from("study-group-files").remove(files.slice(i,i+100));
+   if(storageError)throw storageError;
+  }
+  const {error}=await supabase.from("study_groups").delete().eq("id",groupId);
+  if(error)throw error;
+  activeGroup=null;$("groupDetail").classList.add("hidden");await loadGroups();setStatus("The group and its uploaded files were deleted.","success");
+ }catch(e){groupStatus(e.message||"Could not completely delete the group. The group has been kept so you can retry safely.","error");}
 }
 async function deleteItem(itemId){
  if(!confirm("Delete this shared item?"))return;
