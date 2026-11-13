@@ -7,7 +7,7 @@
 <meta name="description" content="Create private study groups, invite friends, and share EduSow lessons, quizzes, flashcards, and study materials.">
 <link rel="icon" type="image/png" href="/edusow-logo.png">
 <title>Study Together | EduSow</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
 <style>
 :root{--blue:#2563eb;--blue-dark:#1d4ed8;--cyan:#0ea5e9;--ink:#172554;--muted:#64748b;--line:#dbeafe;--bg:#f8fbff;--surface:#fff;--green:#15803d;--red:#b91c1c;--shadow:0 12px 35px rgba(15,23,42,.07)}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 0%,#eff6ff,transparent 34%),var(--bg);line-height:1.6}
@@ -93,6 +93,7 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
 <script>
 (function(){
 "use strict";
+if(!window.supabase||typeof window.supabase.createClient!=="function"){$("globalStatus").textContent="EduSow could not load its secure connection library. Please reload this page or try again shortly."; $("globalStatus").className="status error"; return;}
 const SUPABASE_URL="https://pjytoktykbaokkuhaera.supabase.co";
 const SUPABASE_KEY="sb_publishable_jizTuUuoywy3im2S30OzXA_PfO4mWUY";
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"edusow-study-together-auth-v1",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
