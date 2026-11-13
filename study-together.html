@@ -93,7 +93,7 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
 <script>
 (function(){
 "use strict";
-if(!window.supabase||typeof window.supabase.createClient!=="function"){$("globalStatus").textContent="EduSow could not load its secure connection library. Please reload this page or try again shortly."; $("globalStatus").className="status error"; return;}
+if(!window.supabase||typeof window.supabase.createClient!=="function"){const status=document.getElementById("globalStatus");if(status){status.textContent="EduSow could not load its secure connection library. Please reload this page or try again shortly.";status.className="status error";}return;}
 const SUPABASE_URL="https://pjytoktykbaokkuhaera.supabase.co";
 const SUPABASE_KEY="sb_publishable_jizTuUuoywy3im2S30OzXA_PfO4mWUY";
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"edusow-study-together-auth-v1",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
