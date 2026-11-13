@@ -2180,6 +2180,7 @@ footer nav.footer-links a:focus-visible {
             <li><a href="#flashcards">Flashcards</a></li>
             <li><a href="#timer">Pomodoro</a></li>
             <li><a href="study-timetable.html">Timetable</a></li>
+            <li><a href="study-together.html">Study Together</a></li>
             <li><a href="learn.html">Learn</a></li>
             <li><a href="support.html">Support</a></li>
         </ul>
@@ -2247,6 +2248,10 @@ footer nav.footer-links a:focus-visible {
             <a class="toolkit-card toolkit-green" href="#timer">
                 <span class="toolkit-icon">◷</span><span class="toolkit-card-arrow">↗</span>
                 <h3>Progress Tracker</h3><p>Track your study time, review your progress, and build a steady routine.</p><span class="toolkit-link">View progress <span>→</span></span>
+            </a>
+            <a class="toolkit-card toolkit-blue" href="study-together.html">
+                <span class="toolkit-icon">👥</span><span class="toolkit-card-arrow">↗</span>
+                <h3>Study Together</h3><p>Create private groups with friends and share lessons, quizzes, flashcards and study materials.</p><span class="toolkit-link">Study with friends <span>→</span></span>
             </a>
         </div>
         <p class="toolkit-seo-link" style="margin-top:18px;text-align:center;color:#64748b;font-size:14px;">
@@ -2435,6 +2440,7 @@ footer nav.footer-links a:focus-visible {
                         id="pdfExtractedText"
                         placeholder="Extracted PDF text will appear here..."
                     ></textarea>
+                    <div class="button-row"><button type="button" class="secondary" onclick="shareCurrentStudyMaterial()">👥 Share study material with a group</button></div>
 
                     <!-- EXPLAIN MATERIALS -->
                     <div id="explainMaterialsLaunch" class="explain-materials-launch">
@@ -2469,6 +2475,7 @@ footer nav.footer-links a:focus-visible {
                             <span id="explainSlideProgress">Concept 1</span>
                             <button type="button" id="explainNext" onclick="moveExplainSlide(1)">Next →</button>
                             <button type="button" class="secondary" id="saveExplainLessonPdf" onclick="saveExplainLessonAsPDF()" hidden>↓ Save Lesson as PDF</button>
+                            <button type="button" class="secondary" onclick="shareCurrentLesson()">👥 Share lesson</button>
                         </div>
 
                         <section class="explain-followup" aria-labelledby="explainFollowupTitle">
@@ -2540,6 +2547,7 @@ footer nav.footer-links a:focus-visible {
                 </p>
 
             </div>
+            <div class="button-row"><button type="button" class="secondary" onclick="shareCurrentQuiz()">👥 Share quiz with a group</button></div>
 
         </div>
 
@@ -2668,6 +2676,7 @@ footer nav.footer-links a:focus-visible {
                 <p class="saved-flashcards-empty">No saved flashcards yet. Generate cards, then select “Save this flashcard”.</p>
             </div>
         </div>
+        <div class="button-row"><button type="button" class="secondary" onclick="shareCurrentFlashcards()">👥 Share flashcards with a group</button></div>
 
     </div>
 
@@ -5403,6 +5412,40 @@ async function generateFlashcardsFromPDF() {
 
 
         // =========================================================
+
+        // STUDY TOGETHER: pass a safe snapshot to the dedicated group page.
+        const STUDY_TOGETHER_PENDING_KEY = "edusowStudyTogetherPendingShareV1";
+        function queueStudyTogetherShare(type, title, content) {
+            if (!content || typeof content !== "object") { alert("There is no completed study content to share yet."); return; }
+            try {
+                const payload = { type, title: String(title || "Shared study content").slice(0, 120), content, createdAt: new Date().toISOString() };
+                const serialized = JSON.stringify(payload);
+                if (serialized.length > 950000) { alert("This item is too large to share directly. Try sharing a shorter lesson or upload the original file inside Study Together."); return; }
+                localStorage.setItem(STUDY_TOGETHER_PENDING_KEY, serialized);
+                window.location.href = "study-together.html?share=1";
+            } catch (error) {
+                console.error("Could not prepare Study Together share:", error);
+                alert("Your browser could not prepare this item for sharing. Try again or share a smaller item.");
+            }
+        }
+        function shareCurrentLesson() {
+            if (!explainLesson || !Array.isArray(explainLesson.slides) || !explainLesson.slides.length) { alert("Complete an Explain Materials lesson first."); return; }
+            queueStudyTogetherShare("lesson", explainLesson.title || "Explain Materials lesson", { slides: explainLesson.slides, sourceText: String(explainSourceText || "").slice(0, 30000) });
+        }
+        function shareCurrentQuiz() {
+            if (!Array.isArray(generatedQuiz) || !generatedQuiz.length) { alert("Generate a quiz first."); return; }
+            queueStudyTogetherShare("quiz", "EduSow practice quiz", { questions: generatedQuiz });
+        }
+        function shareCurrentFlashcards() {
+            if (!Array.isArray(flashcards) || !flashcards.length) { alert("Generate flashcards first."); return; }
+            queueStudyTogetherShare("flashcards", "EduSow flashcard set", { cards: flashcards });
+        }
+        function shareCurrentStudyMaterial() {
+            const text = String(extractedPDFText || document.getElementById("pdfExtractedText")?.value || "").trim();
+            if (text.length < 10) { alert("Extract your study material first."); return; }
+            const files = [selectedPDFFile, ...(selectedImageFiles || [])].filter(Boolean).map(file => file.name).slice(0, 20);
+            queueStudyTogetherShare("study_material", files[0] || "Extracted study notes", { text: text.slice(0, 40000), sourceFiles: files });
+        }
 
         // INITIALIZE
         // =========================================================
