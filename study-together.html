@@ -50,6 +50,32 @@ footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
 <p>Create private groups with friends, share lessons and learning resources, and practise together. No email, password or traditional sign-up form required.</p>
 </section>
 <div id="globalStatus" class="status" aria-live="polite">Connecting securely to EduSow…</div>
+<script>
+/* Early startup diagnostics: this runs before the main app bootstrap. */
+(function(){
+  var status=document.getElementById("globalStatus");
+  if(status) status.textContent="Starting Study Together…";
+  window.addEventListener("error",function(event){
+    if(status){
+      status.className="status error";
+      status.textContent="Study Together encountered a page-script error: "+(event.message||"Unknown JavaScript error")+". Please report this message to EduSow support.";
+    }
+  });
+  window.addEventListener("unhandledrejection",function(event){
+    if(status){
+      var reason=event.reason;
+      status.className="status error";
+      status.textContent="Study Together startup failed: "+(reason&&reason.message?reason.message:String(reason||"Unknown startup error"));
+    }
+  });
+  window.setTimeout(function(){
+    if(status && status.textContent==="Starting Study Together…"){
+      status.className="status error";
+      status.textContent="Study Together is taking too long to initialize. The app script may not have started or a required network request is stalled. Reload once; if this persists, report this message.";
+    }
+  },20000);
+})();
+</script>
 <section id="app" class="hidden">
 <div class="panel">
 <div class="row"><div><h2>Your study identity</h2><div class="muted">This nickname is visible to members of your groups.</div></div><span class="pill">Anonymous student</span></div>
