@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="Create private study groups, invite friends, and share EduSow lessons, quizzes, flashcards, and study materials.">
+<link rel="icon" type="image/png" href="/edusow-logo.png">
+<title>Study Together | EduSow</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--blue:#2563eb;--blue-dark:#1d4ed8;--cyan:#0ea5e9;--ink:#172554;--muted:#64748b;--line:#dbeafe;--bg:#f8fbff;--surface:#fff;--green:#15803d;--red:#b91c1c;--shadow:0 12px 35px rgba(15,23,42,.07)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 0%,#eff6ff,transparent 34%),var(--bg);line-height:1.6}
+a{color:var(--blue);text-decoration:none}button,input,textarea{font:inherit}button{border:0;border-radius:11px;padding:11px 16px;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;font-weight:700;cursor:pointer}button:hover{filter:brightness(.97)}button:disabled{opacity:.55;cursor:not-allowed}
+button.secondary{background:#eaf2ff;color:#1d4ed8;border:1px solid #bfdbfe}button.danger{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}button.small{padding:7px 10px;font-size:13px}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:12px max(4%,calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:21px;color:var(--ink)}.brand img{width:42px;height:42px;object-fit:contain;border-radius:9px}
+header nav{display:flex;gap:15px;flex-wrap:wrap;font-size:14px;font-weight:650}header nav a{color:#475569}header nav a:hover{color:var(--blue)}
+main{width:min(1080px,92%);margin:32px auto 65px}.hero{padding:28px 0 22px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:1.3px;color:var(--blue);text-transform:uppercase}.hero h1{font-size:clamp(30px,5vw,46px);line-height:1.15;margin:8px 0;color:var(--ink);letter-spacing:-1px}.hero p{color:var(--muted);max-width:700px;margin:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(17px,3vw,25px);box-shadow:var(--shadow);margin:18px 0}
+.panel h2{margin:0 0 5px;font-size:21px}.muted{color:var(--muted);font-size:14px}.smallmuted{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:13px;margin-top:17px}
+.card{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fff;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{margin:0;font-size:17px;overflow-wrap:anywhere}.card p{margin:0;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:7px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+label{font-size:13px;font-weight:700;color:#334155;display:block}input,textarea{width:100%;margin-top:6px;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:var(--ink);outline:none}input:focus,textarea:focus{border-color:#60a5fa;box-shadow:0 0 0 3px #dbeafe}textarea{min-height:95px;resize:vertical}
+.form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.status{padding:12px 14px;border-radius:11px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:14px;margin:12px 0}.status.error{background:#fff1f2;border-color:#fecdd3;color:#9f1239}.status.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+.hidden{display:none!important}.pill{font-size:11px;font-weight:750;border-radius:999px;padding:4px 9px;background:#eff6ff;color:#1d4ed8;white-space:nowrap}.pill.owner{background:#fef3c7;color:#92400e}
+.member-list,.activity-list,.item-list{display:grid;gap:9px;margin-top:12px}.member,.activity,.item{display:flex;align-items:flex-start;gap:11px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}.avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:grid;place-items:center;font-weight:800}.member-main,.activity-main,.item-main{flex:1;min-width:0}.member-main strong,.activity-main strong,.item-main strong{display:block;font-size:14px}.member-main span,.activity-main span,.item-main span{display:block;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.item{align-items:center}.item-icon{font-size:21px;width:30px;text-align:center}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.invite-box{background:#f8fbff;border:1px dashed #93c5fd;border-radius:13px;padding:13px;margin-top:12px}.invite-code{font-family:ui-monospace,monospace;font-weight:800;letter-spacing:1.2px;font-size:18px;overflow-wrap:anywhere}
+.viewer{border:1px solid #bfdbfe;background:#f8fbff;border-radius:15px;padding:16px;margin-top:15px}.viewer h3{margin:0 0 10px}.slide{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;margin:9px 0}.slide h4{margin:0 0 5px}.slide p{margin:0;color:#334155;white-space:pre-wrap}.question{background:#fff;border:1px solid var(--line);padding:13px;border-radius:12px;margin:10px 0}.question label{font-weight:500;margin:8px 0}.question input{width:auto;margin:0 7px 0 0}.fileline{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+@media(max-width:620px){header{align-items:flex-start;flex-direction:column}header nav{gap:11px}main{margin-top:20px}.hero{padding-top:12px}.panel{border-radius:16px}}
+</style>
+</head>
+<body>
+<header>
+<a class="brand" href="index.html"><img src="edusow-logo.png" alt="EduSow logo">EduSow <span aria-hidden="true">🌱</span></a>
+<nav aria-label="Main navigation"><a href="index.html">Home</a><a href="study-timetable.html">Timetable</a><a href="support.html">Support</a></nav>
+</header>
+<main>
+<section class="hero">
+<div class="eyebrow">Learn together · Grow together</div>
+<h1>Study Together</h1>
+<p>Create private groups with friends, share lessons and learning resources, and practise together. No email, password or traditional sign-up form required.</p>
+</section>
+<div id="globalStatus" class="status" aria-live="polite">Connecting securely to EduSow…</div>
+<section id="app" class="hidden">
+<div class="panel">
+<div class="row"><div><h2>Your study identity</h2><div class="muted">This nickname is visible to members of your groups.</div></div><span class="pill">Anonymous student</span></div>
+<form id="profileForm" class="form-grid">
+<label>Display name<input id="displayName" maxlength="24" minlength="2" required placeholder="Choose a name"></label>
+<div class="form-actions" style="align-items:end"><button type="submit">Save name</button></div>
+</form>
+<div class="smallmuted">Your anonymous identity is saved in this browser. Clearing browser data or changing devices can permanently remove access to this identity and its groups.</div>
+</div>
+<div class="grid">
+<div class="panel" style="margin:0">
+<h2>Create a private group</h2><p class="muted">Start a group and invite your friends with a private code.</p>
+<form id="createGroupForm">
+<label>Group name<input id="newGroupName" maxlength="50" minlength="2" required placeholder="e.g. Science Squad"></label>
+<label style="margin-top:8px">Description (optional)<textarea id="newGroupDescription" maxlength="240" placeholder="What will your group study?"></textarea></label>
+<div class="form-actions"><button type="submit">Create group</button></div>
+</form>
+</div>
+<div class="panel" style="margin:0">
+<h2>Join a private group</h2><p class="muted">Enter the invitation code shared by a friend.</p>
+<form id="joinGroupForm">
+<label>Invitation code<input id="inviteCode" maxlength="64" required autocomplete="off" placeholder="Paste your group code"></label>
+<div class="form-actions"><button type="submit">Join group</button></div>
+</form>
+</div>
+</div>
+<div class="panel">
+<div class="row"><div><h2>My study groups</h2><p class="muted">Only members can see a group's content.</p></div><button class="secondary small" id="refreshGroups" type="button">Refresh</button></div>
+<div id="groupList" class="grid"><p class="muted">Loading your groups…</p></div>
+</div>
+<div id="pendingSharePanel" class="panel hidden">
+<div class="row"><div><h2>Ready to share</h2><p class="muted">This content came from another EduSow learning tool.</p></div><span class="pill">Pending share</span></div>
+<div id="pendingShareSummary" class="status"></div>
+<label>Choose a group<select id="pendingShareGroup" style="width:100%;margin-top:6px;padding:11px;border:1px solid #cbd5e1;border-radius:10px;background:white"><option value="">Select a group</option></select></label>
+<div class="form-actions"><button id="confirmPendingShare" type="button">Share with group</button><button id="cancelPendingShare" type="button" class="secondary">Cancel</button></div>
+</div>
+<div id="groupDetail" class="panel hidden"></div>
+</section>
+</main>
+<footer>© 2026 EduSow · Learn. Explore. Grow. · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></footer>
+<script>
+(function(){
+"use strict";
+const SUPABASE_URL="https://pjytoktykbaokkuhaera.supabase.co";
+const SUPABASE_KEY="sb_publishable_jizTuUuoywy3im2S30OzXA_PfO4mWUY";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"edusow-study-together-auth-v1",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const $=id=>document.getElementById(id);
+let currentUser=null,currentProfile=null,groups=[],activeGroup=null,pendingShare=null;
+const PENDING_KEY="edusowStudyTogetherPendingShareV1";
+function escapeHTML(value){return String(value==null?"":value).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];});}
+function setStatus(message,type){const el=$("globalStatus");el.textContent=message;el.className="status"+(type?" "+type:"");}
+function groupStatus(message,type){const el=$("groupActionStatus");if(el){el.classList.remove("hidden");el.textContent=message;el.className="status"+(type?" "+type:"");}}
+function displayDate(value){try{return new Date(value).toLocaleString();}catch(e){return "";}}
+function iconFor(type){return type==="lesson"?"📘":type==="quiz"?"🧠":type==="flashcards"?"🃏":"📄";}
+async function ensureProfile(){
+ const savedName=localStorage.getItem("edusowStudyTogetherDisplayName")||"";
+ const {data,error}=await supabase.from("study_profiles").select("user_id,display_name").eq("user_id",currentUser.id).maybeSingle();
+ if(error)throw error;
+ currentProfile=data;
+ const name=(data&&data.display_name)||savedName||("Student "+currentUser.id.slice(0,4).toUpperCase());
+ $("displayName").value=name;
+ if(!data){
+  const {error:insertError}=await supabase.from("study_profiles").insert({user_id:currentUser.id,display_name:name});
+  if(insertError)throw insertError;
+  currentProfile={user_id:currentUser.id,display_name:name};
+ }
+ localStorage.setItem("edusowStudyTogetherDisplayName",name);
+}
+async function loadGroups(){
+ const {data,error}=await supabase.from("study_groups").select("id,name,description,owner_id,created_at").order("created_at",{ascending:false});
+ if(error)throw error;
+ groups=data||[];
+ const list=$("groupList");
+ if(!groups.length){list.innerHTML='<div class="card"><h3>No groups yet</h3><p>Create a private group or join one using a friend's invitation code.</p></div>';}
+ else{
+  const counts=await Promise.all(groups.map(async g=>{
+   const {count}=await supabase.from("study_group_members").select("*",{count:"exact",head:true}).eq("group_id",g.id);
+   return [g.id,count||0];
+  }));
+  const countMap=Object.fromEntries(counts);
+  list.innerHTML=groups.map(g=>'<article class="card"><div class="row"><h3>'+escapeHTML(g.name)+'</h3>'+(g.owner_id===currentUser.id?'<span class="pill owner">Owner</span>':'<span class="pill">Member</span>')+'</div><p>'+escapeHTML(g.description||"Private study group")+'</p><div class="smallmuted">'+countMap[g.id]+' member(s) · Created '+escapeHTML(displayDate(g.created_at))+'</div><div class="card-actions"><button type="button" data-open-group="'+g.id+'">Open group</button></div></article>').join("");
+ }
+ const select=$("pendingShareGroup");
+ if(select){select.innerHTML='<option value="">Select a group</option>'+groups.map(g=>'<option value="'+g.id+'">'+escapeHTML(g.name)+'</option>').join("");}
+}
+async function createGroup(event){
+ event.preventDefault();
+ const name=$("newGroupName").value.trim(),description=$("newGroupDescription").value.trim();
+ if(name.length<2){setStatus("Group names must contain at least 2 characters.","error");return;}
+ const button=event.submitter; if(button)button.disabled=true;
+ try{
+  const {data,error}=await supabase.rpc("create_study_group",{p_name:name,p_description:description||null});
+  if(error)throw error;
+  $("createGroupForm").reset();await loadGroups();await openGroup(data);setStatus("Your private group has been created.","success");
+ }catch(e){setStatus(e.message||"Could not create the group.","error");}
+ finally{if(button)button.disabled=false;}
+}
+async function joinGroup(event){
+ event.preventDefault();
+ const code=$("inviteCode").value.trim();
+ const button=event.submitter;if(button)button.disabled=true;
+ try{
+  const {data,error}=await supabase.rpc("join_study_group",{p_invite_code:code});
+  if(error)throw error;
+  $("joinGroupForm").reset();await loadGroups();await openGroup(data);setStatus("You joined the study group.","success");
+ }catch(e){setStatus(e.message||"Could not join this group. Check the invitation code.","error");}
+ finally{if(button)button.disabled=false;}
+}
+async function openGroup(groupId){
+ $("groupDetail").classList.remove("hidden");$("groupDetail").innerHTML='<p class="muted">Loading group…</p>';
+ try{
+  const {data:group,error:groupError}=await supabase.from("study_groups").select("*").eq("id",groupId).single();
+  if(groupError)throw groupError;
+  const [membersResult,itemsResult,activityResult]=await Promise.all([
+   supabase.from("study_group_members").select("user_id,role,joined_at").eq("group_id",groupId).order("joined_at"),
+   supabase.from("study_group_items").select("id,item_type,title,created_by,created_at,content").eq("group_id",groupId).order("created_at",{ascending:false}).limit(50),
+   supabase.from("study_group_activity").select("id,actor_id,activity_type,item_id,details,created_at").eq("group_id",groupId).order("created_at",{ascending:false}).limit(30)
+  ]);
+  if(membersResult.error)throw membersResult.error;if(itemsResult.error)throw itemsResult.error;if(activityResult.error)throw activityResult.error;
+  const members=membersResult.data||[],items=itemsResult.data||[],activity=activityResult.data||[];
+  const ids=[...new Set(members.map(m=>m.user_id).concat(activity.map(a=>a.actor_id).filter(Boolean)))];
+  let profiles={};
+  if(ids.length){const {data:pdata,error:perror}=await supabase.from("study_profiles").select("user_id,display_name").in("user_id",ids);if(perror)throw perror;(pdata||[]).forEach(p=>profiles[p.user_id]=p.display_name);}
+  activeGroup=group;
+  const isOwner=group.owner_id===currentUser.id;
+  const membersHtml=members.map(m=>'<div class="member"><div class="avatar">'+escapeHTML((profiles[m.user_id]||"S").slice(0,1).toUpperCase())+'</div><div class="member-main"><strong>'+escapeHTML(profiles[m.user_id]||"Student")+'</strong><span>'+(m.role==="owner"?"Group owner":"Member")+' · Joined '+escapeHTML(displayDate(m.joined_at))+'</span></div>'+(isOwner&&m.user_id!==currentUser.id?'<button class="danger small" type="button" data-remove-member="'+m.user_id+'">Remove</button>':"")+'</div>').join("")||'<p class="muted">No members found.</p>';
+  const itemsHtml=items.map(item=>'<div class="item"><div class="item-icon">'+iconFor(item.item_type)+'</div><div class="item-main"><strong>'+escapeHTML(item.title)+'</strong><span>'+escapeHTML(item.item_type.replace("_"," "))+' · '+escapeHTML(profiles[item.created_by]||"Student")+' · '+escapeHTML(displayDate(item.created_at))+'</span></div><button class="secondary small" type="button" data-open-item="'+item.id+'">Open</button>'+(isOwner||item.created_by===currentUser.id?'<button class="danger small" type="button" data-delete-item="'+item.id+'">Delete</button>':"")+'</div>').join("")||'<p class="muted">Nothing has been shared yet. Share a lesson, quiz, flashcard set or study material to get started.</p>';
+  const activityHtml=activity.map(a=>{
+   const who=profiles[a.actor_id]||"A student";
+   const detail=a.details||{};
+   const msg=a.activity_type==="group_created"?"created this group":a.activity_type==="member_joined"?"joined the group":"shared "+(detail.item_type||"study content")+": "+(detail.title||"Untitled");
+   return '<div class="activity"><div class="avatar">'+escapeHTML(who.slice(0,1).toUpperCase())+'</div><div class="activity-main"><strong>'+escapeHTML(who)+' '+escapeHTML(msg)+'</strong><span>'+escapeHTML(displayDate(a.created_at))+'</span></div></div>';
+  }).join("")||'<p class="muted">Group activity will appear here.</p>';
+  $("groupDetail").innerHTML=
+   '<div class="row"><div><span class="eyebrow">PRIVATE STUDY GROUP</span><h2>'+escapeHTML(group.name)+'</h2><p class="muted">'+escapeHTML(group.description||"Learn and share with your group.")+'</p></div><span class="pill">'+members.length+' members</span></div>'+
+   '<div class="toolbar"><button type="button" data-create-invite="'+group.id+'">Create invitation code</button>'+(isOwner?'<button type="button" class="danger" data-delete-group="'+group.id+'">Delete group</button>':'<button type="button" class="secondary" data-leave-group="'+group.id+'">Leave group</button>')+'<button type="button" class="secondary" id="backToGroups">Back to groups</button></div>'+
+   '<div id="groupActionStatus" class="status hidden" aria-live="polite"></div><div id="inviteOutput"></div>'+
+   '<div class="panel" style="box-shadow:none;margin:16px 0 0;padding:15px"><h2>Members</h2><div class="member-list">'+membersHtml+'</div></div>'+
+   '<div class="panel" style="box-shadow:none;margin:16px 0 0;padding:15px"><div class="row"><h2>Shared learning</h2><span class="pill">Latest 50</span></div><div class="item-list">'+itemsHtml+'</div><div id="itemViewer"></div></div>'+
+   '<div class="panel" style="box-shadow:none;margin:16px 0 0;padding:15px"><h2>Share a study material</h2><p class="muted">Upload a PDF, JPG or PNG to this private group. Maximum 20 MB per file.</p><form id="uploadStudyFileForm"><label>Title<input id="uploadTitle" maxlength="120" required placeholder="e.g. Chapter 4 notes"></label><label style="margin-top:8px">File<input id="groupStudyFile" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required></label><label style="margin-top:8px">Note (optional)<textarea id="uploadNote" maxlength="2000" placeholder="Add a short explanation"></textarea></label><div class="form-actions"><button type="submit">Upload and share</button></div></form></div>'+
+   '<div class="panel" style="box-shadow:none;margin:16px 0 0;padding:15px"><h2>Recent activity</h2><div class="activity-list">'+activityHtml+'</div></div>';
+  $("backToGroups").addEventListener("click",()=>{$("groupDetail").classList.add("hidden");activeGroup=null;});
+  $("uploadStudyFileForm").addEventListener("submit",uploadStudyFile);
+  if(pendingShare){$("pendingSharePanel").classList.remove("hidden");$("pendingShareGroup").value=groupId;}
+ }catch(e){$("groupDetail").innerHTML='<div class="status error">'+escapeHTML(e.message||"Could not open this group.")+'</div><button class="secondary" id="retryGroups">Back to groups</button>';$("retryGroups").addEventListener("click",()=>$("groupDetail").classList.add("hidden"));}
+}
+async function createInvite(groupId){
+ try{
+  const {data,error}=await supabase.rpc("create_study_group_invite",{p_group_id:groupId,p_expires_in_hours:168,p_max_uses:20});
+  if(error)throw error;
+  $("inviteOutput").innerHTML='<div class="invite-box"><div class="smallmuted">Private invitation code · expires in 7 days · up to 20 uses</div><div class="invite-code" id="inviteCodeOutput">'+escapeHTML(data)+'</div><div class="form-actions"><button type="button" id="copyInvite">Copy code</button></div></div>';
+  $("copyInvite").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(data);groupStatus("Invitation code copied.","success");}catch(e){groupStatus("Select and copy the invitation code manually.","error");}});
+ }catch(e){groupStatus(e.message||"Could not create an invitation.","error");}
+}
+async function leaveGroup(groupId){
+ if(!confirm("Leave this study group? You will lose access to its shared content."))return;
+ const {error}=await supabase.from("study_group_members").delete().eq("group_id",groupId).eq("user_id",currentUser.id);
+ if(error){groupStatus(error.message,"error");return;}
+ activeGroup=null;$("groupDetail").classList.add("hidden");await loadGroups();setStatus("You left the group.","success");
+}
+async function removeMember(groupId,userId){
+ if(!confirm("Remove this member from the group?"))return;
+ const {error}=await supabase.from("study_group_members").delete().eq("group_id",groupId).eq("user_id",userId);
+ if(error){groupStatus(error.message,"error");return;}
+ await openGroup(groupId);
+}
+async function collectGroupStorageFiles(prefix){
+ const paths=[];let offset=0;
+ while(true){
+  const {data,error}=await supabase.storage.from("study-group-files").list(prefix,{limit:100,offset:offset});
+  if(error)throw error;
+  const entries=data||[];
+  for(const entry of entries){
+   const child=prefix+"/"+entry.name;
+   if(entry.id===null&&!entry.metadata){paths.push(...await collectGroupStorageFiles(child));}
+   else paths.push(child);
+  }
+  if(entries.length<100)break;
+  offset+=entries.length;
+ }
+ return paths;
+}
+async function deleteGroup(groupId){
+ if(!confirm("Delete this group and all its shared items and uploaded files? This cannot be undone."))return;
+ try{
+  const files=await collectGroupStorageFiles(groupId);
+  for(let i=0;i<files.length;i+=100){
+   const {error:storageError}=await supabase.storage.from("study-group-files").remove(files.slice(i,i+100));
+   if(storageError)throw storageError;
+  }
+  const {error}=await supabase.from("study_groups").delete().eq("id",groupId);
+  if(error)throw error;
+  activeGroup=null;$("groupDetail").classList.add("hidden");await loadGroups();setStatus("The group and its uploaded files were deleted.","success");
+ }catch(e){groupStatus(e.message||"Could not completely delete the group. The group has been kept so you can retry safely.","error");}
+}
+async function deleteItem(itemId){
+ if(!confirm("Delete this shared item?"))return;
+ const {error}=await supabase.from("study_group_items").delete().eq("id",itemId);
+ if(error){groupStatus(error.message,"error");return;}
+ await openGroup(activeGroup.id);
+}
+function renderItem(item){
+ const content=item.content||{},viewer=$("itemViewer");
+ viewer.replaceChildren();
+ const wrap=document.createElement("div");wrap.className="viewer";
+ const heading=document.createElement("h3");heading.textContent=item.title;wrap.appendChild(heading);
+ if(item.item_type==="lesson"&&Array.isArray(content.slides)){
+  content.slides.forEach((slide,i)=>{const box=document.createElement("article");box.className="slide";const h=document.createElement("h4");h.textContent=(i+1)+". "+(slide.title||"Lesson concept");const p=document.createElement("p");p.textContent=slide.explanation||slide.content||"";box.append(h,p);wrap.appendChild(box);});
+  if(content.sourceText){const d=document.createElement("details");const sum=document.createElement("summary");sum.textContent="Original study text";const pre=document.createElement("p");pre.textContent=content.sourceText;d.append(sum,pre);wrap.appendChild(d);}
+ }else if(item.item_type==="flashcards"&&Array.isArray(content.cards)){
+  content.cards.forEach((card,i)=>{const d=document.createElement("details");const sum=document.createElement("summary");sum.textContent="Card "+(i+1)+": "+(card.front||card.question||"Question");const p=document.createElement("p");p.textContent=card.back||card.answer||"";d.append(sum,p);wrap.appendChild(d);});
+ }else if(item.item_type==="quiz"&&Array.isArray(content.questions)){
+  const form=document.createElement("form");form.id="sharedQuizForm";
+  content.questions.forEach((q,i)=>{
+   const box=document.createElement("div");box.className="question";const title=document.createElement("strong");title.textContent=(i+1)+". "+(q.question||q.prompt||"Question");box.appendChild(title);
+   const opts=q.options||q.choices||[];const entries=Array.isArray(opts)?opts.map((v,j)=>[String(j),v]):Object.entries(opts);
+   entries.forEach(([key,val])=>{const label=document.createElement("label");const radio=document.createElement("input");radio.type="radio";radio.name="q"+i;radio.value=key;label.append(radio,document.createTextNode(String(val)));box.appendChild(label);});
+   const answer=document.createElement("input");answer.type="hidden";answer.name="correct"+i;answer.value=String(q.correct_answer??q.correctAnswer??q.correct_option??q.answer??"");box.appendChild(answer);
+   form.appendChild(box);
+  });
+  const submit=document.createElement("button");submit.type="submit";submit.textContent="Check my answers";form.appendChild(submit);
+  const result=document.createElement("div");result.className="status hidden";result.id="sharedQuizResult";form.appendChild(result);
+  form.addEventListener("submit",function(ev){ev.preventDefault();let score=0,answered=0;content.questions.forEach((q,i)=>{const chosen=form.querySelector('input[name="q'+i+'"]:checked');if(chosen){answered++;const correct=String(q.correct_answer??q.correctAnswer??q.correct_option??q.answer??"").trim();const opts=q.options||q.choices||[];const entries=Array.isArray(opts)?opts.map((v,j)=>[String(j),v]):Object.entries(opts);const selected=entries.find(x=>x[0]===chosen.value);const selectedText=selected?String(selected[1]):chosen.value;if(correct===chosen.value||correct===selectedText)score++;}});result.classList.remove("hidden");result.textContent="You answered "+answered+" of "+content.questions.length+" questions. Score: "+score+"/"+content.questions.length+". This is a practice result; it is not saved.";});
+  wrap.appendChild(form);
+ }else if(item.item_type==="study_material"){
+  if(content.note){const p=document.createElement("p");p.textContent=content.note;wrap.appendChild(p);}
+  if(content.text){const pre=document.createElement("pre");pre.style.whiteSpace="pre-wrap";pre.textContent=content.text;wrap.appendChild(pre);}
+  if(content.file_path){const link=document.createElement("button");link.type="button";link.textContent="Open shared file";link.addEventListener("click",async()=>{const {data,error}=await supabase.storage.from("study-group-files").createSignedUrl(content.file_path,3600);if(error){groupStatus(error.message,"error");return;}window.open(data.signedUrl,"_blank","noopener");});wrap.appendChild(link);}
+  if(!content.text&&!content.file_path){const p=document.createElement("p");p.textContent="No preview is available.";wrap.appendChild(p);}
+ }else{
+  const pre=document.createElement("pre");pre.style.whiteSpace="pre-wrap";pre.textContent=JSON.stringify(content,null,2);wrap.appendChild(pre);
+ }
+ viewer.appendChild(wrap);
+}
+async function uploadStudyFile(event){
+ event.preventDefault();if(!activeGroup)return;
+ const file=$("groupStudyFile").files[0],title=$("uploadTitle").value.trim(),note=$("uploadNote").value.trim();
+ if(!file){groupStatus("Choose a PDF, JPG or PNG file.","error");return;}
+ if(file.size>20*1024*1024){groupStatus("The file is larger than 20 MB.","error");return;}
+ const allowed=["application/pdf","image/jpeg","image/png"];if(!allowed.includes(file.type)){groupStatus("Only PDF, JPG and PNG files are supported.","error");return;}
+ const button=event.submitter;if(button)button.disabled=true;
+ const path=activeGroup.id+"/"+currentUser.id+"/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+ try{
+  const {error:uploadError}=await supabase.storage.from("study-group-files").upload(path,file,{contentType:file.type,upsert:false});
+  if(uploadError)throw uploadError;
+  const {error:itemError}=await supabase.from("study_group_items").insert({group_id:activeGroup.id,created_by:currentUser.id,item_type:"study_material",title:title,content:{file_path:path,file_name:file.name,file_type:file.type,note:note}});
+  if(itemError){await supabase.storage.from("study-group-files").remove([path]);throw itemError;}
+  $("uploadStudyFileForm").reset();await openGroup(activeGroup.id);groupStatus("Your study material was shared with the group.","success");
+ }catch(e){groupStatus(e.message||"Could not upload this file.","error");}
+ finally{if(button)button.disabled=false;}
+}
+function readPendingShare(){
+ try{const raw=localStorage.getItem(PENDING_KEY);if(!raw)return null;const data=JSON.parse(raw);if(!data||!["lesson","quiz","flashcards","study_material"].includes(data.type)||!data.content)return null;return data;}catch(e){return null;}
+}
+function showPendingShare(){
+ if(!pendingShare)return;
+ $("pendingSharePanel").classList.remove("hidden");
+ $("pendingShareSummary").textContent=iconFor(pendingShare.type)+" "+(pendingShare.title||"Learning material")+" · "+pendingShare.type.replace("_"," ");
+}
+async function submitPendingShare(){
+ const groupId=$("pendingShareGroup").value;
+ if(!groupId){setStatus("Choose a group before sharing.","error");return;}
+ const button=$("confirmPendingShare");button.disabled=true;
+ try{
+  const {error}=await supabase.from("study_group_items").insert({group_id:groupId,created_by:currentUser.id,item_type:pendingShare.type,title:String(pendingShare.title||"Shared study content").slice(0,120),content:pendingShare.content});
+  if(error)throw error;
+  localStorage.removeItem(PENDING_KEY);pendingShare=null;$("pendingSharePanel").classList.add("hidden");
+  setStatus("Your content was shared successfully.","success");
+  if(activeGroup&&activeGroup.id===groupId)await openGroup(groupId);
+  else await loadGroups();
+ }catch(e){setStatus(e.message||"Could not share this content. Try a smaller item.","error");}
+ finally{button.disabled=false;}
+}
+async function saveProfile(event){
+ event.preventDefault();const name=$("displayName").value.trim();
+ if(name.length<2||name.length>24){setStatus("Choose a name between 2 and 24 characters.","error");return;}
+ const {error}=await supabase.from("study_profiles").upsert({user_id:currentUser.id,display_name:name,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+ if(error){setStatus(error.message,"error");return;}
+ currentProfile={user_id:currentUser.id,display_name:name};localStorage.setItem("edusowStudyTogetherDisplayName",name);await loadGroups();setStatus("Your display name has been saved.","success");
+}
+document.addEventListener("click",async function(event){
+ const open=event.target.closest("[data-open-group]");if(open){await openGroup(open.dataset.openGroup);return;}
+ const invite=event.target.closest("[data-create-invite]");if(invite){await createInvite(invite.dataset.createInvite);return;}
+ const leave=event.target.closest("[data-leave-group]");if(leave){await leaveGroup(leave.dataset.leaveGroup);return;}
+ const delGroup=event.target.closest("[data-delete-group]");if(delGroup){await deleteGroup(delGroup.dataset.deleteGroup);return;}
+ const remove=event.target.closest("[data-remove-member]");if(remove&&activeGroup){await removeMember(activeGroup.id,remove.dataset.removeMember);return;}
+ const delItem=event.target.closest("[data-delete-item]");if(delItem){await deleteItem(delItem.dataset.deleteItem);return;}
+ const openItem=event.target.closest("[data-open-item]");if(openItem&&activeGroup){const {data,error}=await supabase.from("study_group_items").select("*").eq("id",openItem.dataset.openItem).single();if(error){groupStatus(error.message,"error");return;}renderItem(data);}
+});
+$("profileForm").addEventListener("submit",saveProfile);
+$("createGroupForm").addEventListener("submit",createGroup);
+$("joinGroupForm").addEventListener("submit",joinGroup);
+$("refreshGroups").addEventListener("click",async()=>{try{await loadGroups();setStatus("Groups refreshed.","success");}catch(e){setStatus(e.message,"error");}});
+$("confirmPendingShare").addEventListener("click",submitPendingShare);
+$("cancelPendingShare").addEventListener("click",()=>{localStorage.removeItem(PENDING_KEY);pendingShare=null;$("pendingSharePanel").classList.add("hidden");});
+async function init(){
+ try{
+  const {data,error}=await supabase.auth.getSession();if(error)throw error;
+  let session=data.session;
+  if(!session){const signed=await supabase.auth.signInAnonymously();if(signed.error)throw signed.error;session=signed.data.session;}
+  if(!session||!session.user)throw new Error("Could not create an anonymous student session.");
+  currentUser=session.user;
+  if(currentUser.is_anonymous!==true)throw new Error("This Study Together browser session is not anonymous. Open it in a private browser profile or clear only the Study Together site data to start a new anonymous identity.");
+  await ensureProfile();pendingShare=readPendingShare();await loadGroups();showPendingShare();
+  $("app").classList.remove("hidden");setStatus("You're ready to study with your groups.","success");
+ }catch(e){
+  const message=e.message||"Study Together could not connect.";
+  if(/anonymous|signup|sign.?in|provider/i.test(message)){
+   setStatus("Study Together needs Anonymous Sign-ins enabled in Supabase. In the Supabase dashboard, open Authentication → Sign In / Providers → Anonymous and enable it, then reload this page. Details: "+message,"error");
+  }else setStatus("Study Together could not start: "+message,"error");
+ }
+}
+init();
+})();
+</script>
+</body>
+</html>
