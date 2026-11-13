@@ -99,7 +99,7 @@ drop policy if exists study_group_members_select_group on public.study_group_mem
 create policy study_group_members_select_group on public.study_group_members for select to authenticated using((auth.jwt()->>'is_anonymous')='true' and private.is_study_group_member(group_id));
 drop policy if exists study_group_members_delete_owner_or_self on public.study_group_members;
 create policy study_group_members_delete_owner_or_self on public.study_group_members for delete to authenticated using(
- (auth.jwt()->>'is_anonymous')='true' and ((user_id=auth.uid() and role='member') or exists(select 1 from public.study_groups g where g.id=group_id and g.owner_id=auth.uid()))
+ (auth.jwt()->>'is_anonymous')='true' and ((user_id=auth.uid() and role='member') or exists(select 1 from public.study_groups g where g.id=study_group_members.group_id and g.owner_id=auth.uid() and study_group_members.user_id<>auth.uid()))
 );
 
 drop policy if exists study_group_invites_select_owner on public.study_group_invites;
