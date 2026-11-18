@@ -86,6 +86,12 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
  <div class="section-head"><h2>Recent learning activity</h2><span class="small">Your latest recorded sessions</span></div>
  <div id="activityList"><div class="empty">Your learning activity will appear here.</div></div>
 </section>
+<section class="card section">
+ <div class="section-head"><h2>Privacy controls</h2></div>
+ <p class="small">EduSow uses the same private anonymous browser session as Study Together. No email or password is required. This means your learning history is tied to this browser session and may not be recoverable if you clear site data or change devices.</p>
+ <button id="deleteLearningRecords" class="secondary" type="button">Delete my learning records</button>
+ <span id="deleteStatus" class="small" aria-live="polite"></span>
+</section>
 </main>
 <footer>EduSow · Learn. Explore. Grow. · <a href="privacy.html">Privacy</a></footer>
 <script>
@@ -138,6 +144,13 @@ $("askCoach").addEventListener("click",async function(){
  try{if(!snapshot)snapshot=await window.EduSowLearning.loadDashboard();answer.textContent=await window.EduSowLearning.askCoach($("coachQuestion").value,snapshot,$("coachLanguage").value);}
  catch(error){answer.textContent=error.message||"The learning coach could not respond. Please try again."; }
  finally{button.disabled=false;button.textContent="Ask my learning coach";}
+});
+$("deleteLearningRecords").addEventListener("click",async function(){
+ if(!window.confirm("Delete your EduSow learning history, topic progress and mistake records from this anonymous student session? This cannot be undone."))return;
+ const button=$("deleteLearningRecords");button.disabled=true;$("deleteStatus").textContent="Deleting your learning records…";
+ try{await window.EduSowLearning.deleteLearningRecords();$("deleteStatus").textContent="Your learning records have been deleted.";await refresh();}
+ catch(error){$("deleteStatus").textContent=error.message||"Could not delete your learning records."; }
+ finally{button.disabled=false;}
 });
 $("mistakesList").addEventListener("click",async function(event){
  const button=event.target.closest("button[data-mistake]");if(!button)return;
