@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<title>My Learning Dashboard | EduSow</title>
+<meta name="description" content="Review your learning progress, understand mistakes and get personalized study recommendations with EduSow.">
+<link rel="icon" type="image/png" href="/edusow-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="learning-system.js"></script>
+<style>
+:root{--blue:#2563eb;--blue-dark:#1d4ed8;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--bg:#f7faff;--surface:#fff;--green:#15803d;--amber:#b45309;--red:#b91c1c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;line-height:1.6}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+header{background:#fff;border-bottom:1px solid var(--line);padding:13px max(5%,calc((100% - 1120px)/2));display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.brand{font-size:21px;font-weight:800;color:var(--ink)}.nav{display:flex;gap:17px;flex-wrap:wrap;font-size:13px;font-weight:650}
+main{width:min(1120px,92%);margin:34px auto 70px}
+.hero{padding:28px 30px;background:#fff;border:1px solid var(--line);border-radius:18px;margin-bottom:20px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--blue);text-transform:uppercase}
+h1{font-size:clamp(27px,5vw,38px);line-height:1.2;margin:7px 0}.sub{color:var(--muted);margin:0;max-width:720px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:18px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:19px;min-width:0}
+.stat-label{font-size:12px;color:var(--muted);font-weight:650}.stat-value{font-size:29px;font-weight:800;line-height:1.3;margin-top:5px}.stat-note{font-size:11px;color:var(--muted)}
+.section{margin-top:22px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h2{font-size:20px;margin:0}h3{font-size:15px;margin:0 0 8px}
+.coach{border:1px solid #bfdbfe;background:#f1f7ff}
+textarea,input,select{font:inherit;width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;background:#fff;color:var(--ink);margin:5px 0}
+textarea{min-height:85px;resize:vertical}
+button,.button{border:0;border-radius:10px;padding:10px 15px;background:var(--blue);color:#fff;font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+button:hover,.button:hover{background:var(--blue-dark);text-decoration:none}button:disabled{opacity:.55;cursor:wait}
+button.secondary{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.context-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.topic-row,.mistake-row,.activity-row{border-top:1px solid var(--line);padding:13px 0;display:flex;justify-content:space-between;gap:15px;align-items:flex-start}
+.topic-row:first-child,.mistake-row:first-child,.activity-row:first-child{border-top:0}
+.small{font-size:12px;color:var(--muted)}.pill{font-size:11px;border-radius:999px;padding:3px 8px;background:#eff6ff;color:#1d4ed8;white-space:nowrap}
+.pill.low{background:#fff7ed;color:var(--amber)}.pill.good{background:#f0fdf4;color:var(--green)}
+.meter{height:7px;background:#eaf0f8;border-radius:99px;overflow:hidden;margin-top:7px}.meter span{display:block;height:100%;background:#3b82f6;border-radius:99px}
+.empty{padding:20px;border:1px dashed #cbd5e1;border-radius:12px;color:var(--muted);font-size:13px;text-align:center}
+#status{padding:11px 13px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-size:13px;margin-bottom:14px}
+#status.error{background:#fef2f2;color:#991b1b}#status[hidden]{display:none}
+.answer{white-space:pre-wrap;background:#fff;border:1px solid #dbeafe;border-radius:12px;padding:15px;margin-top:12px;font-size:14px}
+.mistake-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.mistake-actions button{font-size:11px;padding:6px 9px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.context-grid{grid-template-columns:1fr}.hero{padding:22px}.nav{gap:10px}}
+@media(max-width:390px){.grid{gap:8px}.card{padding:13px}.stat-value{font-size:24px}}
+</style>
+</head>
+<body>
+<header><a class="brand" href="index.html">EduSow 🌱</a><nav class="nav" aria-label="Main navigation"><a href="index.html">Study tools</a><a href="study-timetable.html">Timetable</a><a href="study-together.html">Study Together</a><a href="support.html">Support</a></nav></header>
+<main>
+<section class="hero">
+ <span class="eyebrow">Your learning intelligence system</span>
+ <h1>My Learning Dashboard</h1>
+ <p class="sub">See what you've practiced, find topics that need attention and decide what to study next. Your learning records stay private to this browser-based student session.</p>
+</section>
+<div id="status" role="status" aria-live="polite">Connecting to your private student learning space…</div>
+<section class="grid" aria-label="Learning summary">
+ <div class="card"><div class="stat-label">Quiz attempts</div><div class="stat-value" id="statQuizzes">—</div><div class="stat-note">Recorded practice sessions</div></div>
+ <div class="card"><div class="stat-label">Questions attempted</div><div class="stat-value" id="statQuestions">—</div><div class="stat-note">Across tracked topics</div></div>
+ <div class="card"><div class="stat-label">Overall accuracy</div><div class="stat-value" id="statAccuracy">—</div><div class="stat-note">Based on recorded answers</div></div>
+ <div class="card"><div class="stat-label">To review</div><div class="stat-value" id="statMistakes">—</div><div class="stat-note">Mistakes not yet mastered</div></div>
+</section>
+<section class="card section">
+ <div class="section-head"><h2>Your study context</h2><span class="small">Used to organize future quiz results</span></div>
+ <div class="context-grid"><label class="small">Subject<input id="contextSubject" maxlength="80" placeholder="e.g. Mathematics"></label><label class="small">Current topic<input id="contextTopic" maxlength="160" placeholder="e.g. Fractions"></label></div>
+ <button id="saveContext" class="secondary" type="button">Save study context</button>
+ <span id="contextStatus" class="small" aria-live="polite"></span>
+</section>
+<section class="card coach section">
+ <div class="section-head"><div><span class="eyebrow">Personal AI Learning Coach</span><h2>What should I work on next?</h2></div><span class="pill">Uses your recorded progress</span></div>
+ <p class="small">Ask for a recommendation, or leave the box empty for a review of your learning activity. The coach uses the learning records shown on this page.</p>
+ <textarea id="coachQuestion" maxlength="1200" placeholder="e.g. Which topic should I revise first, and why?"></textarea>
+ <div class="context-grid"><label class="small">Response language<select id="coachLanguage"><option>English</option><option>Bangla</option></select></label><div style="display:flex;align-items:end"><button id="askCoach" type="button">Ask my learning coach</button></div></div>
+ <div id="coachAnswer" class="answer" hidden></div>
+</section>
+<section class="card section">
+ <div class="section-head"><h2>Topics to improve</h2><span class="small">Ordered by recorded mastery</span></div>
+ <div id="topicsList"><div class="empty">Your topic progress will appear after you complete a quiz on EduSow.</div></div>
+</section>
+<section class="card section">
+ <div class="section-head"><h2>Mistakes to revisit</h2><span class="small">Repeated incorrect answers are grouped together</span></div>
+ <div id="mistakesList"><div class="empty">No mistakes recorded yet. Complete a quiz to start building your review list.</div></div>
+</section>
+<section class="card section">
+ <div class="section-head"><h2>Recent learning activity</h2><span class="small">Your latest recorded sessions</span></div>
+ <div id="activityList"><div class="empty">Your learning activity will appear here.</div></div>
+</section>
+</main>
+<footer>EduSow · Learn. Explore. Grow. · <a href="privacy.html">Privacy</a></footer>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+let snapshot=null;
+function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
+function status(message,error){const el=$("status");el.textContent=message;el.hidden=false;el.className=error?"error":"";}
+function date(value){try{return new Date(value).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});}catch(_){return "";}}
+function render(data){
+ snapshot=data;
+ const events=data.events||[], mistakes=data.mistakes||[], topics=data.topics||[];
+ const quizEvents=events.filter(e=>e.event_type==="quiz_attempt");
+ const attempts=topics.reduce((n,t)=>n+(Number(t.attempts)||0),0);
+ const correct=topics.reduce((n,t)=>n+(Number(t.correct_answers)||0),0);
+ $("statQuizzes").textContent=quizEvents.length;
+ $("statQuestions").textContent=attempts;
+ $("statAccuracy").textContent=attempts?Math.round(correct/attempts)+"%":"—";
+ $("statMistakes").textContent=mistakes.filter(m=>m.status!=="mastered").length;
+ $("topicsList").innerHTML=topics.length?topics.map(t=>{
+   const score=Math.round(Number(t.mastery_score)||0);
+   const cls=score<60?"low":score>=80?"good":"";
+   return '<div class="topic-row"><div style="flex:1;min-width:0"><strong>'+esc(t.topic)+'</strong><div class="small">'+esc(t.subject)+' · '+(Number(t.correct_answers)||0)+' correct of '+(Number(t.attempts)||0)+' answers</div><div class="meter"><span style="width:'+Math.max(0,Math.min(100,score))+'%"></span></div><div class="small">Suggested review: '+(t.next_review_at?date(t.next_review_at):"Not scheduled")+'</div></div><span class="pill '+cls+'">'+score+'% mastery</span></div>';
+ }).join(""):'<div class="empty">No topic progress yet. Complete a quiz to begin tracking your learning.</div>';
+ $("mistakesList").innerHTML=mistakes.length?mistakes.map(m=>{
+   const state=m.status==="mastered"?"Mastered":m.status==="practicing"?"Practicing":"Needs review";
+   return '<article class="mistake-row"><div style="flex:1;min-width:0"><strong>'+esc(m.question)+'</strong><div class="small">'+esc(m.subject)+' · '+esc(m.topic)+' · Seen '+(Number(m.occurrences)||1)+' time(s)</div><div class="small">Your answer: '+esc(m.selected_answer||"Not answered")+'</div><div class="small">Correct answer: <strong>'+esc(m.correct_answer)+'</strong></div>'+(m.explanation?'<div class="small">'+esc(m.explanation)+'</div>':"")+'<div class="mistake-actions"><button class="secondary" data-mistake="'+esc(m.id)+'" data-status="practicing" type="button">Practice again</button><button class="secondary" data-mistake="'+esc(m.id)+'" data-status="mastered" type="button">Mark mastered</button></div></div><span class="pill '+(m.status==="mastered"?"good":"low")+'">'+state+'</span></article>';
+ }).join(""):'<div class="empty">No mistakes recorded yet. That's a good start—complete a quiz to build your review list.</div>';
+ $("activityList").innerHTML=events.length?events.slice(0,15).map(e=>{
+   const label=e.event_type==="quiz_attempt"?"Quiz attempt":e.event_type==="lesson_completed"?"Lesson completed":e.event_type==="flashcard_review"?"Flashcard review":"Study session";
+   const result=e.score!==null&&e.max_score?" · "+e.score+"/"+e.max_score:"";
+   return '<div class="activity-row"><div><strong>'+esc(e.title)+'</strong><div class="small">'+esc(label)+' · '+esc(e.subject)+' / '+esc(e.topic)+result+'</div></div><span class="small">'+date(e.occurred_at)+'</span></div>';
+ }).join(""):'<div class="empty">No activity recorded yet. Your completed EduSow quizzes will appear here.</div>';
+}
+async function refresh(){
+ status("Loading your learning records…",false);
+ try{const data=await window.EduSowLearning.loadDashboard();render(data);status("Your private learning records are up to date.",false);}
+ catch(error){console.error(error);status(error.message||"Could not load your learning records. Please reload and try again.",true);}
+}
+$("saveContext").addEventListener("click",function(){
+ const subject=$("contextSubject").value.trim()||"General";
+ const topic=$("contextTopic").value.trim()||"Uncategorized";
+ try{localStorage.setItem("edusowLearningSubject",subject);localStorage.setItem("edusowLearningTopic",topic);$("contextStatus").textContent="Saved. Future quiz attempts will use this subject and topic.";}
+ catch(_){$("contextStatus").textContent="This browser could not save the study context.";}
+});
+$("askCoach").addEventListener("click",async function(){
+ const button=$("askCoach"),answer=$("coachAnswer");
+ button.disabled=true;button.textContent="Reviewing your progress…";answer.hidden=false;answer.textContent="Your learning coach is reviewing the records available in this dashboard.";
+ try{if(!snapshot)snapshot=await window.EduSowLearning.loadDashboard();answer.textContent=await window.EduSowLearning.askCoach($("coachQuestion").value,snapshot,$("coachLanguage").value);}
+ catch(error){answer.textContent=error.message||"The learning coach could not respond. Please try again."; }
+ finally{button.disabled=false;button.textContent="Ask my learning coach";}
+});
+$("mistakesList").addEventListener("click",async function(event){
+ const button=event.target.closest("button[data-mistake]");if(!button)return;
+ button.disabled=true;
+ try{await window.EduSowLearning.updateMistakeStatus(button.dataset.mistake,button.dataset.status);await refresh();}
+ catch(error){status(error.message||"Could not update this mistake.",true);button.disabled=false;}
+});
+try{
+ const subject=localStorage.getItem("edusowLearningSubject");const topic=localStorage.getItem("edusowLearningTopic");
+ if(subject)$("contextSubject").value=subject;if(topic)$("contextTopic").value=topic;
+}catch(_){}
+refresh();
+})();
+</script>
+</body>
+</html>
