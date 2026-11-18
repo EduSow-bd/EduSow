@@ -67,7 +67,9 @@
     const userId = auth.data.user.id;
     const context = getStudyContext();
     const subject = safeText(payload.subject, 80, context.subject);
-    const topic = safeText(payload.topic, 160, context.topic);
+    const source = safeText(payload.source, 180, "EduSow Quiz Generator");
+    const inferredTopic = context.topic === "Uncategorized" && source !== "EduSow Quiz Generator" ? source : context.topic;
+    const topic = safeText(payload.topic, 160, inferredTopic);
     const questions = Array.isArray(payload.questions) ? payload.questions.slice(0, 30) : [];
     const score = Math.max(0, Number(payload.score) || 0);
     const maxScore = Math.max(1, Number(payload.maxScore) || questions.length || 1);
@@ -84,7 +86,7 @@
       details: {
         percentage: Math.round((score / maxScore) * 100),
         question_count: questions.length,
-        source: safeText(payload.source, 180, "EduSow Quiz Generator")
+        source: source
       }
     };
 
@@ -166,6 +168,26 @@
     return { eventId: eventResult.data.id, mistakesRecorded: mistakes.length, mastery: mastery };
   }
 
+  async function recordStudySession(payload) {
+    const client = await getClient();
+    const auth = await client.auth.getUser();
+    if (auth.error || !auth.data.user) throw auth.error || new Error("Student session unavailable.");
+    const context = getStudyContext();
+    const durationSeconds = Math.max(0, Math.min(86400, Math.floor(Number(payload.durationSeconds) || 0)));
+    if (durationSeconds < 1) return null;
+    const result = await client.from("learning_events").insert({
+      user_id: auth.data.user.id,
+      event_type: "study_session",
+      subject: safeText(payload.subject, 80, context.subject),
+      topic: safeText(payload.topic, 160, context.topic),
+      title: safeText(payload.title, 200, "Study session"),
+      duration_seconds: durationSeconds,
+      details: { source: "EduSow Pomodoro / Study Tracker" }
+    }).select("id").single();
+    if (result.error) throw result.error;
+    return result.data.id;
+  }
+
   async function loadDashboard() {
     const client = await getClient();
     const auth = await client.auth.getUser();
@@ -238,6 +260,7 @@
   window.EduSowLearning = {
     getClient: getClient,
     recordQuizAttempt: recordQuizAttempt,
+    recordStudySession: recordStudySession,
     loadDashboard: loadDashboard,
     updateMistakeStatus: updateMistakeStatus,
     askCoach: askCoach,
