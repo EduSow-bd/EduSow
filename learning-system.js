@@ -110,14 +110,15 @@
     });
 
     if (mistakes.length) {
-      const hashes = mistakes.map(item => item.question_hash);
+      const uniqueMistakes = Array.from(new Map(mistakes.map(item => [item.question_hash, item])).values());
+      const hashes = uniqueMistakes.map(item => item.question_hash);
       const existingResult = await client.from("learning_mistakes")
         .select("question_hash,occurrences,status")
         .eq("user_id", userId)
         .in("question_hash", hashes);
       if (existingResult.error) throw existingResult.error;
       const existing = new Map((existingResult.data || []).map(item => [item.question_hash, item]));
-      const mergedMistakes = mistakes.map(item => {
+      const mergedMistakes = uniqueMistakes.map(item => {
         const priorMistake = existing.get(item.question_hash);
         return {
           ...item,
