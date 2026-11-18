@@ -26,6 +26,8 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="learning-system.js"></script>
+
     <!-- PDF.js -->
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     
@@ -2273,6 +2275,10 @@ footer nav.footer-links a:focus-visible {
                 <span class="toolkit-icon">👥</span><span class="toolkit-card-arrow">↗</span>
                 <h3>Study Together</h3><p>Create private groups with friends and share lessons, quizzes, flashcards and study materials.</p><span class="toolkit-link">Study with friends <span>→</span></span>
             </a>
+            <a class="toolkit-card toolkit-green" href="learning-dashboard.html">
+                <span class="toolkit-icon">🧠</span><span class="toolkit-card-arrow">↗</span>
+                <h3>My Learning Dashboard</h3><p>Track quiz results, revisit mistakes and get study recommendations based on your progress.</p><span class="toolkit-link">View my learning <span>→</span></span>
+            </a>
         </div>
         <p class="toolkit-seo-link" style="margin-top:18px;text-align:center;color:#64748b;font-size:14px;">
             Learn how <a href="/ai-diagram-explainer.html" style="color:#2563eb;font-weight:700;">EduSow explains diagrams, charts, graphs and visual study materials with AI</a>.
@@ -4362,6 +4368,34 @@ async function generateQuizFromPDF() {
 
             result.style.display = "block";
             completedQuizScore = { score, percentage, wrongAnswerNumbers };
+
+            // Save quiz outcomes to EduSow's connected learning history without interrupting quiz review.
+            if (window.EduSowLearning && typeof window.EduSowLearning.recordQuizAttempt === "function") {
+                const learningQuestions = generatedQuiz.map((question, index) => {
+                    const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+                    const correctIndex = Number(question.answer);
+                    const options = Array.isArray(question.options) ? question.options : [];
+                    return {
+                        question: question.question || question.text || ("Question " + (index + 1)),
+                        selectedAnswer: selected ? (options[Number(selected.value)] || "Selected option") : "Not answered",
+                        correctAnswer: options[correctIndex] || "Answer unavailable",
+                        explanation: question.explanation || "",
+                        correct: !!selected && Number(selected.value) === correctIndex
+                    };
+                });
+                const sourceLabel = (document.getElementById("selectedFileName")?.textContent || "").trim();
+                window.EduSowLearning.recordQuizAttempt({
+                    title: "Quiz: " + (sourceLabel && sourceLabel !== "No file selected" ? sourceLabel : "Study material"),
+                    source: sourceLabel || "EduSow Quiz Generator",
+                    score: score,
+                    maxScore: generatedQuiz.length,
+                    questions: learningQuestions
+                }).then(function (saved) {
+                    console.info("EduSow learning record saved.", saved);
+                }).catch(function (error) {
+                    console.warn("Quiz completed, but the learning record could not be saved:", error);
+                });
+            }
 
             result.innerHTML = `
                 <h3>🏆 Quiz Result</h3>
