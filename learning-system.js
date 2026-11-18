@@ -219,6 +219,18 @@
     if (result.error) throw result.error;
   }
 
+  async function deleteLearningRecords() {
+    const client = await getClient();
+    const auth = await client.auth.getUser();
+    if (auth.error || !auth.data.user) throw auth.error || new Error("Student session unavailable.");
+    const userId = auth.data.user.id;
+    const tables = ["learning_mistakes", "learning_topic_progress", "learning_events"];
+    for (const table of tables) {
+      const result = await client.from(table).delete().eq("user_id", userId);
+      if (result.error) throw result.error;
+    }
+  }
+
   async function askCoach(question, data, language) {
     const client = await getClient();
     const snapshot = data || await loadDashboard();
@@ -263,6 +275,7 @@
     recordStudySession: recordStudySession,
     loadDashboard: loadDashboard,
     updateMistakeStatus: updateMistakeStatus,
+    deleteLearningRecords: deleteLearningRecords,
     askCoach: askCoach,
     getStudyContext: getStudyContext
   };
