@@ -5040,6 +5040,14 @@ async function generateFlashcardsFromPDF() {
         function recordStudyBlock(durationMs, endedAt = Date.now(), label = "Study session") {
             if (!Number.isFinite(durationMs) || durationMs < 1000) return;
             studyState.sessions.push({ durationMs: Math.floor(durationMs), endedAt, label });
+            if (window.EduSowLearning && typeof window.EduSowLearning.recordStudySession === "function") {
+                window.EduSowLearning.recordStudySession({
+                    title: label,
+                    durationSeconds: Math.floor(durationMs / 1000)
+                }).catch(function (error) {
+                    console.warn("Study time was saved locally, but the learning record could not be synced:", error);
+                });
+            }
             // Keep the local history manageable while preserving long-term totals for typical use.
             if (studyState.sessions.length > 2000) studyState.sessions = studyState.sessions.slice(-2000);
         }
