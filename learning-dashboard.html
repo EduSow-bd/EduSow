@@ -114,7 +114,7 @@ function render(data){
  $("mistakesList").innerHTML=mistakes.length?mistakes.map(m=>{
    const state=m.status==="mastered"?"Mastered":m.status==="practicing"?"Practicing":"Needs review";
    return '<article class="mistake-row"><div style="flex:1;min-width:0"><strong>'+esc(m.question)+'</strong><div class="small">'+esc(m.subject)+' · '+esc(m.topic)+' · Seen '+(Number(m.occurrences)||1)+' time(s)</div><div class="small">Your answer: '+esc(m.selected_answer||"Not answered")+'</div><div class="small">Correct answer: <strong>'+esc(m.correct_answer)+'</strong></div>'+(m.explanation?'<div class="small">'+esc(m.explanation)+'</div>':"")+'<div class="mistake-actions"><button class="secondary" data-mistake="'+esc(m.id)+'" data-status="practicing" type="button">Practice again</button><button class="secondary" data-mistake="'+esc(m.id)+'" data-status="mastered" type="button">Mark mastered</button></div></div><span class="pill '+(m.status==="mastered"?"good":"low")+'">'+state+'</span></article>';
- }).join(""):'<div class="empty">No mistakes recorded yet. That's a good start—complete a quiz to build your review list.</div>';
+ }).join(""):'<div class="empty">No mistakes recorded yet. That is a good start—complete a quiz to build your review list.</div>';
  $("activityList").innerHTML=events.length?events.slice(0,15).map(e=>{
    const label=e.event_type==="quiz_attempt"?"Quiz attempt":e.event_type==="lesson_completed"?"Lesson completed":e.event_type==="flashcard_review"?"Flashcard review":"Study session";
    const result=e.score!==null&&e.max_score?" · "+e.score+"/"+e.max_score:"";
