@@ -110,7 +110,22 @@
     });
 
     if (mistakes.length) {
-      const mistakeResult = await client.from("learning_mistakes").upsert(mistakes, {
+      const hashes = mistakes.map(item => item.question_hash);
+      const existingResult = await client.from("learning_mistakes")
+        .select("question_hash,occurrences,status")
+        .eq("user_id", userId)
+        .in("question_hash", hashes);
+      if (existingResult.error) throw existingResult.error;
+      const existing = new Map((existingResult.data || []).map(item => [item.question_hash, item]));
+      const mergedMistakes = mistakes.map(item => {
+        const priorMistake = existing.get(item.question_hash);
+        return {
+          ...item,
+          occurrences: (Number(priorMistake && priorMistake.occurrences) || 0) + 1,
+          status: priorMistake && priorMistake.status === "mastered" ? "needs_review" : (priorMistake && priorMistake.status || item.status)
+        };
+      });
+      const mistakeResult = await client.from("learning_mistakes").upsert(mergedMistakes, {
         onConflict: "user_id,question_hash",
         ignoreDuplicates: false
       });
