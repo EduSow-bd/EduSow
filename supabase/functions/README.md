@@ -22,3 +22,11 @@ The frontend sends { text, language, detail, images }, where language is english
 ### Important operational note
 
 This function processes text through the configured Gemini API and is called from a public website. Before promoting it widely, add server-side abuse protection/rate limits and review AI provider usage and billing. Do not upload confidential or sensitive documents.
+
+## Intelligent Learning Coach
+
+The `learning-dashboard.html` page uses `learning-system.js` to record completed quizzes, study sessions, topic progress and mistakes in the Supabase tables created by `supabase/migrations/20261118135237_intelligent_learning_core.sql`.
+
+The frontend and Study Together share the same Supabase anonymous-session storage key so the student's pseudonymous identity is consistent across both experiences. Learning records are protected by owner-scoped RLS policies. The dashboard includes a control to delete the current session's learning records.
+
+The Personal AI Learning Coach is deployed as the `learning-coach` Edge Function. Its source is in `supabase/functions/learning-coach/index.ts`. It requires the existing `GEMINI_API_KEY` Supabase secret and gateway JWT verification is enabled. The function receives a compact learning summary, recent mistakes, topic progress and the student's question; it does not query the database directly.
