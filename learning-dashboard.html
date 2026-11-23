@@ -61,7 +61,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
  <div class="card"><div class="stat-label">Overall accuracy</div><div class="stat-value" id="statAccuracy">—</div><div class="stat-note">Based on recorded answers</div></div>
  <div class="card"><div class="stat-label">To review</div><div class="stat-value" id="statMistakes">—</div><div class="stat-note">Mistakes not yet mastered</div></div>
 </section>
-<section class="card section">
+<section class="card section" id="studyContextSection">
  <div class="section-head"><h2>Your study context</h2><span class="small">Used to organize future quiz results</span></div>
  <div class="context-grid"><label class="small">Subject<input id="contextSubject" maxlength="80" placeholder="e.g. Mathematics"></label><label class="small">Current topic<input id="contextTopic" maxlength="160" placeholder="e.g. Fractions"></label></div>
  <button id="saveContext" class="secondary" type="button">Save study context</button>
@@ -74,11 +74,17 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
  <div class="context-grid"><label class="small">Response language<select id="coachLanguage"><option>English</option><option>Bangla</option></select></label><div style="display:flex;align-items:end"><button id="askCoach" type="button">Ask my learning coach</button></div></div>
  <div id="coachAnswer" class="answer" hidden></div>
 </section>
-<section class="card section">
+<section class="card section" id="learningPathSection">
+ <div class="section-head"><div><span class="eyebrow">Personalised study guidance</span><h2>Your Smart Learning Path</h2></div><span class="pill">Updates with your progress</span></div>
+ <h3 id="pathHeading">Preparing your next steps…</h3>
+ <p class="small" id="pathExplanation">EduSow is reviewing your topic progress and open mistakes.</p>
+ <div id="learningPathSteps" class="context-grid"></div>
+</section>
+<section class="card section" id="topicsSection">
  <div class="section-head"><h2>Topics to improve</h2><span class="small">Ordered by recorded mastery</span></div>
  <div id="topicsList"><div class="empty">Your topic progress will appear after you complete a quiz on EduSow.</div></div>
 </section>
-<section class="card section">
+<section class="card section" id="mistakesSection">
  <div class="section-head"><h2>Mistakes to revisit</h2><span class="small">Repeated incorrect answers are grouped together</span></div>
  <div id="mistakesList"><div class="empty">No mistakes recorded yet. Complete a quiz to start building your review list.</div></div>
 </section>
