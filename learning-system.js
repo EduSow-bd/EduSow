@@ -71,7 +71,7 @@
         explanation: "Complete a quiz and EduSow will use your results to identify topics that need attention.",
         steps: [
           { title: "Choose your subject and topic", detail: "Set your study context so your next quiz is organised correctly.", label: "Set study context", href: "#studyContextSection" },
-          { title: "Take a short practice quiz", detail: "Your answers help EduSow understand what you already know.", label: "Create a quiz", href: "#materials" },
+          { title: "Take a short practice quiz", detail: "Your answers help EduSow understand what you already know.", label: "Create a quiz", href: "index.html#materials" },
           { title: "Return to see your recommendations", detail: "Your learning path updates when new quiz results are recorded.", label: "View progress", href: "#topicsSection" }
         ]
       };
@@ -81,14 +81,14 @@
     const mastery = Math.max(0, Math.min(100, Number(focus.mastery_score) || 0));
     const due = !focus.next_review_at || new Date(focus.next_review_at).getTime() <= now;
     const first = mastery < 60
-      ? { title: "Rebuild the key ideas", detail: "Review " + topic + " in " + subject + " before attempting another quiz.", label: "Explain this topic", href: "#explainMaterialsLaunch" }
+      ? { title: "Rebuild the key ideas", detail: "Review " + topic + " in " + subject + " before attempting another quiz.", label: "Explain this topic", href: "index.html#explainMaterialsLaunch" }
       : { title: due ? "Refresh this topic" : "Strengthen your understanding", detail: "Work through the important ideas in " + topic + " and check anything uncertain.", label: "Open study materials", href: "#materials" };
     const steps = [
       first,
       { title: "Check what you understand", detail: "Take a fresh practice quiz on " + topic + " and compare your result.", label: "Create a quiz", href: "#materials" },
       openMistakes.length
         ? { title: "Revisit your mistakes", detail: "You have " + openMistakes.length + " question(s) still marked for review.", label: "Review mistakes", href: "#mistakesSection" }
-        : { title: "Make the ideas stick", detail: "Create flashcards for the key facts and concepts in " + topic + ".", label: "Open flashcards", href: "#flashcards" }
+        : { title: "Make the ideas stick", detail: "Create flashcards for the key facts and concepts in " + topic + ".", label: "Open flashcards", href: "index.html#flashcards" }
     ];
     return {
       heading: "Your next focus: " + topic,
