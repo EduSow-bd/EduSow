@@ -82,10 +82,10 @@
     const due = !focus.next_review_at || new Date(focus.next_review_at).getTime() <= now;
     const first = mastery < 60
       ? { title: "Rebuild the key ideas", detail: "Review " + topic + " in " + subject + " before attempting another quiz.", label: "Explain this topic", href: "index.html#explainMaterialsLaunch" }
-      : { title: due ? "Refresh this topic" : "Strengthen your understanding", detail: "Work through the important ideas in " + topic + " and check anything uncertain.", label: "Open study materials", href: "#materials" };
+      : { title: due ? "Refresh this topic" : "Strengthen your understanding", detail: "Work through the important ideas in " + topic + " and check anything uncertain.", label: "Open study materials", href: "index.html#materials" };
     const steps = [
       first,
-      { title: "Check what you understand", detail: "Take a fresh practice quiz on " + topic + " and compare your result.", label: "Create a quiz", href: "#materials" },
+      { title: "Check what you understand", detail: "Take a fresh practice quiz on " + topic + " and compare your result.", label: "Create a quiz", href: "index.html#materials" },
       openMistakes.length
         ? { title: "Revisit your mistakes", detail: "You have " + openMistakes.length + " question(s) still marked for review.", label: "Review mistakes", href: "#mistakesSection" }
         : { title: "Make the ideas stick", detail: "Create flashcards for the key facts and concepts in " + topic + ".", label: "Open flashcards", href: "index.html#flashcards" }
