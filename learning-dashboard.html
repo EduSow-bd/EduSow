@@ -102,7 +102,16 @@ let snapshot=null;
 function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function status(message,error){const el=$("status");el.textContent=message;el.hidden=false;el.className=error?"error":"";}
 function date(value){try{return new Date(value).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});}catch(_){return "";}}
-function render(data){
+
+function renderLearningPath(data){
+ const path=window.EduSowLearning.buildLearningPath(data);
+ $("pathHeading").textContent=path.heading;
+ $("pathExplanation").textContent=path.explanation;
+ $("learningPathSteps").innerHTML=path.steps.map((step,index)=>
+  '<article class="card" style="padding:14px"><div class="small">STEP '+(index+1)+'</div><strong>'+esc(step.title)+'</strong><p class="small">'+esc(step.detail)+'</p><a class="button" href="'+step.href+'">'+esc(step.label)+' →</a></article>'
+ ).join("");
+}
+\nfunction render(data){
  snapshot=data;
  const events=data.events||[], mistakes=data.mistakes||[], topics=data.topics||[];
  const quizEvents=events.filter(e=>e.event_type==="quiz_attempt");
