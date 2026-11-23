@@ -117,7 +117,7 @@ function renderLearningPath(data){
   '<article class="card" style="padding:14px"><div class="small">STEP '+(index+1)+'</div><strong>'+esc(step.title)+'</strong><p class="small">'+esc(step.detail)+'</p><a class="button" href="'+step.href+'">'+esc(step.label)+' →</a></article>'
  ).join("");
 }
-\nfunction render(data){
+function render(data){
  snapshot=data;
  renderLearningPath(data);
  const events=data.events||[], mistakes=data.mistakes||[], topics=data.topics||[];
