@@ -119,6 +119,7 @@ function renderLearningPath(data){
 }
 \nfunction render(data){
  snapshot=data;
+ renderLearningPath(data);
  const events=data.events||[], mistakes=data.mistakes||[], topics=data.topics||[];
  const quizEvents=events.filter(e=>e.event_type==="quiz_attempt");
  const attempts=topics.reduce((n,t)=>n+(Number(t.attempts)||0),0);
